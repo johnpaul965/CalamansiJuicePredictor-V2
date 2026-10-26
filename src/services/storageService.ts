@@ -148,7 +148,7 @@ export function exportLogsToCsv(logs: PredictionLog[]): void {
     'Est. Fruit Count',
     'Simple Linear SLR (ml)',
     'Polynomial d=2 (ml)',
-    'Champion CB-Poly (ml)',
+    'Poly d=2 + ln(W) + Ridge (ml)',
   ];
 
   const rows = logs.map((l) => [

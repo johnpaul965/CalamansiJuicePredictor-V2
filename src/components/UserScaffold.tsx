@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Zap, BarChart3, Clock, LogOut, FlaskConical } from 'lucide-react';
+import { Zap, Clock, LogOut } from 'lucide-react';
 import { AppUser, PredictionLog } from '../types';
 import { PredictTab } from './PredictTab';
-import { ModelResultsTab } from './ModelResultsTab';
 import { HistoryTab } from './HistoryTab';
 
 interface UserScaffoldProps {
@@ -20,7 +19,7 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
   onClearLogs,
   onSignOut,
 }) => {
-  const [activeTab, setActiveTab] = useState<'predict' | 'results' | 'history'>('predict');
+  const [activeTab, setActiveTab] = useState<'predict' | 'history'>('predict');
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -91,19 +90,6 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             <Clock className="w-4 h-4" />
             <span>Harvest History</span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('results')}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 'results'
-                ? 'border-emerald-700 text-emerald-800'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <FlaskConical className="w-4 h-4 text-emerald-600" />
-            <span>Research Analytics Portal</span>
-          </button>
         </div>
       </nav>
 
@@ -114,11 +100,7 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             currentUser={currentUser}
             logs={logs}
             onRefreshLogs={onRefreshLogs}
-            onOpenResearchPortal={() => setActiveTab('results')}
           />
-        )}
-        {activeTab === 'results' && (
-          <ModelResultsTab onBackToPredict={() => setActiveTab('predict')} />
         )}
         {activeTab === 'history' && (
           <HistoryTab

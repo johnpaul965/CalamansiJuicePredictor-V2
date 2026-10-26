@@ -15,6 +15,10 @@ export interface PredictionResult {
   repWeight: number;
   slrTotalMl: number;
   polyTotalMl: number;
+  svrTotalMl: number;
+  xgbTotalMl: number;
+  catboostTotalMl: number;
+  rfTotalMl: number;
   cbPolyTotalMl: number;
   bottles330: number;
   bottles500: number;

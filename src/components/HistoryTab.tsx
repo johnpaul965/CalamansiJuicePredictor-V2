@@ -120,7 +120,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                       {item.weight}
                     </span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      <Award className="w-2.5 h-2.5" /> CB-Poly
+                      <Award className="w-2.5 h-2.5" /> Poly + ln(W) + Ridge
                     </span>
                   </div>
 

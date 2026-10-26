@@ -3,12 +3,8 @@ import {
   Zap,
   RotateCcw,
   Award,
-  Scale,
   PackageCheck,
   AlertCircle,
-  TrendingUp,
-  FlaskConical,
-  ExternalLink,
 } from 'lucide-react';
 import { AppUser, PredictionLog, PredictionResult } from '../types';
 import {
@@ -22,14 +18,12 @@ interface PredictTabProps {
   currentUser: AppUser;
   logs: PredictionLog[];
   onRefreshLogs: () => void;
-  onOpenResearchPortal?: () => void;
 }
 
 export const PredictTab: React.FC<PredictTabProps> = ({
   currentUser,
   logs,
   onRefreshLogs,
-  onOpenResearchPortal,
 }) => {
   const [unit, setUnit] = useState<'kg' | 'g'>('kg');
   const [weightValue, setWeightValue] = useState<string>('5');
@@ -276,7 +270,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Compare All 3
+                  Compare All 7
                 </button>
               </div>
             </div>
@@ -289,7 +283,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 <div>
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 text-[11px] font-bold uppercase tracking-wider mb-2">
                     <Award className="w-3 h-3 text-amber-300" />
-                    <span>CB-Poly Bio-Allometric Model</span>
+                    <span>Polynomial Regression (d=2) + ln(W) & L2 Ridge</span>
                   </div>
                   <div className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-white">
                     {result.cbPolyTotalMl.toFixed(2)} mL
@@ -323,118 +317,145 @@ export const PredictTab: React.FC<PredictTabProps> = ({
               </div>
             </div>
           ) : (
-            /* 3-Model Comparison Grid */
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* 1. Simple Linear Regression */}
-              <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Model 1
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full">
-                      Baseline
-                    </span>
+            /* 7-Model Live Comparison Grid */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                {
+                  label: 'Model 1',
+                  badge: 'Baseline',
+                  badgeCls: 'bg-slate-200 text-slate-700',
+                  title: 'Simple Linear (SLR)',
+                  totalMl: result.slrTotalMl,
+                  meta: THESIS_MODELS.slr,
+                },
+                {
+                  label: 'Model 2',
+                  badge: 'Quadratic',
+                  badgeCls: 'bg-blue-100 text-blue-800',
+                  title: 'Polynomial (d=2)',
+                  totalMl: result.polyTotalMl,
+                  meta: THESIS_MODELS.poly,
+                },
+                {
+                  label: 'Model 3',
+                  badge: 'W, W², ln(W) + ε-Margin',
+                  badgeCls: 'bg-purple-100 text-purple-800',
+                  title: 'SVR (RBF + Feature Layers)',
+                  totalMl: result.svrTotalMl,
+                  meta: THESIS_MODELS.svr,
+                },
+                {
+                  label: 'Model 4',
+                  badge: 'Symmetric + L2=8.0',
+                  badgeCls: 'bg-cyan-100 text-cyan-800',
+                  title: 'CatBoost (+ L2 Regularization)',
+                  totalMl: result.catboostTotalMl,
+                  meta: THESIS_MODELS.catboost,
+                },
+                {
+                  label: 'Model 5',
+                  badge: 'Asymmetric + λ=5.0',
+                  badgeCls: 'bg-indigo-100 text-indigo-800',
+                  title: 'XGBoost (+ L2 Regularization)',
+                  totalMl: result.xgbTotalMl,
+                  meta: THESIS_MODELS.xgboost,
+                },
+                {
+                  label: 'Model 6',
+                  badge: 'Pruned Bagging',
+                  badgeCls: 'bg-amber-100 text-amber-800',
+                  title: 'Random Forest (100 Pruned)',
+                  totalMl: result.rfTotalMl,
+                  meta: THESIS_MODELS.rf,
+                },
+              ].map((m) => (
+                <div
+                  key={m.title}
+                  className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        {m.label}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${m.badgeCls}`}>
+                        {m.badge}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-sm mb-3">{m.title}</h3>
+                    <div className="text-2xl font-extrabold font-mono text-slate-800 tracking-tight">
+                      {m.totalMl.toFixed(2)} mL
+                    </div>
+                    <div className="text-xs font-mono text-slate-500 mt-0.5">
+                      ~{(m.totalMl / 1000).toFixed(3)} L
+                    </div>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-sm mb-3">
-                    Simple Linear (SLR)
-                  </h3>
-                  <div className="text-2xl font-extrabold font-mono text-slate-800 tracking-tight">
-                    {result.slrTotalMl.toFixed(2)} mL
-                  </div>
-                  <div className="text-xs font-mono text-slate-500 mt-0.5">
-                    ~{(result.slrTotalMl / 1000).toFixed(3)} L
+
+                  <div className="pt-3 border-t border-slate-200 space-y-1.5 text-xs text-slate-600 mt-4">
+                    <div className="flex justify-between">
+                      <span>Correlation (r):</span>
+                      <span className="font-mono font-bold text-slate-800">
+                        {m.meta.correlationR.toFixed(4)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>R² Fit:</span>
+                      <span className="font-mono font-bold text-slate-800">
+                        {m.meta.r2Percent.toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>MAE:</span>
+                      <span className="font-mono text-slate-700">
+                        {m.meta.maeMl.toFixed(4)} mL
+                      </span>
+                    </div>
                   </div>
                 </div>
+              ))}
 
-                <div className="pt-3 border-t border-slate-200 space-y-1.5 text-xs text-slate-600 mt-4">
-                  <div className="flex justify-between">
-                    <span>Correlation (r):</span>
-                    <span className="font-mono font-bold text-slate-800">0.8887</span>
+              {/* 7. Polynomial Regression (d=2) + ln(W) & L2 Ridge */}
+              <div className="bg-emerald-50 rounded-2xl border-2 border-emerald-600 p-5 flex flex-col justify-between shadow-xs sm:col-span-2 lg:col-span-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                        Model 7
+                      </span>
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 bg-emerald-700 text-white rounded-full">
+                        ★ Best Performing Fit
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-emerald-950 text-base mb-1">
+                      Polynomial Regression (d=2) + ln(W) & L2 Ridge
+                    </h3>
+                    <div className="text-3xl font-extrabold font-mono text-emerald-700 tracking-tight">
+                      {result.cbPolyTotalMl.toFixed(2)} mL{' '}
+                      <span className="text-sm font-semibold text-emerald-800/80">
+                        (~{(result.cbPolyTotalMl / 1000).toFixed(3)} L)
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>R² Fit:</span>
-                    <span className="font-mono font-bold text-slate-800">78.98%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>MAE:</span>
-                    <span className="font-mono text-slate-700">0.5241 mL</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* 2. Polynomial Regression (d=2) */}
-              <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Model 2
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-                      Quadratic
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-slate-900 text-sm mb-3">
-                    Polynomial (d=2)
-                  </h3>
-                  <div className="text-2xl font-extrabold font-mono text-slate-800 tracking-tight">
-                    {result.polyTotalMl.toFixed(2)} mL
-                  </div>
-                  <div className="text-xs font-mono text-slate-500 mt-0.5">
-                    ~{(result.polyTotalMl / 1000).toFixed(3)} L
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-200 space-y-1.5 text-xs text-slate-600 mt-4">
-                  <div className="flex justify-between">
-                    <span>Correlation (r):</span>
-                    <span className="font-mono font-bold text-slate-800">0.8889</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>R² Fit:</span>
-                    <span className="font-mono font-bold text-slate-800">79.01%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>MAE:</span>
-                    <span className="font-mono text-slate-700">0.5242 mL</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. CB-Poly Champion */}
-              <div className="bg-emerald-50 rounded-2xl border-2 border-emerald-600 p-5 flex flex-col justify-between shadow-xs">
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-                      Model 3
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-700 text-white rounded-full">
-                      ★ Champion
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-emerald-950 text-sm mb-3">
-                    CB-Poly Bio-Allometric
-                  </h3>
-                  <div className="text-2xl font-extrabold font-mono text-emerald-700 tracking-tight">
-                    {result.cbPolyTotalMl.toFixed(2)} mL
-                  </div>
-                  <div className="text-xs font-mono text-emerald-800/80 font-semibold mt-0.5">
-                    ~{(result.cbPolyTotalMl / 1000).toFixed(3)} L
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-emerald-200 space-y-1.5 text-xs text-emerald-900 mt-4">
-                  <div className="flex justify-between">
-                    <span>Correlation (r):</span>
-                    <span className="font-mono font-bold text-emerald-700">0.9080</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>R² Fit:</span>
-                    <span className="font-mono font-bold text-emerald-700">82.45%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>MAE:</span>
-                    <span className="font-mono font-bold text-emerald-700">0.4812 mL</span>
+                  <div className="grid grid-cols-3 gap-3 text-xs text-emerald-900 bg-white/80 p-3.5 rounded-xl border border-emerald-200">
+                    <div>
+                      <div className="text-emerald-700/80">Correlation (r)</div>
+                      <div className="font-mono font-bold text-emerald-800 text-sm mt-0.5">
+                        {THESIS_MODELS.cbPoly.correlationR.toFixed(4)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-emerald-700/80">R² Fit</div>
+                      <div className="font-mono font-bold text-emerald-800 text-sm mt-0.5">
+                        {THESIS_MODELS.cbPoly.r2Percent.toFixed(2)}%
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-emerald-700/80">MAE</div>
+                      <div className="font-mono font-bold text-emerald-800 text-sm mt-0.5">
+                        {THESIS_MODELS.cbPoly.maeMl.toFixed(4)} mL
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -506,7 +527,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
                 <th className="py-2.5 px-3 font-mono">Simple Linear</th>
                 <th className="py-2.5 px-3 font-mono">Polynomial (d=2)</th>
-                <th className="py-2.5 px-3 font-mono text-emerald-700">CB-Poly Champion</th>
+                <th className="py-2.5 px-3 font-mono text-emerald-700">Poly + ln(W) + Ridge</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -534,29 +555,6 @@ export const PredictTab: React.FC<PredictTabProps> = ({
           </table>
         </div>
       </section>
-
-      {/* Discrete Link to Isolated Research Portal */}
-      {onOpenResearchPortal && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-          <div>
-            <div className="font-bold text-emerald-950 flex items-center gap-1.5">
-              <FlaskConical className="w-4 h-4 text-emerald-700" />
-              <span>Academic Model Analytics & Thesis Validation Portal</span>
-            </div>
-            <p className="text-emerald-800/80 mt-0.5">
-              Inspect Leave-One-Out Cross-Validation, Central Limit Theorem batch scaling proofs, and Chapter 4 benchmarks.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onOpenResearchPortal}
-            className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shrink-0 flex items-center gap-1.5 transition cursor-pointer shadow-xs"
-          >
-            <span>Open Research Portal</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
     </div>
   );
 };

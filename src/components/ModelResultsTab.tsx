@@ -81,7 +81,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>LOOCV & Bio-Allometric Model</span>
+              <span>Shared Pipeline & 7-Model Evaluation</span>
             </button>
             <button
               type="button"
@@ -108,14 +108,13 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
               <div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider mb-2">
                   <Award className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Proposed Champion Architecture</span>
+                  <span>Best Performing Standard Model</span>
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  Calamansi Bio-Allometric Polynomial (CB-Poly)
+                  Polynomial Regression (d=2) + ln(W) & L2 Ridge
                 </h2>
                 <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-                  Evaluated across all 1,519 clean physical specimens under Leave-One-Out Cross-Validation. 
-                  Incorporates citrus juice vesicle power-law growth dynamics via regularized allometric transformations.
+                  Standard quadratic polynomial regression augmented with a log-weight feature (<code className="font-mono text-emerald-200">ln W</code>) and L2 Ridge regularization (<code className="font-mono text-emerald-200">λ = 0.01</code>)—evaluated fairly alongside SVR, CatBoost, XGBoost, and Random Forest under the same 4-stage pipeline across N = 1,519 clean specimens.
                 </p>
               </div>
 
@@ -133,19 +132,19 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
             </div>
           </section>
 
-          {/* 4 Authentic Thesis Models Comparative Benchmark Suite */}
+          {/* 7 Authentic Thesis Models Comparative Benchmark Suite */}
           <section className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                  Statistical Model Evaluation & Benchmarking Suite (N = 1,519)
+                  7-Model Statistical & Machine Learning Benchmark Suite (N = 1,519)
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Direct evaluation of the 4 core models on weight-to-juice continuous fluid estimation:
+                  Independent cross-validation of classical regression, RBF-kernel SVR, asymmetric XGBoost, bagging Random Forest, symmetric CatBoost, and CB-Poly:
                 </p>
               </div>
               <div className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold self-start sm:self-auto">
-                Leave-One-Out Cross-Validation (LOOCV)
+                Cross-Validated (N = 1,519)
               </div>
             </div>
 
@@ -224,7 +223,37 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                     </td>
                   </tr>
 
-                  {/* 3. CatBoost / XGBoost */}
+                  {/* 3. Support Vector Regression (SVR - RBF + Feature Layers) */}
+                  <tr className="hover:bg-slate-50 transition">
+                    <td className="py-3.5 px-3.5 font-bold text-slate-800">
+                      {THESIS_MODELS.svr.name}
+                    </td>
+                    <td className="py-3.5 px-3.5 text-slate-600">
+                      {THESIS_MODELS.svr.role}
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
+                      {THESIS_MODELS.svr.correlationR.toFixed(4)}
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono font-medium text-slate-800">
+                      {THESIS_MODELS.svr.r2Percent.toFixed(2)}%
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
+                      {THESIS_MODELS.svr.maeMl.toFixed(4)} mL
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
+                      {THESIS_MODELS.svr.rmseMl.toFixed(4)} mL
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
+                      {THESIS_MODELS.svr.mapePercent.toFixed(2)}%
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right">
+                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-800 font-semibold text-[10px]">
+                        Layered SVR
+                      </span>
+                    </td>
+                  </tr>
+
+                  {/* 4. CatBoost Regressor (+ L2 Regularization) */}
                   <tr className="hover:bg-slate-50 transition">
                     <td className="py-3.5 px-3.5 font-bold text-slate-800">
                       {THESIS_MODELS.catboost.name}
@@ -248,13 +277,43 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                       {THESIS_MODELS.catboost.mapePercent.toFixed(2)}%
                     </td>
                     <td className="py-3.5 px-3.5 text-right">
-                      <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 font-semibold text-[10px]">
-                        Boosting Benchmark
+                      <span className="px-2 py-0.5 rounded bg-cyan-50 text-cyan-800 font-semibold text-[10px]">
+                        Layered CatBoost
                       </span>
                     </td>
                   </tr>
 
-                  {/* 4. Random Forest */}
+                  {/* 5. XGBoost Regressor (+ L2 Regularization) */}
+                  <tr className="hover:bg-slate-50 transition">
+                    <td className="py-3.5 px-3.5 font-bold text-slate-800">
+                      {THESIS_MODELS.xgboost.name}
+                    </td>
+                    <td className="py-3.5 px-3.5 text-slate-600">
+                      {THESIS_MODELS.xgboost.role}
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
+                      {THESIS_MODELS.xgboost.correlationR.toFixed(4)}
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono font-medium text-slate-800">
+                      {THESIS_MODELS.xgboost.r2Percent.toFixed(2)}%
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
+                      {THESIS_MODELS.xgboost.maeMl.toFixed(4)} mL
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
+                      {THESIS_MODELS.xgboost.rmseMl.toFixed(4)} mL
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
+                      {THESIS_MODELS.xgboost.mapePercent.toFixed(2)}%
+                    </td>
+                    <td className="py-3.5 px-3.5 text-right">
+                      <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 font-semibold text-[10px]">
+                        Layered XGBoost
+                      </span>
+                    </td>
+                  </tr>
+
+                  {/* 6. Random Forest (+ Pruned Bagging) */}
                   <tr className="hover:bg-slate-50 transition">
                     <td className="py-3.5 px-3.5 font-bold text-slate-800">
                       {THESIS_MODELS.rf.name}
@@ -279,12 +338,12 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                     </td>
                     <td className="py-3.5 px-3.5 text-right">
                       <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-semibold text-[10px]">
-                        ML Benchmark
+                        Layered Bagging
                       </span>
                     </td>
                   </tr>
 
-                  {/* 4. CB-Poly Champion */}
+                  {/* 7. Polynomial Regression (d=2) + ln(W) & L2 Ridge */}
                   <tr className="bg-emerald-50/80 font-semibold hover:bg-emerald-50 transition border-t-2 border-emerald-400">
                     <td className="py-3.5 px-3.5 font-bold text-emerald-950 flex items-center gap-1.5">
                       <Award className="w-4 h-4 text-emerald-700 shrink-0" />
@@ -310,7 +369,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                     </td>
                     <td className="py-3.5 px-3.5 text-right">
                       <span className="px-2.5 py-1 rounded bg-emerald-700 text-white font-extrabold text-[10px] shadow-xs">
-                        ★ TOP 1 CHAMPION
+                        ★ BEST FIT
                       </span>
                     </td>
                   </tr>
@@ -318,32 +377,43 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
               </table>
             </div>
 
-            <div className="mt-4 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 bg-purple-50/60 border border-purple-200 rounded-xl text-slate-700 leading-relaxed">
+                <strong className="text-purple-950">Effect of Shared Layers on SVR (78.93% → 79.10%):</strong>{' '}
+                Passing standardized <code className="font-mono">[W, W², ln(W)]</code> into RBF-SVR (<code className="font-mono">C=1.0, ε=0.1</code>) improved kernel distance geometry and lowered MAE to <code className="font-mono">0.5209 mL</code>, outperforming all tree ensembles.
+              </div>
+              <div className="p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl text-slate-700 leading-relaxed">
+                <strong className="text-indigo-950">Why Trees Ignore ln(W) but Gain from Regularization:</strong>{' '}
+                Because <code className="font-mono">W²</code> and <code className="font-mono">ln(W)</code> are monotonic in <code className="font-mono">W</code>, tree split thresholds do not change; however, Stage 4 L2 leaf regularization lifted CatBoost (<code className="font-mono">78.90%</code>) and XGBoost (<code className="font-mono">78.87%</code>).
+              </div>
+            </div>
+
+            <div className="mt-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
               <span>Thesis Institutional Standard: Target R² ≥ 80.00%</span>
               <span className="font-bold text-emerald-700 font-mono">
-                CB-Poly: 82.45% (+3.47% over Linear, +4.05% over Random Forest)
+                Poly (d=2) + ln(W) + Ridge: 82.45% (+3.35% over Layered SVR, +3.55% over CatBoost, +3.58% over XGBoost)
               </span>
             </div>
           </section>
 
-          {/* 4-Layer Bio-Allometric Architecture Pipeline */}
+          {/* Shared 4-Stage Pipeline Applied Across All Models */}
           <section className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7">
             <div className="flex items-center gap-2 mb-2">
               <Layers className="w-5 h-5 text-emerald-700" />
               <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                Bio-Allometric Architectural Pipeline
+                Shared 4-Stage Preprocessing, Feature & Regularization Pipeline
               </h3>
             </div>
             <p className="text-xs text-slate-500 mb-5">
-              Structural layers connecting raw harvest mass measurements to regularized continuous juice yield:
+              Applied uniformly across all evaluated models—showing what modification was applied at each stage rather than inventing a new model name:
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {CB_POLY_PIPELINE_LAYERS.map((layer, index) => (
+              {CB_POLY_PIPELINE_LAYERS.map((layer) => (
                 <div key={layer.step} className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-1.5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-bold text-slate-900">{layer.step}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono shrink-0">
                       {layer.status}
                     </span>
                   </div>
@@ -357,13 +427,13 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
             {/* Formula Block */}
             <div className="mt-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1.5">
               <div className="text-xs font-bold text-emerald-950 uppercase tracking-wider">
-                Champion Algebraic Specification
+                Polynomial Regression (d=2) + ln(W) & L2 Ridge — Fitted Equation
               </div>
               <code className="block p-3 rounded-lg bg-white border border-emerald-300 font-mono text-xs sm:text-sm text-emerald-900 font-bold overflow-x-auto">
                 Juice (mL) = -0.2805 + 0.6002(W) - 0.00410(W²) - 0.5700·ln(W)
               </code>
               <p className="text-[11px] text-emerald-800 mt-1">
-                Where <strong>W</strong> represents sample mass in grams, <strong>W²</strong> damps high-mass compression resistance, and <strong>ln(W)</strong> incorporates the biological allometric expansion rate of citrus vesicles.
+                Standard degree-2 polynomial in weight (<strong>W, W²</strong>) plus natural-log weight feature (<strong>ln W</strong>) fitted with L2 Ridge penalty (<strong>λ = 0.01</strong>) to control multicollinearity between W and ln(W).
               </p>
             </div>
           </section>
@@ -568,7 +638,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
               <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300">
                 <div className="text-xs font-bold text-emerald-950 mb-1 flex items-center gap-1.5">
                   <Award className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>3. Calamansi Bio-Allometric Polynomial (CB-Poly) — Champion:</span>
+                  <span>3. Polynomial Regression (Degree 2) + ln(W) & L2 Ridge:</span>
                 </div>
                 <code className="block p-3 rounded-lg bg-white border border-emerald-200 font-mono text-xs sm:text-sm text-emerald-900 font-bold overflow-x-auto">
                   Juice (mL) = -0.2805 + 0.6002(W) - 0.00410(W²) - 0.5700·ln(W)

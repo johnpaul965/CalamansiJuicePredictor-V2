@@ -393,7 +393,7 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
                       <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
                       <th className="py-2.5 px-3 font-mono">Simple Linear</th>
                       <th className="py-2.5 px-3 font-mono">Polynomial (d=2)</th>
-                      <th className="py-2.5 px-3 font-mono text-emerald-700">CB-Poly Champion</th>
+                      <th className="py-2.5 px-3 font-mono text-emerald-700">Poly + ln(W) + Ridge</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
