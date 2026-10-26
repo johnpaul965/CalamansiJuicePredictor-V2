@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Clock, Search, Trash2, Award, Calendar, Weight, Layers } from 'lucide-react';
+import { Clock, Search, Trash2, Award, Calendar, Scale, Download } from 'lucide-react';
 import { AppUser, PredictionLog } from '../types';
 import { ConfirmModal } from './Modals';
+import { exportLogsToCsv } from '../services/storageService';
 
 interface HistoryTabProps {
   currentUser: AppUser;
@@ -26,9 +27,9 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
     const q = searchQuery.toLowerCase();
     return (
       l.weight.toLowerCase().includes(q) ||
-      l.size.toLowerCase().includes(q) ||
       l.date.toLowerCase().includes(q) ||
-      l.poly.toLowerCase().includes(q)
+      l.cbPoly.toLowerCase().includes(q) ||
+      l.user.toLowerCase().includes(q)
     );
   });
 
@@ -43,20 +44,33 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
               <span>Harvest Prediction History</span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Review your logged calamansi yield calculations and regression outputs
+              Review and audit logged calamansi batch calculations and juice yield outputs
             </p>
           </div>
 
-          {userLogs.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowClearConfirm(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 text-red-700 hover:bg-red-50 text-xs font-semibold transition self-start sm:self-auto cursor-pointer"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Clear History</span>
-            </button>
-          )}
+          <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+            {userLogs.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => exportLogsToCsv(userLogs)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer shadow-2xs"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Export CSV</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowClearConfirm(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 text-red-700 hover:bg-red-50 text-xs font-semibold transition cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear History</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -65,7 +79,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
             <Search className="absolute left-3 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by weight, size grade, or date..."
+              placeholder="Search by weight, fruit count, or date..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition"
@@ -103,23 +117,23 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-slate-900 text-sm">
-                      Polynomial Regression (d=2)
+                      {item.weight}
                     </span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      <Award className="w-2.5 h-2.5" /> Best
+                      <Award className="w-2.5 h-2.5" /> CB-Poly
                     </span>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 mt-1">
-                    <span className="font-semibold text-slate-800">{item.weight}</span>
-                    <span>•</span>
-                    <span className="text-emerald-700 font-medium font-mono">~{item.count} fruits</span>
+                    <span className="text-emerald-700 font-medium font-mono">
+                      ~{item.count} calamansi fruits
+                    </span>
                     <span>•</span>
                     <span className="font-mono text-[11px] text-slate-400">{item.date}</span>
                     {currentUser.role === 'admin' && (
                       <>
                         <span>•</span>
-                        <span className="text-slate-400">by {item.user}</span>
+                        <span className="text-slate-400">User: {item.user}</span>
                       </>
                     )}
                   </div>
@@ -128,10 +142,10 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
 
               <div className="sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
                 <div className="text-xl font-extrabold font-mono text-emerald-700">
-                  {item.poly}
+                  {item.cbPoly}
                 </div>
                 <div className="text-[11px] font-mono text-slate-400 mt-0.5">
-                  SLR: {item.slr} | MLR: {item.mlr}
+                  SLR: {item.slr} | Poly: {item.poly}
                 </div>
               </div>
             </div>

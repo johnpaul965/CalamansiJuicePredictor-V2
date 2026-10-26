@@ -11,13 +11,10 @@ import {
   KeyRound,
   CheckCircle,
   Ban,
-  ArrowLeftRight,
-  Sprout,
-  Zap,
+  FlaskConical,
 } from 'lucide-react';
 import { AppUser, PredictionLog, UserRole } from '../types';
 import { ModelResultsTab } from './ModelResultsTab';
-import { PredictTab } from './PredictTab';
 import { exportLogsToCsv } from '../services/storageService';
 import { ConfirmModal, ResetPasswordModal, AddUserModal } from './Modals';
 
@@ -42,8 +39,7 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
   onSignOut,
   onShowToast,
 }) => {
-  const [activeTab, setActiveTab] = useState<0 | 1 | 2 | 3>(0);
-  // 0: Model Analytics, 1: User Management, 2: Prediction Audit Logs, 3: Yield Calculator
+  const [activeTab, setActiveTab] = useState<'users' | 'audit' | 'research'>('users');
 
   // Modals state
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -98,48 +94,56 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
   };
 
   const handleCreateUser = (username: string, pass: string, role: UserRole): string | null => {
-    if (users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
-      return 'User already exists!';
+    const trimmed = username.trim().toLowerCase();
+    if (!trimmed) return 'Username cannot be blank.';
+    if (users.some((u) => u.username.toLowerCase() === trimmed)) {
+      return 'That username already exists in the system.';
     }
+    if (pass.length < 4) {
+      return 'Password must be at least 4 characters.';
+    }
+
     const newUser: AppUser = {
       id: `user-${Date.now()}`,
-      username,
+      username: trimmed,
       password: pass,
       role,
       status: 'Active',
       joined: new Date().toISOString().split('T')[0],
     };
+
     onUpdateUsers([...users, newUser]);
-    onShowToast(`Created new user "${username}"`);
+    onShowToast(`Created ${role} account: ${trimmed}`);
+    setIsAddUserOpen(false);
     return null;
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Admin Header */}
-      <header className="bg-slate-900 text-white shadow-sm sticky top-0 z-30">
+      {/* Admin AppBar */}
+      <header className="bg-slate-900 text-white shadow-sm sticky top-0 z-30 border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-2xl shadow-inner select-none">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-xl shadow-inner select-none">
               🛡️
             </div>
             <div>
               <div className="font-extrabold text-base sm:text-lg leading-tight tracking-tight flex items-center gap-2">
-                <span>Calamansi Yield Admin</span>
-                <span className="bg-amber-500 text-slate-950 font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span>Calamansi Yield Engine</span>
+                <span className="text-[10px] bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Admin Console
                 </span>
               </div>
               <div className="text-[11px] text-slate-400 font-medium">
-                Leyte Normal University • Research & Operations
+                Leyte Normal University • Tacloban City Study
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-slate-800 py-1.5 px-3 rounded-full border border-slate-700">
-              <span className="text-xs text-slate-400">Logged in as:</span>
-              <span className="text-xs font-bold text-amber-400 font-mono">
+            <div className="flex items-center gap-2 bg-slate-800 py-1.5 px-3 rounded-full border border-slate-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-semibold text-slate-200">
                 {currentUser.username}
               </span>
             </div>
@@ -156,146 +160,131 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
         </div>
       </header>
 
-      {/* Admin Tabs */}
+      {/* Admin Navigation Bar - Strictly Administrative Roles */}
       <nav className="bg-white border-b border-slate-200 sticky top-16 z-20 shadow-2xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-2 sm:gap-4 overflow-x-auto">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-1 sm:gap-3 overflow-x-auto">
           <button
             type="button"
-            onClick={() => setActiveTab(0)}
+            onClick={() => setActiveTab('users')}
             className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 0
-                ? 'border-emerald-700 text-emerald-800'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Model Analytics</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab(1)}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 1
+              activeTab === 'users'
                 ? 'border-emerald-700 text-emerald-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>User Management ({users.length})</span>
+            <span>User Management</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-100 rounded-full text-slate-600">
+              {users.length}
+            </span>
           </button>
 
           <button
             type="button"
-            onClick={() => setActiveTab(2)}
+            onClick={() => setActiveTab('audit')}
             className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 2
+              activeTab === 'audit'
                 ? 'border-emerald-700 text-emerald-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
             <FileSpreadsheet className="w-4 h-4" />
-            <span>Prediction Audit Logs ({logs.length})</span>
+            <span>Batch Audit Logs</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-100 rounded-full text-slate-600">
+              {logs.length}
+            </span>
           </button>
 
           <button
             type="button"
-            onClick={() => setActiveTab(3)}
+            onClick={() => setActiveTab('research')}
             className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 3
+              activeTab === 'research'
                 ? 'border-emerald-700 text-emerald-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
-            <Zap className="w-4 h-4 text-amber-500" />
-            <span>Run Calculator</span>
+            <FlaskConical className="w-4 h-4 text-emerald-600" />
+            <span>Research Analytics Portal</span>
           </button>
         </div>
       </nav>
 
-      {/* Admin Content Area */}
+      {/* Main Content */}
       <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 mt-2">
-        {/* Tab 0: Model Analytics */}
-        {activeTab === 0 && <ModelResultsTab />}
-
         {/* Tab 1: User Management */}
-        {activeTab === 1 && (
-          <div className="space-y-6 pb-12 max-w-4xl mx-auto">
+        {activeTab === 'users' && (
+          <div className="space-y-6 pb-12 max-w-5xl mx-auto">
             <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
                 <div>
                   <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                    User Accounts
+                    User Accounts & Access Control
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                    Manage authorized farmers, researchers, and system administrators
+                    Manage system credentials, activation status, and role permissions
                   </p>
                 </div>
+
                 <button
                   type="button"
                   onClick={() => setIsAddUserOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs sm:text-sm shadow-xs transition self-start sm:self-auto cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs sm:text-sm transition shadow-xs cursor-pointer self-start sm:self-auto"
                 >
                   <UserPlus className="w-4 h-4" />
-                  <span>Create User</span>
+                  <span>Create Account</span>
                 </button>
               </div>
 
-              {/* Users list */}
-              <div className="mt-5 space-y-3">
+              {/* Users List */}
+              <div className="divide-y divide-slate-100 mt-2">
                 {users.map((u) => {
                   const isSelf = u.username === currentUser.username;
-                  const isRootAdmin = u.username === 'admin';
                   const isAdmin = u.role === 'admin';
                   const isSuspended = u.status === 'Suspended';
+                  const isRootAdmin = u.username === 'admin';
 
                   return (
                     <div
-                      key={u.id || u.username}
-                      className="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      key={u.id}
+                      className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
                       <div className="flex items-center gap-3.5">
                         <div
-                          className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl ${
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-inner ${
                             isAdmin
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-emerald-100 text-emerald-800'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-slate-100 text-slate-700'
                           }`}
                         >
-                          {isAdmin ? '🛡️' : '👨‍🌾'}
+                          {u.username.slice(0, 2).toUpperCase()}
                         </div>
-
                         <div>
-                          <div className="flex items-center gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-900 text-sm">
                               {u.username}
                             </span>
-                            {isSelf && (
-                              <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                                (You)
-                              </span>
-                            )}
                             <span
-                              className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase ${
+                              className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                 isAdmin
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'bg-slate-100 text-slate-700'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-slate-100 text-slate-600'
                               }`}
                             >
                               {u.role}
                             </span>
                             <span
-                              className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase ${
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                 isSuspended
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-emerald-100 text-emerald-800'
+                                  ? 'bg-red-100 text-red-700'
+                                  : 'bg-emerald-50 text-emerald-700'
                               }`}
                             >
                               {u.status}
                             </span>
                           </div>
-                          <div className="text-[11px] text-slate-400 mt-1">
-                            Joined: {u.joined}
+                          <div className="text-[11px] text-slate-400 mt-0.5">
+                            Member since {u.joined}
                           </div>
                         </div>
                       </div>
@@ -357,16 +346,16 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
         )}
 
         {/* Tab 2: Prediction Audit Logs */}
-        {activeTab === 2 && (
+        {activeTab === 'audit' && (
           <div className="space-y-6 pb-12 max-w-5xl mx-auto">
             <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
                 <div>
                   <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                    System Prediction Audit Logs
+                    Batch Prediction Audit Logs
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                    Central log of all batch weight calculations recorded across all user accounts
+                    Central audit trail of all batch calculations recorded across field user sessions
                   </p>
                 </div>
 
@@ -393,7 +382,7 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
                 </div>
               </div>
 
-              {/* Table */}
+              {/* Table without MLR */}
               <div className="overflow-x-auto mt-4">
                 <table className="w-full text-left text-xs">
                   <thead>
@@ -401,10 +390,10 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
                       <th className="py-2.5 px-3">Date & Time</th>
                       <th className="py-2.5 px-3">User</th>
                       <th className="py-2.5 px-3">Batch Weight</th>
-                      <th className="py-2.5 px-3 font-mono">Estimated Count</th>
+                      <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
                       <th className="py-2.5 px-3 font-mono">Simple Linear</th>
-                      <th className="py-2.5 px-3 font-mono">Multiple Linear</th>
-                      <th className="py-2.5 px-3 font-mono text-emerald-700">Polynomial (Best)</th>
+                      <th className="py-2.5 px-3 font-mono">Polynomial (d=2)</th>
+                      <th className="py-2.5 px-3 font-mono text-emerald-700">CB-Poly Champion</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -426,9 +415,9 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
                             ~{log.count} fruits
                           </td>
                           <td className="py-3 px-3 font-mono text-slate-600">{log.slr}</td>
-                          <td className="py-3 px-3 font-mono text-slate-600">{log.mlr}</td>
+                          <td className="py-3 px-3 font-mono text-slate-600">{log.poly}</td>
                           <td className="py-3 px-3 font-mono font-bold text-emerald-700">
-                            {log.poly}
+                            {log.cbPoly}
                           </td>
                         </tr>
                       ))
@@ -440,13 +429,9 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
           </div>
         )}
 
-        {/* Tab 3: Run Calculator directly as Admin */}
-        {activeTab === 3 && (
-          <PredictTab
-            currentUser={currentUser}
-            logs={logs}
-            onRefreshLogs={onRefreshLogs}
-          />
+        {/* Tab 3: Isolated Research Analytics Portal */}
+        {activeTab === 'research' && (
+          <ModelResultsTab />
         )}
       </main>
 

@@ -13,14 +13,13 @@ export interface AppUser {
 export interface PredictionResult {
   count: number;
   repWeight: number;
-  sizeCode: number;
-  sizeLabel: string;
   slrTotalMl: number;
-  mlrTotalMl: number;
   polyTotalMl: number;
+  cbPolyTotalMl: number;
   bottles330: number;
   bottles500: number;
   bottles1000: number;
+  extractionRatioPercent: number;
 }
 
 export interface PredictionLog {
@@ -29,36 +28,36 @@ export interface PredictionLog {
   user: string;
   weightG: number;
   weight: string;
-  size: string;
-  slr: string;
-  mlr: string;
-  poly: string;
-  slrMl: number;
-  mlrMl: number;
-  polyMl: number;
   count: number;
+  slr: string;
+  poly: string;
+  cbPoly: string;
+  slrMl: number;
+  polyMl: number;
+  cbPolyMl: number;
 }
 
-export interface ModelMetricItem {
-  features: string[];
+export interface ModelBenchmark {
+  name: string;
+  shortName: string;
+  role: string;
+  correlationR: number;
+  r2Percent: number;
+  maeMl: number;
+  rmseMl: number;
+  mapePercent: number;
   formula: string;
-  metrics: {
-    r2: number;
-    mae: number;
-    rmse: number;
-    mse: number;
-    mape: number;
-  };
-  coefficients: Record<string, any>;
+  badge: string;
+  isChampion?: boolean;
 }
 
 export interface ResearchMetadata {
   institution: string;
   study: string;
   total_samples: number;
+  clean_samples: number;
   training_samples: number;
   testing_samples: number;
-  best_model: string;
   overall_mean_fruit_weight_g: number;
   overall_mean_fruit_juice_ml: number;
 }

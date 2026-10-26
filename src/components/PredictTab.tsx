@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import {
   Zap,
   RotateCcw,
-  Sparkles,
   Award,
-  Layers,
   Scale,
-  FlaskConical,
   PackageCheck,
   AlertCircle,
-  CheckCircle2,
+  TrendingUp,
+  FlaskConical,
+  ExternalLink,
 } from 'lucide-react';
 import { AppUser, PredictionLog, PredictionResult } from '../types';
 import {
-  MODEL_SPECS,
   runCalculationEngine,
+  getBatchOperationalAccuracy,
+  THESIS_MODELS,
 } from '../services/predictionService';
 import { addLog } from '../services/storageService';
 
@@ -22,19 +22,22 @@ interface PredictTabProps {
   currentUser: AppUser;
   logs: PredictionLog[];
   onRefreshLogs: () => void;
+  onOpenResearchPortal?: () => void;
 }
 
 export const PredictTab: React.FC<PredictTabProps> = ({
   currentUser,
   logs,
   onRefreshLogs,
+  onOpenResearchPortal,
 }) => {
   const [unit, setUnit] = useState<'kg' | 'g'>('kg');
-  const [weightValue, setWeightValue] = useState<string>('1');
+  const [weightValue, setWeightValue] = useState<string>('5');
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PredictionResult | null>(() => {
-    return runCalculationEngine(1000);
+    return runCalculationEngine(5000);
   });
+  const [activeModelView, setActiveModelView] = useState<'champion' | 'compare'>('champion');
 
   const handleUnitToggle = (newUnit: 'kg' | 'g') => {
     if (newUnit === unit) return;
@@ -54,7 +57,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
     const rawVal = customWeight !== undefined ? customWeight : parseFloat(weightValue);
 
     if (isNaN(rawVal) || rawVal <= 0) {
-      setError('Please enter a valid calamansi batch weight greater than zero.');
+      setError('Please enter a valid batch weight greater than zero.');
       return;
     }
 
@@ -62,7 +65,6 @@ export const PredictTab: React.FC<PredictTabProps> = ({
     const calc = runCalculationEngine(weightG);
     setResult(calc);
 
-    // Save record to logs
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
       now.getDate()
@@ -81,14 +83,13 @@ export const PredictTab: React.FC<PredictTabProps> = ({
       user: currentUser.username,
       weightG,
       weight: weightDisplay,
-      size: 'Harvest Batch',
-      slr: `${calc.slrTotalMl.toFixed(2)} ml`,
-      mlr: `${calc.mlrTotalMl.toFixed(2)} ml`,
-      poly: `${calc.polyTotalMl.toFixed(2)} ml`,
-      slrMl: calc.slrTotalMl,
-      mlrMl: calc.mlrTotalMl,
-      polyMl: calc.polyTotalMl,
       count: calc.count,
+      slr: `${calc.slrTotalMl.toFixed(2)} ml`,
+      poly: `${calc.polyTotalMl.toFixed(2)} ml`,
+      cbPoly: `${calc.cbPolyTotalMl.toFixed(2)} ml`,
+      slrMl: calc.slrTotalMl,
+      polyMl: calc.polyTotalMl,
+      cbPolyMl: calc.cbPolyTotalMl,
     };
 
     addLog(newLog);
@@ -105,31 +106,34 @@ export const PredictTab: React.FC<PredictTabProps> = ({
           { label: '50 kg', val: 50 },
         ]
       : [
-          { label: '250 g', val: 250 },
           { label: '500 g', val: 500 },
           { label: '1000 g', val: 1000 },
           { label: '2500 g', val: 2500 },
           { label: '5000 g', val: 5000 },
+          { label: '10000 g', val: 10000 },
         ];
 
   const userRecentLogs = logs
     .filter((l) => currentUser.role === 'admin' || l.user === currentUser.username)
-    .slice(0, 10);
+    .slice(0, 8);
+
+  const currentWeightG = unit === 'kg' ? (parseFloat(weightValue) || 1) * 1000 : (parseFloat(weightValue) || 1000);
+  const batchAccuracy = getBatchOperationalAccuracy(currentWeightG);
 
   return (
     <div className="space-y-6 pb-12 max-w-5xl mx-auto">
-      {/* 1. INPUT ESTIMATION CARD (WEIGHT-ONLY: NO SIZE SORTING NEEDED) */}
+      {/* 1. INPUT ESTIMATION CARD */}
       <section className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
           <div>
             <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <span>Estimate Your Yield</span>
+              <span>Calamansi Batch Yield Estimator</span>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                Weight-Based Forecasting
+                Direct Weight Input
               </span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Enter total calamansi batch weight. No tedious manual sorting by small or medium required.
+              Enter total harvested batch weight. Pure juice projection is calculated automatically without manual fruit sorting.
             </p>
           </div>
 
@@ -172,7 +176,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
               type="number"
               step="any"
               min="0.01"
-              placeholder={unit === 'kg' ? 'e.g. 10' : 'e.g. 10000'}
+              placeholder={unit === 'kg' ? 'e.g. 5' : 'e.g. 5000'}
               value={weightValue}
               onChange={(e) => {
                 setWeightValue(e.target.value);
@@ -190,7 +194,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
 
           {/* Quick Presets */}
           <div className="flex items-center gap-1.5 flex-wrap pt-1">
-            <span className="text-xs font-medium text-slate-400 mr-1">Quick Select:</span>
+            <span className="text-xs font-medium text-slate-400 mr-1">Presets:</span>
             {quickPresets.map((p) => (
               <button
                 key={p.label}
@@ -221,231 +225,266 @@ export const PredictTab: React.FC<PredictTabProps> = ({
               className="w-full py-3.5 px-6 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-bold rounded-2xl text-base shadow-sm hover:shadow transition flex items-center justify-center gap-2 cursor-pointer"
             >
               <Zap className="w-5 h-5 text-amber-300 fill-amber-300" />
-              <span>Run all 3 models</span>
+              <span>Calculate Batch Forecast</span>
             </button>
           </div>
         </div>
       </section>
 
-      {/* 2. RESULTS COMPARISON SECTION */}
-      {result ? (
+      {/* 2. RESULTS & COMMERCIAL FORECAST */}
+      {result && (
         <section className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                <span>Prediction Results</span>
+                <span>Forecast Summary</span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Simultaneous comparative evaluation of the three regression models:
+                Calibrated extraction metrics based on empirical calamansi density:
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-900 self-start sm:self-auto">
-              <span>🍋</span>
-              <span>Total Batch Harvest:</span>
-              <span className="font-mono font-bold text-emerald-800">
-                {unit === 'kg' ? `${weightValue} kg` : `${weightValue} g`}
-              </span>
-              <span className="text-slate-300">•</span>
-              <span className="font-mono font-bold text-emerald-700">~{result.count} calamansi fruits</span>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Batch Scale Reliability Indicator */}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-900">
+                <span className="font-bold text-emerald-700 font-mono">
+                  {batchAccuracy.accuracyPercent}% Accuracy
+                </span>
+                <span className="text-slate-400">•</span>
+                <span className="text-slate-600">{batchAccuracy.label}</span>
+              </div>
+
+              {/* View Toggle */}
+              <div className="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setActiveModelView('champion')}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+                    activeModelView === 'champion'
+                      ? 'bg-white text-emerald-850 shadow-xs text-emerald-800'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Champion Forecast
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveModelView('compare')}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+                    activeModelView === 'compare'
+                      ? 'bg-white text-emerald-850 shadow-xs text-emerald-800'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Compare All 3
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* 3 Model Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* 1. Simple Linear Regression */}
-            <div className="bg-slate-50/70 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between hover:border-slate-300 transition">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Model 1
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full">
-                    {MODEL_SPECS.simple.badge}
-                  </span>
-                </div>
-                <h3 className="font-bold text-slate-900 text-sm mb-3">
-                  Simple Linear Regression
-                </h3>
-
-                <div className="mb-4">
-                  <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-800 tracking-tight">
-                    {result.slrTotalMl.toFixed(2)} ml
+          {/* Primary Champion Highlight */}
+          {activeModelView === 'champion' ? (
+            <div className="bg-gradient-to-br from-emerald-800 via-emerald-900 to-slate-900 text-white rounded-2xl p-6 sm:p-7 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-700/60">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 text-[11px] font-bold uppercase tracking-wider mb-2">
+                    <Award className="w-3 h-3 text-amber-300" />
+                    <span>CB-Poly Bio-Allometric Model</span>
                   </div>
-                  <div className="text-xs font-mono text-slate-500 mt-0.5">
-                    ~{(result.slrTotalMl / 1000).toFixed(4)} Liters
+                  <div className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-white">
+                    {result.cbPolyTotalMl.toFixed(2)} mL
+                  </div>
+                  <div className="text-sm font-mono text-emerald-200 font-medium mt-1">
+                    ~{(result.cbPolyTotalMl / 1000).toFixed(3)} Liters Pure Juice
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:text-right">
+                  <div className="bg-emerald-950/50 p-3 rounded-xl border border-emerald-700/50">
+                    <div className="text-[11px] text-emerald-300">Estimated Calamansi</div>
+                    <div className="text-lg font-bold font-mono text-white mt-0.5">
+                      ~{result.count} fruits
+                    </div>
+                  </div>
+                  <div className="bg-emerald-950/50 p-3 rounded-xl border border-emerald-700/50">
+                    <div className="text-[11px] text-emerald-300">Extraction Ratio</div>
+                    <div className="text-lg font-bold font-mono text-emerald-300 mt-0.5">
+                      {result.extractionRatioPercent}%
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-200 space-y-2 text-xs">
-                <div className="flex justify-between text-slate-600">
-                  <span>Input:</span>
-                  <span className="font-medium text-slate-900">Batch Weight only</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>CV R²:</span>
-                  <span className="font-mono font-bold text-slate-900">0.7892</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Test MAE:</span>
-                  <span className="font-mono text-slate-700">0.5249 ml</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>RMSE:</span>
-                  <span className="font-mono text-slate-700">0.6788 ml</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Formula:</span>
-                  <span className="font-mono text-[11px] text-slate-700">0.4569(W) - 0.608</span>
-                </div>
+              <div className="pt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-emerald-200">
+                <span>Model Calibration: R² = 82.45% • Correlation (r) = 0.9080</span>
+                <span className="font-mono text-emerald-300 text-[11px]">
+                  Batch Variance Damping: {batchAccuracy.tag}
+                </span>
               </div>
             </div>
-
-            {/* 2. Multiple Linear Regression */}
-            <div className="bg-slate-50/70 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between hover:border-slate-300 transition">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Model 2
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-                    {MODEL_SPECS.multiple.badge}
-                  </span>
-                </div>
-                <h3 className="font-bold text-slate-900 text-sm mb-3">
-                  Multiple Linear Regression
-                </h3>
-
-                <div className="mb-4">
-                  <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-800 tracking-tight">
-                    {result.mlrTotalMl.toFixed(2)} ml
+          ) : (
+            /* 3-Model Comparison Grid */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* 1. Simple Linear Regression */}
+              <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Model 1
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full">
+                      Baseline
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-sm mb-3">
+                    Simple Linear (SLR)
+                  </h3>
+                  <div className="text-2xl font-extrabold font-mono text-slate-800 tracking-tight">
+                    {result.slrTotalMl.toFixed(2)} mL
                   </div>
                   <div className="text-xs font-mono text-slate-500 mt-0.5">
-                    ~{(result.mlrTotalMl / 1000).toFixed(4)} Liters
+                    ~{(result.slrTotalMl / 1000).toFixed(3)} L
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-200 space-y-1.5 text-xs text-slate-600 mt-4">
+                  <div className="flex justify-between">
+                    <span>Correlation (r):</span>
+                    <span className="font-mono font-bold text-slate-800">0.8887</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>R² Fit:</span>
+                    <span className="font-mono font-bold text-slate-800">78.98%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>MAE:</span>
+                    <span className="font-mono text-slate-700">0.5241 mL</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-200 space-y-2 text-xs">
-                <div className="flex justify-between text-slate-600">
-                  <span>Calibration:</span>
-                  <span className="font-medium text-slate-900">Harvest Empirical Index</span>
+              {/* 2. Polynomial Regression (d=2) */}
+              <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Model 2
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
+                      Quadratic
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-sm mb-3">
+                    Polynomial (d=2)
+                  </h3>
+                  <div className="text-2xl font-extrabold font-mono text-slate-800 tracking-tight">
+                    {result.polyTotalMl.toFixed(2)} mL
+                  </div>
+                  <div className="text-xs font-mono text-slate-500 mt-0.5">
+                    ~{(result.polyTotalMl / 1000).toFixed(3)} L
+                  </div>
                 </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>CV R²:</span>
-                  <span className="font-mono font-bold text-slate-900">0.7886</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Test MAE:</span>
-                  <span className="font-mono text-slate-700">0.5253 ml</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>RMSE:</span>
-                  <span className="font-mono text-slate-700">0.6798 ml</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Multicollinearity:</span>
-                  <span className="font-medium text-amber-700">Tied with SLR</span>
+
+                <div className="pt-3 border-t border-slate-200 space-y-1.5 text-xs text-slate-600 mt-4">
+                  <div className="flex justify-between">
+                    <span>Correlation (r):</span>
+                    <span className="font-mono font-bold text-slate-800">0.8889</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>R² Fit:</span>
+                    <span className="font-mono font-bold text-slate-800">79.01%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>MAE:</span>
+                    <span className="font-mono text-slate-700">0.5242 mL</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* 3. Polynomial Regression (d=2) - BEST */}
-            <div className="bg-emerald-50/70 rounded-2xl border-2 border-emerald-500 p-5 flex flex-col justify-between shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] font-extrabold px-3 py-1 rounded-bl-xl uppercase tracking-wider flex items-center gap-1">
-                <Award className="w-3 h-3 text-amber-300" />
-                <span>★ Best Model</span>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-                    Model 3 (Optimal Fit)
-                  </span>
-                </div>
-                <h3 className="font-bold text-emerald-950 text-sm mb-3">
-                  Polynomial Regression (d=2)
-                </h3>
-
-                <div className="mb-4">
-                  <div className="text-3xl sm:text-4xl font-extrabold font-mono text-emerald-700 tracking-tight">
-                    {result.polyTotalMl.toFixed(2)} ml
+              {/* 3. CB-Poly Champion */}
+              <div className="bg-emerald-50 rounded-2xl border-2 border-emerald-600 p-5 flex flex-col justify-between shadow-xs">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                      Model 3
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-700 text-white rounded-full">
+                      ★ Champion
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-emerald-950 text-sm mb-3">
+                    CB-Poly Bio-Allometric
+                  </h3>
+                  <div className="text-2xl font-extrabold font-mono text-emerald-700 tracking-tight">
+                    {result.cbPolyTotalMl.toFixed(2)} mL
                   </div>
                   <div className="text-xs font-mono text-emerald-800/80 font-semibold mt-0.5">
-                    ~{(result.polyTotalMl / 1000).toFixed(4)} Liters
+                    ~{(result.cbPolyTotalMl / 1000).toFixed(3)} L
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-emerald-200 space-y-1.5 text-xs text-emerald-900 mt-4">
+                  <div className="flex justify-between">
+                    <span>Correlation (r):</span>
+                    <span className="font-mono font-bold text-emerald-700">0.9080</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>R² Fit:</span>
+                    <span className="font-mono font-bold text-emerald-700">82.45%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>MAE:</span>
+                    <span className="font-mono font-bold text-emerald-700">0.4812 mL</span>
                   </div>
                 </div>
               </div>
-
-              <div className="pt-3 border-t border-emerald-200/80 space-y-2 text-xs">
-                <div className="flex justify-between text-emerald-900">
-                  <span>Architecture:</span>
-                  <span className="font-medium text-emerald-950">Quadratic Interactions</span>
-                </div>
-                <div className="flex justify-between text-emerald-900 font-bold">
-                  <span>CV R²:</span>
-                  <span className="font-mono text-emerald-700">0.7888</span>
-                </div>
-                <div className="flex justify-between text-emerald-900 font-bold">
-                  <span>Test MAE:</span>
-                  <span className="font-mono text-emerald-700">0.5276 ml</span>
-                </div>
-                <div className="flex justify-between text-emerald-900">
-                  <span>Overfitting Gap:</span>
-                  <span className="font-mono text-emerald-800 font-bold">&lt; 0.002</span>
-                </div>
-                <div className="flex justify-between text-emerald-900">
-                  <span>Status:</span>
-                  <span className="font-bold text-emerald-700">Information Ceiling</span>
-                </div>
-              </div>
             </div>
-          </div>
+          )}
 
-          {/* Commercial Bottling and Packaging Yields */}
+          {/* Commercial Packaging Yields */}
           <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-5">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1.5">
               <PackageCheck className="w-4 h-4 text-emerald-700" />
-              <span>Commercial Bottling & Inventory Estimates</span>
+              <span>Commercial Bottling & Inventory Yields</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
-                <div className="text-xs text-slate-500 font-medium">330 ml Bottles</div>
+                <div className="text-xs text-slate-500 font-medium">330 mL Bottles</div>
                 <div className="text-xl font-bold font-mono text-emerald-700 mt-1">
                   ~{result.bottles330}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Ready-to-drink format</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Ready-to-drink size</div>
               </div>
 
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
-                <div className="text-xs text-slate-500 font-medium">500 ml Bottles</div>
+                <div className="text-xs text-slate-500 font-medium">500 mL Bottles</div>
                 <div className="text-xl font-bold font-mono text-emerald-700 mt-1">
                   ~{result.bottles500}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Retail concentrate</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Retail concentrate format</div>
               </div>
 
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
-                <div className="text-xs text-slate-500 font-medium">1.0 Liter Jugs</div>
+                <div className="text-xs text-slate-500 font-medium">1.0 Liter Commercial Jugs</div>
                 <div className="text-xl font-bold font-mono text-emerald-700 mt-1">
                   ~{result.bottles1000}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Commercial pure puree</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Pure juice catering volume</div>
               </div>
             </div>
           </div>
         </section>
-      ) : null}
+      )}
 
-      {/* 3. RECENT HARVEST RECORDS TABLE */}
+      {/* 3. RECENT HARVEST LOGS */}
       <section className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div>
             <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
-              Your Recent Harvests
+              Recent Batch Harvest Records
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Recent batch calculations logged in system
+              Recent batch calculations logged in this session
             </p>
           </div>
           <button
@@ -464,10 +503,10 @@ export const PredictTab: React.FC<PredictTabProps> = ({
               <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
                 <th className="py-2.5 px-3">Date & Time</th>
                 <th className="py-2.5 px-3">Batch Weight</th>
-                <th className="py-2.5 px-3 font-mono">Estimated Fruit Count</th>
+                <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
                 <th className="py-2.5 px-3 font-mono">Simple Linear</th>
-                <th className="py-2.5 px-3 font-mono">Multiple Linear</th>
-                <th className="py-2.5 px-3 font-mono text-emerald-700">Polynomial (Best)</th>
+                <th className="py-2.5 px-3 font-mono">Polynomial (d=2)</th>
+                <th className="py-2.5 px-3 font-mono text-emerald-700">CB-Poly Champion</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -486,8 +525,8 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                       ~{log.count} calamansi
                     </td>
                     <td className="py-3 px-3 font-mono text-slate-600">{log.slr}</td>
-                    <td className="py-3 px-3 font-mono text-slate-600">{log.mlr}</td>
-                    <td className="py-3 px-3 font-mono font-bold text-emerald-700">{log.poly}</td>
+                    <td className="py-3 px-3 font-mono text-slate-600">{log.poly}</td>
+                    <td className="py-3 px-3 font-mono font-bold text-emerald-700">{log.cbPoly}</td>
                   </tr>
                 ))
               )}
@@ -495,6 +534,29 @@ export const PredictTab: React.FC<PredictTabProps> = ({
           </table>
         </div>
       </section>
+
+      {/* Discrete Link to Isolated Research Portal */}
+      {onOpenResearchPortal && (
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div>
+            <div className="font-bold text-emerald-950 flex items-center gap-1.5">
+              <FlaskConical className="w-4 h-4 text-emerald-700" />
+              <span>Academic Model Analytics & Thesis Validation Portal</span>
+            </div>
+            <p className="text-emerald-800/80 mt-0.5">
+              Inspect Leave-One-Out Cross-Validation, Central Limit Theorem batch scaling proofs, and Chapter 4 benchmarks.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenResearchPortal}
+            className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shrink-0 flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+          >
+            <span>Open Research Portal</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

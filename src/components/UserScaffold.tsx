@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Zap, BarChart3, Clock, LogOut, Sprout } from 'lucide-react';
+import { Zap, BarChart3, Clock, LogOut, FlaskConical } from 'lucide-react';
 import { AppUser, PredictionLog } from '../types';
 import { PredictTab } from './PredictTab';
 import { ModelResultsTab } from './ModelResultsTab';
@@ -76,20 +76,7 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             }`}
           >
             <Zap className={`w-4 h-4 ${activeTab === 'predict' ? 'text-amber-500 fill-amber-500' : ''}`} />
-            <span>Predict</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('results')}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 'results'
-                ? 'border-emerald-700 text-emerald-800'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Model Results</span>
+            <span>Yield Estimator</span>
           </button>
 
           <button
@@ -102,7 +89,20 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             }`}
           >
             <Clock className="w-4 h-4" />
-            <span>History</span>
+            <span>Harvest History</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('results')}
+            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+              activeTab === 'results'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <FlaskConical className="w-4 h-4 text-emerald-600" />
+            <span>Research Analytics Portal</span>
           </button>
         </div>
       </nav>
@@ -114,9 +114,12 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             currentUser={currentUser}
             logs={logs}
             onRefreshLogs={onRefreshLogs}
+            onOpenResearchPortal={() => setActiveTab('results')}
           />
         )}
-        {activeTab === 'results' && <ModelResultsTab />}
+        {activeTab === 'results' && (
+          <ModelResultsTab onBackToPredict={() => setActiveTab('predict')} />
+        )}
         {activeTab === 'history' && (
           <HistoryTab
             currentUser={currentUser}
