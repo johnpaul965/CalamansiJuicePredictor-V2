@@ -333,7 +333,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 },
                 {
                   label: 'Model 3',
-                  badge: 'Default RBF (No Layers)',
+                  badge: 'RBF Gaussian Kernel',
                   badgeCls: 'bg-purple-100 text-purple-800',
                   title: 'SVR (Ordinary Default)',
                   totalMl: result.svrTotalMl,

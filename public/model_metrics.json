@@ -2,7 +2,7 @@
   "metadata": {
     "institution": "Leyte Normal University",
     "study": "Tacloban City Calamansi Harvest Study",
-    "training_timestamp": "2026-10-27 15:10:14 UTC",
+    "training_timestamp": "2026-10-27 17:42:21 UTC",
     "total_raw_samples": 1522,
     "clean_samples": 1478,
     "removed_ratio": 8,
@@ -11,115 +11,95 @@
     "representative_weight_g": 12.686,
     "representative_juice_ml": 5.225,
     "extraction_ratio_pct": 41.19,
-    "champion_model": "Polynomial Regression (d=2) + ln(W) & L2 Ridge"
+    "champion_model_key": "proposed",
+    "champion_model": "Polynomial (d=2) + ln(W) & L2 Ridge"
   },
-  "cv_benchmarks": {
+  "clean_benchmarks": {
     "slr": {
-      "r2": 0.8074,
-      "r2_percent": 80.74,
-      "mae": 0.5142,
-      "rmse": 0.6423,
-      "mse": 0.4126,
-      "mape": 10.92,
-      "correlation_r": 0.9061,
+      "r2": 0.8232,
+      "r2_percent": 82.32,
+      "mae": 0.4889,
+      "rmse": 0.6153,
+      "mse": 0.3786,
+      "mape": 10.02,
+      "correlation_r": 0.9073,
       "name": "Simple Linear Regression (SLR)",
+      "role": "Ordinary Linear Baseline (W only)",
       "formula": "Juice (mL) = 0.4551 \u00d7 W + (-0.5489)",
       "coefficients": [
         -0.548888,
         0.455134
-      ]
+      ],
+      "isChampion": false
     },
     "svr": {
-      "r2": 0.8053,
-      "r2_percent": 80.53,
-      "mae": 0.5179,
-      "rmse": 0.6458,
-      "mse": 0.4171,
-      "mape": 11.13,
-      "correlation_r": 0.9046,
-      "name": "Support Vector Regression (Ordinary RBF)",
-      "formula": "Juice (mL) = -0.7509 + 0.4477(W) + 0.1393(W^0.3)",
+      "r2": 0.8051,
+      "r2_percent": 80.51,
+      "mae": 0.5169,
+      "rmse": 0.6462,
+      "mse": 0.4176,
+      "mape": 10.66,
+      "correlation_r": 0.8981,
+      "name": "Support Vector Regression (RBF Kernel)",
+      "role": "Support Vector Regression (RBF Kernel)",
+      "formula": "Juice (mL) = 4.9646 + sum(alpha_m * exp(-0.05*(W - c_m)^2)) (6 Gaussian Centers)",
       "coefficients": [
-        -0.750858,
-        0.447671,
-        0.139258
-      ]
+        4.964563,
+        -4.012655,
+        2.748985,
+        -0.913361,
+        1.209867,
+        -2.820544,
+        4.635391
+      ],
+      "isChampion": false
     },
     "poly": {
-      "r2": 0.7623,
-      "r2_percent": 76.23,
-      "mae": 0.569,
-      "rmse": 0.7136,
-      "mse": 0.5092,
-      "mape": 12.86,
-      "correlation_r": 0.8764,
+      "r2": 0.8233,
+      "r2_percent": 82.33,
+      "mae": 0.4894,
+      "rmse": 0.6152,
+      "mse": 0.3784,
+      "mape": 10.03,
+      "correlation_r": 0.9074,
       "name": "Polynomial Regression (Degree 2)",
+      "role": "Polynomial Regression (Quadratic Baseline)",
       "formula": "Juice (mL) = -0.8979 + 0.5137(W) + (-0.002323)(W\u00b2)",
       "coefficients": [
         -0.897923,
         0.513682,
         -0.002323
-      ]
+      ],
+      "isChampion": false
     },
     "proposed": {
-      "r2": 0.8228,
-      "r2_percent": 82.28,
-      "mae": 0.4896,
-      "rmse": 0.616,
-      "mse": 0.3795,
-      "mape": 10.05,
-      "correlation_r": 0.9071,
+      "r2": 0.8237,
+      "r2_percent": 82.37,
+      "mae": 0.4886,
+      "rmse": 0.6146,
+      "mse": 0.3777,
+      "mape": 10.02,
+      "correlation_r": 0.9076,
       "name": "Polynomial (d=2) + ln(W) & L2 Ridge",
-      "formula": "Juice (mL) = 2.3179 + 1.1004(W) + (-0.014151)(W\u00b2) + (-3.4460)\u00b7ln(W)",
+      "role": "Proposed Champion (d=2 + ln W + Standardized Ridge)",
+      "formula": "Juice (mL) = 2.5532 + 1.1430(W) + (-0.015006)(W\u00b2) + (-3.6969)\u00b7ln(W)",
       "coefficients": [
-        2.317885,
-        1.100407,
-        -0.014151,
-        -3.445975
+        2.553163,
+        1.142955,
+        -0.015006,
+        -3.696923
       ],
       "isChampion": true
     }
   },
-  "fold_cross_validation": [
-    {
-      "fold": 1,
-      "test_samples": 204,
-      "r2_pct": 88.31,
-      "mae": 0.4558
-    },
-    {
-      "fold": 2,
-      "test_samples": 353,
-      "r2_pct": 24.18,
-      "mae": 0.4493
-    },
-    {
-      "fold": 3,
-      "test_samples": 424,
-      "r2_pct": 14.4,
-      "mae": 0.4542
-    },
-    {
-      "fold": 4,
-      "test_samples": 269,
-      "r2_pct": 67.11,
-      "mae": 0.6218
-    },
-    {
-      "fold": 5,
-      "test_samples": 228,
-      "r2_pct": 92.78,
-      "mae": 0.492
-    }
-  ],
   "batch_scaling_clt": [
     {
       "scale": "Single Calamansi",
       "weightKg": 0.01,
-      "weightG": 12.69,
+      "weightG": 12.7,
       "count": 1,
-      "mape": 10.05,
-      "accuracy": 89.95,
+      "mape": 9.57,
+      "accuracy": 90.43,
       "category": "Individual Fruit"
     },
     {
@@ -127,8 +107,8 @@
       "weightKg": 0.13,
       "weightG": 126.9,
       "count": 10,
-      "mape": 3.18,
-      "accuracy": 96.82,
+      "mape": 3.06,
+      "accuracy": 96.94,
       "category": "Small Pack"
     },
     {
@@ -136,8 +116,8 @@
       "weightKg": 0.63,
       "weightG": 634.3,
       "count": 50,
-      "mape": 1.42,
-      "accuracy": 98.58,
+      "mape": 1.27,
+      "accuracy": 98.73,
       "category": "Medium Basket"
     },
     {
@@ -145,8 +125,8 @@
       "weightKg": 1.27,
       "weightG": 1268.6,
       "count": 100,
-      "mape": 1.01,
-      "accuracy": 99.0,
+      "mape": 0.93,
+      "accuracy": 99.07,
       "category": "Commercial Sack"
     },
     {
@@ -154,8 +134,8 @@
       "weightKg": 6.34,
       "weightG": 6343.0,
       "count": 500,
-      "mape": 0.45,
-      "accuracy": 99.55,
+      "mape": 0.4,
+      "accuracy": 99.6,
       "category": "Bulk Processing Crate"
     }
   ]

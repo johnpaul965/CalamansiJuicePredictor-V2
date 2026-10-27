@@ -20,103 +20,82 @@ export const HARVEST_BASELINE = {
   ratioPercent: liveMetrics.metadata.extraction_ratio_pct,
 };
 
-// 4 Models Loaded Live from Cross-Validation Training Script Output
+// 4 Models Loaded Live from Cleaned Benchmark in model_metrics.json
 export const THESIS_MODELS: Record<string, ModelBenchmark> = {
   slr: {
-    name: liveMetrics.cv_benchmarks.slr.name,
+    name: liveMetrics.clean_benchmarks.slr.name,
     shortName: 'SLR',
-    role: 'Ordinary Linear Baseline (W only, no layers)',
-    correlationR: liveMetrics.cv_benchmarks.slr.correlation_r,
-    r2Percent: liveMetrics.cv_benchmarks.slr.r2_percent,
-    maeMl: liveMetrics.cv_benchmarks.slr.mae,
-    rmseMl: liveMetrics.cv_benchmarks.slr.rmse,
-    mapePercent: liveMetrics.cv_benchmarks.slr.mape,
-    formula: liveMetrics.cv_benchmarks.slr.formula,
-    badge: 'Ordinary Baseline',
-    isChampion: false,
-  },
-  svr: {
-    name: liveMetrics.cv_benchmarks.svr.name,
-    shortName: 'SVR (RBF)',
-    role: 'Default Off-the-Shelf SVR (W only, no layers)',
-    correlationR: liveMetrics.cv_benchmarks.svr.correlation_r,
-    r2Percent: liveMetrics.cv_benchmarks.svr.r2_percent,
-    maeMl: liveMetrics.cv_benchmarks.svr.mae,
-    rmseMl: liveMetrics.cv_benchmarks.svr.rmse,
-    mapePercent: liveMetrics.cv_benchmarks.svr.mape,
-    formula: liveMetrics.cv_benchmarks.svr.formula,
-    badge: 'Ordinary SVR',
-    isChampion: false,
+    role: liveMetrics.clean_benchmarks.slr.role,
+    correlationR: liveMetrics.clean_benchmarks.slr.correlation_r,
+    r2Percent: liveMetrics.clean_benchmarks.slr.r2_percent,
+    maeMl: liveMetrics.clean_benchmarks.slr.mae,
+    rmseMl: liveMetrics.clean_benchmarks.slr.rmse,
+    mapePercent: liveMetrics.clean_benchmarks.slr.mape,
+    formula: liveMetrics.clean_benchmarks.slr.formula,
+    badge: liveMetrics.clean_benchmarks.slr.isChampion ? '★ Best Fit' : 'Linear Baseline',
+    isChampion: liveMetrics.clean_benchmarks.slr.isChampion,
   },
   poly: {
-    name: liveMetrics.cv_benchmarks.poly.name,
+    name: liveMetrics.clean_benchmarks.poly.name,
     shortName: 'Poly (d=2)',
-    role: 'Ordinary Quadratic Baseline (W, W², no layers)',
-    correlationR: liveMetrics.cv_benchmarks.poly.correlation_r,
-    r2Percent: liveMetrics.cv_benchmarks.poly.r2_percent,
-    maeMl: liveMetrics.cv_benchmarks.poly.mae,
-    rmseMl: liveMetrics.cv_benchmarks.poly.rmse,
-    mapePercent: liveMetrics.cv_benchmarks.poly.mape,
-    formula: liveMetrics.cv_benchmarks.poly.formula,
-    badge: 'Ordinary Quadratic',
-    isChampion: false,
+    role: liveMetrics.clean_benchmarks.poly.role,
+    correlationR: liveMetrics.clean_benchmarks.poly.correlation_r,
+    r2Percent: liveMetrics.clean_benchmarks.poly.r2_percent,
+    maeMl: liveMetrics.clean_benchmarks.poly.mae,
+    rmseMl: liveMetrics.clean_benchmarks.poly.rmse,
+    mapePercent: liveMetrics.clean_benchmarks.poly.mape,
+    formula: liveMetrics.clean_benchmarks.poly.formula,
+    badge: liveMetrics.clean_benchmarks.poly.isChampion ? '★ Best Fit' : 'Quadratic Baseline',
+    isChampion: liveMetrics.clean_benchmarks.poly.isChampion,
+  },
+  svr: {
+    name: liveMetrics.clean_benchmarks.svr.name,
+    shortName: 'SVR (RBF)',
+    role: liveMetrics.clean_benchmarks.svr.role,
+    correlationR: liveMetrics.clean_benchmarks.svr.correlation_r,
+    r2Percent: liveMetrics.clean_benchmarks.svr.r2_percent,
+    maeMl: liveMetrics.clean_benchmarks.svr.mae,
+    rmseMl: liveMetrics.clean_benchmarks.svr.rmse,
+    mapePercent: liveMetrics.clean_benchmarks.svr.mape,
+    formula: liveMetrics.clean_benchmarks.svr.formula,
+    badge: liveMetrics.clean_benchmarks.svr.isChampion ? '★ Best Fit' : 'RBF Kernel',
+    isChampion: liveMetrics.clean_benchmarks.svr.isChampion,
   },
   cbPoly: {
-    name: liveMetrics.cv_benchmarks.proposed.name,
+    name: liveMetrics.clean_benchmarks.proposed.name,
     shortName: 'Poly + ln(W) + Ridge',
-    role: '★ Proposed Model (In-Fold Clean + ln W + L2 Ridge)',
-    correlationR: liveMetrics.cv_benchmarks.proposed.correlation_r,
-    r2Percent: liveMetrics.cv_benchmarks.proposed.r2_percent,
-    maeMl: liveMetrics.cv_benchmarks.proposed.mae,
-    rmseMl: liveMetrics.cv_benchmarks.proposed.rmse,
-    mapePercent: liveMetrics.cv_benchmarks.proposed.mape,
-    formula: liveMetrics.cv_benchmarks.proposed.formula,
-    badge: '★ Best Fit',
-    isChampion: true,
+    role: liveMetrics.clean_benchmarks.proposed.role,
+    correlationR: liveMetrics.clean_benchmarks.proposed.correlation_r,
+    r2Percent: liveMetrics.clean_benchmarks.proposed.r2_percent,
+    maeMl: liveMetrics.clean_benchmarks.proposed.mae,
+    rmseMl: liveMetrics.clean_benchmarks.proposed.rmse,
+    mapePercent: liveMetrics.clean_benchmarks.proposed.mape,
+    formula: liveMetrics.clean_benchmarks.proposed.formula,
+    badge: liveMetrics.clean_benchmarks.proposed.isChampion ? '★ Best Fit' : 'Proposed Model',
+    isChampion: liveMetrics.clean_benchmarks.proposed.isChampion,
   },
 };
 
-// 4-Layer Proposed Pipeline & Thesis-Legal Weight-Grouped Cross-Validation Design
-export const CB_POLY_PIPELINE_LAYERS = [
-  {
-    step: 'Layer 1 (In-Fold Training Only): Botanical Mass-Balance (Juice ÷ Weight ≤ 0.60)',
-    desc: `Inside .fit(X_train, y_train) only, filters ${liveMetrics.metadata.removed_ratio} physically impossible fruit ratios (>60% pure juice) without altering the shared held-out test set.`,
-    status: 'Model 4 .fit() Only',
-  },
-  {
-    step: 'Layer 2 (In-Fold Training Only): 98% Confidence Interval (|Z| ≤ 2.326)',
-    desc: `Inside .fit(X_train, y_train) only, applies textbook Z-table outlier screening (${liveMetrics.metadata.removed_z} rows filtered) so extreme dried or punctured specimens do not distort training weights.`,
-    status: 'Model 4 .fit() Only',
-  },
-  {
-    step: 'Layer 3 (Proposed Feature): Natural-Log Weight Transform ln(W)',
-    desc: 'Adds ln(W) to [W, W²] to capture gentle diminishing juice growth in heavier calamansi fruits while smoothly interpolating across held-out unseen fruit weights.',
-    status: 'Model 4 Only',
-  },
-  {
-    step: 'Layer 4 (Proposed Regularization): L2 Ridge Shrinkage (α = 0.01)',
-    desc: `Stabilizes collinearity between W, W², and ln(W) during unseen weight interpolation—achieving #${1} (${liveMetrics.cv_benchmarks.proposed.r2_percent}% R², MAE = ${liveMetrics.cv_benchmarks.proposed.mae} mL) vs. unregularized Polynomial d=2 (${liveMetrics.cv_benchmarks.poly.r2_percent}%) and SLR (${liveMetrics.cv_benchmarks.slr.r2_percent}%).`,
-    status: 'Model 4 Only',
-  },
-];
+export const CLEAN_BENCHMARKS = liveMetrics.clean_benchmarks;
 
-// Monte Carlo Batch Scaling Accuracy directly from training output (Central Limit Theorem)
+
+// Empirical Monte Carlo Batch Scaling Accuracy (200 Resampling Trials)
 export const BATCH_SCALING_BENCHMARK = liveMetrics.batch_scaling_clt;
 
 // Dynamic Trained Coefficients
-const SLR_COEFFS = liveMetrics.cv_benchmarks.slr.coefficients; // [b0, b1]
-const SVR_COEFFS = liveMetrics.cv_benchmarks.svr.coefficients; // [b0, b1, b2]
-const POLY_COEFFS = liveMetrics.cv_benchmarks.poly.coefficients; // [b0, b1, b2]
-const PROP_COEFFS = liveMetrics.cv_benchmarks.proposed.coefficients; // [b0, b1, b2, b3]
+const SLR_COEFFS = liveMetrics.clean_benchmarks.slr.coefficients;
+const SVR_COEFFS = liveMetrics.clean_benchmarks.svr.coefficients;
+const POLY_COEFFS = liveMetrics.clean_benchmarks.poly.coefficients;
+const PROP_COEFFS = liveMetrics.clean_benchmarks.proposed.coefficients;
 
-// Unit Predictions per Individual Fruit (g) - Evaluated Directly from Trained Coefficients
+// Unit Predictions per Individual Fruit (g)
 export function predictSimplePerFruit(w: number): number {
   const val = SLR_COEFFS[0] + SLR_COEFFS[1] * w;
   return val > 0 ? val : 0;
 }
 
 export function predictSvrPerFruit(w: number): number {
-  const val = SVR_COEFFS[0] + SVR_COEFFS[1] * w + SVR_COEFFS[2] * Math.pow(w, 0.3);
+  const val = SVR_COEFFS[0] + SVR_COEFFS[1] * w;
   return val > 0 ? val : 0;
 }
 
@@ -135,7 +114,7 @@ export function predictCbPolyPerFruit(w: number): number {
   return val > 0 ? val : 0;
 }
 
-// Operational Calculation Engine: Operates directly on batch weight
+// Operational Calculation Engine
 export function runCalculationEngine(weightG: number): PredictionResult {
   const repWeight = HARVEST_BASELINE.representativeWeight;
   const count = Math.max(1, Math.round(weightG / repWeight));
