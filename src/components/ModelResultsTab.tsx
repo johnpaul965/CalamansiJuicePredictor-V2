@@ -6,19 +6,51 @@ import {
   ShieldCheck,
   ArrowLeft,
   AlertTriangle,
+  Play,
+  Terminal,
+  RefreshCw,
+  CheckCircle2,
+  FileCode2,
 } from 'lucide-react';
 import {
   THESIS_MODELS,
   CB_POLY_PIPELINE_LAYERS,
   BATCH_SCALING_BENCHMARK,
+  RESEARCH_METADATA,
 } from '../services/predictionService';
+import {
+  executeLiveModelTraining,
+  LiveTrainingResult,
+  TrainingLogEntry,
+} from '../services/liveTrainingService';
 
 interface ModelResultsTabProps {
   onBackToPredict?: () => void;
 }
 
 export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredict }) => {
-  const [viewMode, setViewMode] = useState<'baseline' | 'defense'>('defense');
+  const [viewMode, setViewMode] = useState<'defense' | 'baseline' | 'training'>('defense');
+  const [isTraining, setIsTraining] = useState(false);
+  const [trainingLogs, setTrainingLogs] = useState<TrainingLogEntry[]>([]);
+  const [trainingResult, setTrainingResult] = useState<LiveTrainingResult | null>(null);
+  const [trainingError, setTrainingError] = useState<string | null>(null);
+
+  const handleRunLiveTraining = async () => {
+    setIsTraining(true);
+    setTrainingError(null);
+    setTrainingLogs([]);
+    try {
+      const result = await executeLiveModelTraining((entry) => {
+        setTrainingLogs((prev) => [...prev, entry]);
+      });
+      setTrainingResult(result);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Training failed';
+      setTrainingError(msg);
+    } finally {
+      setIsTraining(false);
+    }
+  };
 
   return (
     <div className="space-y-6 pb-12 max-w-5xl mx-auto">
@@ -45,35 +77,44 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
           </div>
         </div>
 
-        {/* Actions & Switcher */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* View Switcher */}
-          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-            <button
-              type="button"
-              onClick={() => setViewMode('defense')}
-              className={`px-3 py-1.5 font-bold rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
-                viewMode === 'defense'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>4-Model Benchmark & Layers</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('baseline')}
-              className={`px-3 py-1.5 font-bold rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
-                viewMode === 'baseline'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Chapter 4 Data Cleaning & Formulas</span>
-            </button>
-          </div>
+        {/* View Switcher */}
+        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs flex-wrap gap-1">
+          <button
+            type="button"
+            onClick={() => setViewMode('defense')}
+            className={`px-3 py-1.5 font-bold rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+              viewMode === 'defense'
+                ? 'bg-white text-emerald-800 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>4-Model Benchmark</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('training')}
+            className={`px-3 py-1.5 font-bold rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+              viewMode === 'training'
+                ? 'bg-white text-emerald-800 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Terminal className="w-3.5 h-3.5 text-emerald-600" />
+            <span>⚡ Live Training & Terminal</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('baseline')}
+            className={`px-3 py-1.5 font-bold rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+              viewMode === 'baseline'
+                ? 'bg-white text-emerald-800 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Data Cleaning & Equations</span>
+          </button>
         </div>
       </div>
 
@@ -101,10 +142,10 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                   Weight-Grouped 5-Fold R²
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-amber-300 mt-0.5">
-                  82.28%
+                  {THESIS_MODELS.cbPoly.r2Percent.toFixed(2)}%
                 </div>
                 <div className="text-[11px] text-emerald-200 mt-0.5 font-mono">
-                  MAE = 0.4896 mL • RMSE = 0.6160 mL
+                  MAE = {THESIS_MODELS.cbPoly.maeMl.toFixed(4)} mL • RMSE = {THESIS_MODELS.cbPoly.rmseMl.toFixed(4)} mL
                 </div>
               </div>
             </div>
@@ -447,8 +488,8 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                 <div className="text-xs font-bold text-slate-700 mb-1">
                   1. Simple Linear Regression (Ordinary Baseline — Raw Fit, No Layers):
                 </div>
-                <code className="block p-3 rounded-lg bg-white border border-slate-200 font-mono text-xs sm:text-sm text-slate-800 font-bold">
-                  Juice (mL) = 0.4162 × Weight - 0.0432
+                <code className="block p-3 rounded-lg bg-white border border-slate-200 font-mono text-xs sm:text-sm text-slate-800 font-bold overflow-x-auto">
+                  {THESIS_MODELS.slr.formula}
                 </code>
               </div>
 
@@ -456,8 +497,8 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                 <div className="text-xs font-bold text-slate-700 mb-1">
                   2. Support Vector Regression (Ordinary Baseline — Default RBF Kernel, No Layers):
                 </div>
-                <code className="block p-3 rounded-lg bg-white border border-slate-200 font-mono text-xs sm:text-sm text-slate-800 font-bold">
-                  Kernel: Radial Basis Function (RBF), C = 1.0, ε = 0.1 on raw Weight (W)
+                <code className="block p-3 rounded-lg bg-white border border-slate-200 font-mono text-xs sm:text-sm text-slate-800 font-bold overflow-x-auto">
+                  {THESIS_MODELS.svr.formula}
                 </code>
               </div>
 
@@ -465,8 +506,8 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                 <div className="text-xs font-bold text-slate-700 mb-1">
                   3. Polynomial Regression Degree 2 (Ordinary Baseline — Raw Fit, No Extra Layers):
                 </div>
-                <code className="block p-3 rounded-lg bg-white border border-slate-200 font-mono text-xs sm:text-sm text-slate-800 font-bold">
-                  Juice (mL) = 2.1605 + 0.0419(W) + 0.01500(W²)
+                <code className="block p-3 rounded-lg bg-white border border-slate-200 font-mono text-xs sm:text-sm text-slate-800 font-bold overflow-x-auto">
+                  {THESIS_MODELS.poly.formula}
                 </code>
               </div>
 
@@ -476,12 +517,218 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                   <span>4. Polynomial Regression (Degree 2) + ln(W) & L2 Ridge (Proposed Pipeline, α = 0.01):</span>
                 </div>
                 <code className="block p-3 rounded-lg bg-white border border-emerald-200 font-mono text-xs sm:text-sm text-emerald-900 font-bold overflow-x-auto">
-                  Juice (mL) = 2.3179 + 1.1004(W) - 0.01415(W²) - 3.4460·ln(W)
+                  {THESIS_MODELS.cbPoly.formula}
                 </code>
               </div>
             </div>
           </section>
         </>
+      )}
+
+      {/* ──────────────── TAB 3: LIVE MODEL TRAINING ENGINE ──────────────── */}
+      {viewMode === 'training' && (
+        <div className="space-y-6">
+          {/* Header Card */}
+          <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white rounded-2xl p-6 sm:p-7 border border-emerald-500/30 shadow-md">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold uppercase tracking-wider mb-2">
+                  <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Zero Hardcoding • Live Mathematical Verification</span>
+                </span>
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                  Dynamic Model Training & Evaluation Engine
+                </h2>
+                <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+                  Every metric, coefficient, and prediction curve in this system is derived directly from <code className="font-mono text-emerald-200">dataset.csv</code> (1,522 harvest rows). You can re-train all 4 models live right now in your browser, or run the official Python script in PowerShell!
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleRunLiveTraining}
+                  disabled={isTraining}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:bg-slate-700 text-white font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer"
+                >
+                  {isTraining ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Training 1,522 Samples...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 fill-white" />
+                      <span>Run Live In-Browser Training</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Quick Dual Verification Guide */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                <Terminal className="w-4 h-4 text-emerald-600" />
+                <span>Method 1: Run in PowerShell / Terminal</span>
+              </div>
+              <p className="text-xs text-slate-500">
+                Execute the standalone Chapter 4 training script. It reads <code className="font-mono bg-slate-100 px-1 py-0.5 rounded">dataset.csv</code>, solves the Gauss-Jordan normal equations, and saves to <code className="font-mono bg-slate-100 px-1 py-0.5 rounded">model_metrics.json</code>:
+              </p>
+              <div className="bg-slate-900 text-emerald-400 p-3 rounded-xl font-mono text-xs overflow-x-auto">
+                python train_model.py
+              </div>
+              <div className="text-[11px] text-slate-400">
+                Outputs exact Pearson r, R², MAE, RMSE, MAPE, and closed-form equations.
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                <FileCode2 className="w-4 h-4 text-blue-600" />
+                <span>Method 2: Live In-Browser Engine</span>
+              </div>
+              <p className="text-xs text-slate-500">
+                Click the green button above. The application fetches <code className="font-mono bg-slate-100 px-1 py-0.5 rounded">dataset.csv</code> and executes the exact same mathematical cross-validation inside this web page!
+              </p>
+              <div className="bg-slate-50 border border-slate-200 text-slate-700 p-2.5 rounded-xl text-xs space-y-1">
+                <div>• Step 1: Ratio filter (&le; 60%)</div>
+                <div>• Step 2: 98% Z-score screen (|Z| &le; 2.326)</div>
+                <div>• Step 3: 5-Fold cross-validation on unseen weights</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Live Training Console */}
+          <section className="bg-slate-950 text-slate-200 rounded-2xl border border-slate-800 p-5 shadow-inner space-y-3 font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-amber-500" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                <span className="text-slate-400 text-xs font-mono ml-2">
+                  live_training_terminal.log
+                </span>
+              </div>
+              <span className="text-[11px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
+                {isTraining ? 'TRAINING IN PROGRESS...' : trainingResult ? 'TRAINING FINISHED' : 'READY TO TRAIN'}
+              </span>
+            </div>
+
+            <div className="h-56 overflow-y-auto space-y-1.5 p-2 bg-black/40 rounded-xl border border-slate-900/60 font-mono text-[11px] leading-relaxed">
+              {trainingLogs.length === 0 ? (
+                <div className="text-slate-500 italic py-6 text-center">
+                  Click &ldquo;Run Live In-Browser Training&rdquo; to watch the dataset load, clean outliers, and fit all 4 models in real-time.
+                </div>
+              ) : (
+                trainingLogs.map((logEntry, idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <span className="text-slate-600 shrink-0">[{logEntry.timestamp}]</span>
+                    <span
+                      className={`uppercase text-[10px] font-bold px-1 rounded shrink-0 ${
+                        logEntry.stage === 'load'
+                          ? 'bg-blue-900/50 text-blue-300'
+                          : logEntry.stage === 'clean'
+                          ? 'bg-amber-900/50 text-amber-300'
+                          : logEntry.stage === 'cv'
+                          ? 'bg-purple-900/50 text-purple-300'
+                          : logEntry.stage === 'fit'
+                          ? 'bg-cyan-900/50 text-cyan-300'
+                          : 'bg-emerald-900/60 text-emerald-300'
+                      }`}
+                    >
+                      {logEntry.stage}
+                    </span>
+                    <span
+                      className={
+                        logEntry.stage === 'done'
+                          ? 'text-emerald-300 font-bold'
+                          : 'text-slate-300'
+                      }
+                    >
+                      {logEntry.message}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {trainingError && (
+              <div className="p-3 bg-red-950/60 border border-red-800 text-red-300 rounded-xl text-xs">
+                Training Error: {trainingError}
+              </div>
+            )}
+          </section>
+
+          {/* Dynamic Results Card If Live Training Ran */}
+          {trainingResult && (
+            <section className="bg-white rounded-2xl border border-emerald-300 shadow-xs p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  <h3 className="text-base font-extrabold text-slate-900">
+                    Live Training Benchmark Results (Trained {trainingResult.timestamp})
+                  </h3>
+                </div>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
+                  Verified Clean N = {trainingResult.cleanCount}
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
+                      <th className="py-2.5 px-3">Model</th>
+                      <th className="py-2.5 px-3 text-right font-mono">R² (%)</th>
+                      <th className="py-2.5 px-3 text-right font-mono">MAE</th>
+                      <th className="py-2.5 px-3 text-right font-mono">RMSE</th>
+                      <th className="py-2.5 px-3 text-right font-mono">MAPE</th>
+                      <th className="py-2.5 px-3 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {[
+                      trainingResult.models.slr,
+                      trainingResult.models.svr,
+                      trainingResult.models.poly,
+                    ].map((m) => (
+                      <tr key={m.shortName} className="hover:bg-slate-50 transition">
+                        <td className="py-2.5 px-3 font-bold text-slate-800">{m.name}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800 font-medium">{m.r2Percent}%</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-700">{m.maeMl} mL</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-700">{m.rmseMl} mL</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-700">{m.mapePercent}%</td>
+                        <td className="py-2.5 px-3 text-right">
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold">
+                            Baseline
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="bg-emerald-50/80 font-bold border-t-2 border-emerald-400">
+                      <td className="py-2.5 px-3 text-emerald-950 flex items-center gap-1.5">
+                        <Award className="w-4 h-4 text-emerald-700" />
+                        <span>{trainingResult.models.proposed.name}</span>
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono text-emerald-700 font-extrabold">{trainingResult.models.proposed.r2Percent}%</td>
+                      <td className="py-2.5 px-3 text-right font-mono text-emerald-800">{trainingResult.models.proposed.maeMl} mL</td>
+                      <td className="py-2.5 px-3 text-right font-mono text-emerald-800">{trainingResult.models.proposed.rmseMl} mL</td>
+                      <td className="py-2.5 px-3 text-right font-mono text-emerald-800">{trainingResult.models.proposed.mapePercent}%</td>
+                      <td className="py-2.5 px-3 text-right">
+                        <span className="px-2.5 py-0.5 bg-emerald-700 text-white rounded text-[10px] font-extrabold">
+                          ★ BEST FIT
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+        </div>
       )}
     </div>
   );

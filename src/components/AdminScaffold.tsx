@@ -11,13 +11,9 @@ import {
   KeyRound,
   CheckCircle,
   Ban,
-  FlaskConical,
-  Coins,
 } from 'lucide-react';
 import { AppUser, PredictionLog, UserRole } from '../types';
 import { ModelResultsTab } from './ModelResultsTab';
-import { ProfitCalculator } from './ProfitCalculator';
-import { DostSugarFormulator } from './DostSugarFormulator';
 import { exportLogsToCsv } from '../services/storageService';
 import { ConfirmModal, ResetPasswordModal, AddUserModal } from './Modals';
 
@@ -42,9 +38,7 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
   onSignOut,
   onShowToast,
 }) => {
-  const [activeTab, setActiveTab] = useState<'users' | 'audit' | 'profit' | 'dost-recipe' | 'research'>('users');
-  const [adminWeightKg, setAdminWeightKg] = useState<number>(10);
-  const [adminJuiceMl, setAdminJuiceMl] = useState<number>(4120);
+  const [activeTab, setActiveTab] = useState<'users' | 'audit' | 'research'>('users');
 
   // Modals state
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -198,32 +192,6 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
             <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-100 rounded-full text-slate-600">
               {logs.length}
             </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('profit')}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 'profit'
-                ? 'border-emerald-700 text-emerald-800'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <Coins className="w-4 h-4 text-emerald-600" />
-            <span>Money &amp; Profit Calculator</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('dost-recipe')}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 'dost-recipe'
-                ? 'border-emerald-700 text-emerald-800'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <FlaskConical className="w-4 h-4 text-teal-600" />
-            <span>DOST Sugar Recipe</span>
           </button>
 
           <button
@@ -460,31 +428,7 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
           </div>
         )}
 
-        {/* Tab 3: Money & Profit Calculator */}
-        {activeTab === 'profit' && (
-          <ProfitCalculator
-            initialWeightKg={adminWeightKg}
-            initialJuiceMl={adminJuiceMl}
-            onNavigateToDost={(juiceMl) => {
-              setAdminJuiceMl(juiceMl);
-              setActiveTab('dost-recipe');
-            }}
-          />
-        )}
-
-        {/* Tab 4: DOST Sugar Recipe Formulator */}
-        {activeTab === 'dost-recipe' && (
-          <DostSugarFormulator
-            initialJuiceMl={adminJuiceMl}
-            initialWeightKg={adminWeightKg}
-            onNavigateToProfit={(weightKg) => {
-              setAdminWeightKg(weightKg);
-              setActiveTab('profit');
-            }}
-          />
-        )}
-
-        {/* Tab 5: Isolated Research Analytics Portal */}
+        {/* Tab 3: Isolated Research Analytics Portal */}
         {activeTab === 'research' && (
           <ModelResultsTab />
         )}

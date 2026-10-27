@@ -2,40 +2,161 @@
   "metadata": {
     "institution": "Leyte Normal University",
     "study": "Tacloban City Calamansi Harvest Study",
-    "total_samples": 1522,
+    "training_timestamp": "2026-10-27 15:10:14 UTC",
+    "total_raw_samples": 1522,
     "clean_samples": 1478,
+    "removed_ratio": 8,
+    "removed_z": 36,
+    "retained_pct": 97.11,
     "representative_weight_g": 12.686,
     "representative_juice_ml": 5.225,
-    "best_model": "Polynomial (d=2) + ln(W) & L2 Ridge"
+    "extraction_ratio_pct": 41.19,
+    "champion_model": "Polynomial Regression (d=2) + ln(W) & L2 Ridge"
   },
   "cv_benchmarks": {
     "slr": {
       "r2": 0.8074,
+      "r2_percent": 80.74,
       "mae": 0.5142,
       "rmse": 0.6423,
       "mse": 0.4126,
-      "mape": 10.92
+      "mape": 10.92,
+      "correlation_r": 0.9061,
+      "name": "Simple Linear Regression (SLR)",
+      "formula": "Juice (mL) = 0.4551 \u00d7 W + (-0.5489)",
+      "coefficients": [
+        -0.548888,
+        0.455134
+      ]
     },
     "svr": {
       "r2": 0.8053,
+      "r2_percent": 80.53,
       "mae": 0.5179,
       "rmse": 0.6458,
       "mse": 0.4171,
-      "mape": 11.13
+      "mape": 11.13,
+      "correlation_r": 0.9046,
+      "name": "Support Vector Regression (Ordinary RBF)",
+      "formula": "Juice (mL) = -0.7509 + 0.4477(W) + 0.1393(W^0.3)",
+      "coefficients": [
+        -0.750858,
+        0.447671,
+        0.139258
+      ]
     },
     "poly": {
       "r2": 0.7623,
+      "r2_percent": 76.23,
       "mae": 0.569,
       "rmse": 0.7136,
       "mse": 0.5092,
-      "mape": 12.86
+      "mape": 12.86,
+      "correlation_r": 0.8764,
+      "name": "Polynomial Regression (Degree 2)",
+      "formula": "Juice (mL) = -0.8979 + 0.5137(W) + (-0.002323)(W\u00b2)",
+      "coefficients": [
+        -0.897923,
+        0.513682,
+        -0.002323
+      ]
     },
     "proposed": {
       "r2": 0.8228,
+      "r2_percent": 82.28,
       "mae": 0.4896,
       "rmse": 0.616,
       "mse": 0.3795,
-      "mape": 10.05
+      "mape": 10.05,
+      "correlation_r": 0.9071,
+      "name": "Polynomial (d=2) + ln(W) & L2 Ridge",
+      "formula": "Juice (mL) = 2.3179 + 1.1004(W) + (-0.014151)(W\u00b2) + (-3.4460)\u00b7ln(W)",
+      "coefficients": [
+        2.317885,
+        1.100407,
+        -0.014151,
+        -3.445975
+      ],
+      "isChampion": true
     }
-  }
+  },
+  "fold_cross_validation": [
+    {
+      "fold": 1,
+      "test_samples": 204,
+      "r2_pct": 88.31,
+      "mae": 0.4558
+    },
+    {
+      "fold": 2,
+      "test_samples": 353,
+      "r2_pct": 24.18,
+      "mae": 0.4493
+    },
+    {
+      "fold": 3,
+      "test_samples": 424,
+      "r2_pct": 14.4,
+      "mae": 0.4542
+    },
+    {
+      "fold": 4,
+      "test_samples": 269,
+      "r2_pct": 67.11,
+      "mae": 0.6218
+    },
+    {
+      "fold": 5,
+      "test_samples": 228,
+      "r2_pct": 92.78,
+      "mae": 0.492
+    }
+  ],
+  "batch_scaling_clt": [
+    {
+      "scale": "Single Calamansi",
+      "weightKg": 0.01,
+      "weightG": 12.69,
+      "count": 1,
+      "mape": 10.05,
+      "accuracy": 89.95,
+      "category": "Individual Fruit"
+    },
+    {
+      "scale": "Retail Pack",
+      "weightKg": 0.13,
+      "weightG": 126.9,
+      "count": 10,
+      "mape": 3.18,
+      "accuracy": 96.82,
+      "category": "Small Pack"
+    },
+    {
+      "scale": "Harvest Basket",
+      "weightKg": 0.63,
+      "weightG": 634.3,
+      "count": 50,
+      "mape": 1.42,
+      "accuracy": 98.58,
+      "category": "Medium Basket"
+    },
+    {
+      "scale": "Standard Sack",
+      "weightKg": 1.27,
+      "weightG": 1268.6,
+      "count": 100,
+      "mape": 1.01,
+      "accuracy": 99.0,
+      "category": "Commercial Sack"
+    },
+    {
+      "scale": "Commercial Crate",
+      "weightKg": 6.34,
+      "weightG": 6343.0,
+      "count": 500,
+      "mape": 0.45,
+      "accuracy": 99.55,
+      "category": "Bulk Processing Crate"
+    }
+  ]
 }

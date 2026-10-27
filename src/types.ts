@@ -62,3 +62,13 @@ export interface ResearchMetadata {
   overall_mean_fruit_weight_g: number;
   overall_mean_fruit_juice_ml: number;
 }
+
+export interface AblationMetric {
+  name: string;
+  dirtyR2: number;
+  cleanR2: number;
+  r2Gain: number;
+  dirtyMae: number;
+  cleanMae: number;
+  maeReduction: number;
+}
