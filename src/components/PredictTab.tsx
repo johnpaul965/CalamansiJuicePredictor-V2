@@ -310,7 +310,9 @@ export const PredictTab: React.FC<PredictTabProps> = ({
               </div>
 
               <div className="pt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-emerald-200">
-                <span>Model Calibration: R² = 82.45% • Correlation (r) = 0.9080</span>
+                <span>
+                  Model Calibration: R² = {THESIS_MODELS.cbPoly.r2Percent.toFixed(2)}% • Correlation (r) = {THESIS_MODELS.cbPoly.correlationR.toFixed(4)}
+                </span>
                 <span className="font-mono text-emerald-300 text-[11px]">
                   Batch Variance Damping: {batchAccuracy.tag}
                 </span>
@@ -322,7 +324,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
               {[
                 {
                   label: 'Model 1',
-                  badge: 'Baseline',
+                  badge: 'Ordinary Baseline (W)',
                   badgeCls: 'bg-slate-200 text-slate-700',
                   title: 'Simple Linear (SLR)',
                   totalMl: result.slrTotalMl,
@@ -330,7 +332,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 },
                 {
                   label: 'Model 2',
-                  badge: 'Quadratic',
+                  badge: 'Ordinary Quadratic (W, W²)',
                   badgeCls: 'bg-blue-100 text-blue-800',
                   title: 'Polynomial (d=2)',
                   totalMl: result.polyTotalMl,
@@ -338,33 +340,33 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 },
                 {
                   label: 'Model 3',
-                  badge: 'W, W², ln(W) + ε-Margin',
+                  badge: 'Default RBF (No Layers)',
                   badgeCls: 'bg-purple-100 text-purple-800',
-                  title: 'SVR (RBF + Feature Layers)',
+                  title: 'SVR (Ordinary Default)',
                   totalMl: result.svrTotalMl,
                   meta: THESIS_MODELS.svr,
                 },
                 {
                   label: 'Model 4',
-                  badge: 'Symmetric + L2=8.0',
+                  badge: 'Default Trees (No Layers)',
                   badgeCls: 'bg-cyan-100 text-cyan-800',
-                  title: 'CatBoost (+ L2 Regularization)',
+                  title: 'CatBoost (Ordinary Default)',
                   totalMl: result.catboostTotalMl,
                   meta: THESIS_MODELS.catboost,
                 },
                 {
                   label: 'Model 5',
-                  badge: 'Asymmetric + λ=5.0',
+                  badge: 'Default Trees (No Layers)',
                   badgeCls: 'bg-indigo-100 text-indigo-800',
-                  title: 'XGBoost (+ L2 Regularization)',
+                  title: 'XGBoost (Ordinary Default)',
                   totalMl: result.xgbTotalMl,
                   meta: THESIS_MODELS.xgboost,
                 },
                 {
                   label: 'Model 6',
-                  badge: 'Pruned Bagging',
+                  badge: 'Default Bagging (No Layers)',
                   badgeCls: 'bg-amber-100 text-amber-800',
-                  title: 'Random Forest (100 Pruned)',
+                  title: 'Random Forest (Ordinary Default)',
                   totalMl: result.rfTotalMl,
                   meta: THESIS_MODELS.rf,
                 },
