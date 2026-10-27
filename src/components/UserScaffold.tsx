@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Zap, Clock, LogOut } from 'lucide-react';
+import { Zap, Clock, LogOut, BarChart3, Smartphone } from 'lucide-react';
 import { AppUser, PredictionLog } from '../types';
 import { PredictTab } from './PredictTab';
 import { HistoryTab } from './HistoryTab';
+import { ModelResultsTab } from './ModelResultsTab';
+import { FlutterCodeTab } from './FlutterCodeTab';
 
 interface UserScaffoldProps {
   currentUser: AppUser;
@@ -19,7 +21,7 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
   onClearLogs,
   onSignOut,
 }) => {
-  const [activeTab, setActiveTab] = useState<'predict' | 'history'>('predict');
+  const [activeTab, setActiveTab] = useState<'predict' | 'models' | 'history' | 'flutter'>('predict');
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -35,7 +37,7 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
                 Calamansi Yield Predictor
               </div>
               <div className="text-[11px] text-emerald-200/90 font-medium">
-                Leyte Normal University • Tacloban City Study
+                Leyte Normal University • Tacloban City Study (Flutter Mobile Capstone)
               </div>
             </div>
           </div>
@@ -80,6 +82,19 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
 
           <button
             type="button"
+            onClick={() => setActiveTab('models')}
+            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+              activeTab === 'models'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>Model Comparison (V1 + V2 Updates)</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('history')}
             className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
               activeTab === 'history'
@@ -89,6 +104,19 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
           >
             <Clock className="w-4 h-4" />
             <span>Harvest History</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('flutter')}
+            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+              activeTab === 'flutter'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Smartphone className="w-4 h-4 text-emerald-700" />
+            <span>Flutter Mobile Code (Dart)</span>
           </button>
         </div>
       </nav>
@@ -102,12 +130,18 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             onRefreshLogs={onRefreshLogs}
           />
         )}
+        {activeTab === 'models' && (
+          <ModelResultsTab />
+        )}
         {activeTab === 'history' && (
           <HistoryTab
             currentUser={currentUser}
             logs={logs}
             onClearLogs={onClearLogs}
           />
+        )}
+        {activeTab === 'flutter' && (
+          <FlutterCodeTab />
         )}
       </main>
     </div>

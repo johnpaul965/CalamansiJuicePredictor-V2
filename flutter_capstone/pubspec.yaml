@@ -1,0 +1,22 @@
+name: calamansi_juice_predictor
+description: "Calamansi Juice Yield Prediction Mobile System - Leyte Normal University Capstone Study"
+publish_to: "none"
+version: 2.0.0+2
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  shared_preferences: ^2.2.2
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

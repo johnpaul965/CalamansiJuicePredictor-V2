@@ -70,7 +70,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>7-Model Benchmark & Layers</span>
+              <span>Model Benchmark & Layers</span>
             </button>
             <button
               type="button"
@@ -153,12 +153,13 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {[
-                    { m: THESIS_MODELS.slr, cls: 'bg-slate-100 text-slate-700', tag: 'No Layers (-1.54%)' },
-                    { m: THESIS_MODELS.svr, cls: 'bg-purple-50 text-purple-800', tag: 'No Layers (-1.75%)' },
-                    { m: THESIS_MODELS.poly, cls: 'bg-blue-50 text-blue-800', tag: 'No Layers (-6.05%)' },
+                    { m: THESIS_MODELS.slr, cls: 'bg-slate-100 text-slate-700', tag: 'Linear Baseline (-1.54%)' },
+                    { m: THESIS_MODELS.mlr, cls: 'bg-blue-50 text-blue-800', tag: 'V1 Baseline (-2.57%)' },
+                    { m: THESIS_MODELS.poly, cls: 'bg-amber-50 text-amber-800', tag: 'Raw Quadratic (-6.05%)' },
+                    { m: THESIS_MODELS.svr, cls: 'bg-purple-50 text-purple-800', tag: 'Kernel Machine' },
                     { m: THESIS_MODELS.catboost, cls: 'bg-cyan-50 text-cyan-800', tag: 'Step-Tree (-9.24%)' },
                     { m: THESIS_MODELS.xgboost, cls: 'bg-indigo-50 text-indigo-800', tag: 'Step-Tree (-9.24%)' },
-                    { m: THESIS_MODELS.rf, cls: 'bg-amber-50 text-amber-800', tag: 'Step-Tree (-9.27%)' },
+                    { m: THESIS_MODELS.rf, cls: 'bg-slate-100 text-slate-700', tag: 'Tree Bagging (-9.27%)' },
                   ].map(({ m, cls, tag }) => (
                     <tr key={m.name} className="hover:bg-slate-50 transition">
                       <td className="py-3.5 px-3.5 font-bold text-slate-800">{m.name}</td>

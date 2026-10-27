@@ -3,75 +3,62 @@
     "institution": "Leyte Normal University",
     "study": "Tacloban City Calamansi Harvest Study",
     "total_samples": 1522,
-    "training_samples": 1217,
-    "testing_samples": 305,
-    "best_model": "Polynomial Regression (d=2)",
-    "overall_mean_fruit_weight_g": 12.65,
+    "clean_samples": 1478,
+    "training_samples": 1182,
+    "testing_samples": 296,
+    "best_model": "Polynomial Regression (d=2) + ln(W) & L2 Ridge",
+    "overall_mean_fruit_weight_g": 12.69,
     "overall_mean_fruit_juice_ml": 5.22
   },
   "models": {
-    "Simple Linear Regression": {
-      "features": [
-        "Weight"
-      ],
-      "formula": "Juice = 0.4569 * Weight + (-0.6080)",
+    "Multiple Linear Regression (MLR)": {
+      "features": ["Weight", "Size"],
+      "role": "Version 1 Supporting Baseline (Raw Fit, No Layers)",
+      "formula": "Juice = -0.5423 + 0.4530 * Weight + 0.0098 * Size",
       "metrics": {
-        "r2": 0.7099,
-        "mae": 0.5294,
-        "rmse": 0.6635,
-        "mse": 0.4403,
-        "mape": 10.42
-      },
-      "coefficients": {
-        "intercept": -0.608,
-        "weight": 0.4569
+        "r2": 0.7971,
+        "mae": 0.5288,
+        "rmse": 0.6593,
+        "mape": 11.28,
+        "correlation": 0.8950
       }
     },
-    "Multiple Linear Regression": {
-      "features": [
-        "Weight",
-        "Size"
-      ],
-      "formula": "Juice = 0.4580 * Weight + (-0.0053) * Size + (-0.6108)",
+    "Ordinary Polynomial Regression (d=2)": {
+      "features": ["Weight", "Weight^2"],
+      "role": "Version 1 Supporting Baseline (Raw Fit, No Layers)",
+      "formula": "Juice = 2.1605 + 0.0419 * Weight + 0.01500 * Weight^2",
       "metrics": {
-        "r2": 0.71,
-        "mae": 0.5292,
-        "rmse": 0.6635,
-        "mse": 0.4402,
-        "mape": 10.42
-      },
-      "coefficients": {
-        "intercept": -0.6108,
-        "weight": 0.458,
-        "size": -0.0053
+        "r2": 0.7623,
+        "mae": 0.5690,
+        "rmse": 0.7136,
+        "mape": 12.86,
+        "correlation": 0.8764
       }
     },
-    "Polynomial Regression (d=2)": {
-      "features": [
-        "Weight",
-        "Size",
-        "Weight^2",
-        "Weight*Size",
-        "Size^2"
-      ],
-      "formula": "Juice = -0.5480 + 0.43568*W + 0.08652*S + -0.003075*W\u00b2 + 0.04738*W*S + (-0.16409)*S\u00b2",
+    "Simple Linear Regression (SLR)": {
+      "features": ["Weight"],
+      "role": "Supporting Linear Baseline (Raw Fit, No Layers)",
+      "formula": "Juice = 0.4162 * Weight - 0.0432",
       "metrics": {
-        "r2": 0.7102,
-        "mae": 0.5279,
-        "rmse": 0.6637,
-        "mse": 0.4405,
-        "mape": 10.39
-      },
-      "coefficients": {
-        "intercept": -0.548,
-        "weights": [
-          0.43568,
-          0.086517,
-          -0.003075,
-          0.047385,
-          -0.164087
-        ]
+        "r2": 0.8074,
+        "mae": 0.5142,
+        "rmse": 0.6423,
+        "mape": 10.92,
+        "correlation": 0.9061
       }
+    },
+    "Polynomial Regression (d=2) + ln(W) & L2 Ridge": {
+      "features": ["Weight", "Weight^2", "ln(Weight)"],
+      "role": "★ Proposed Champion (In-Fold Clean + ln W + L2 Ridge)",
+      "formula": "Juice = 2.3179 + 1.1004 * Weight - 0.01415 * Weight^2 - 3.4460 * ln(Weight)",
+      "metrics": {
+        "r2": 0.8228,
+        "mae": 0.4896,
+        "rmse": 0.6160,
+        "mape": 10.05,
+        "correlation": 0.9071
+      },
+      "isChampion": true
     }
   }
 }

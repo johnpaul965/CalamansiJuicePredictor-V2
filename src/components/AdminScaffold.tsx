@@ -12,9 +12,11 @@ import {
   CheckCircle,
   Ban,
   FlaskConical,
+  Smartphone,
 } from 'lucide-react';
 import { AppUser, PredictionLog, UserRole } from '../types';
 import { ModelResultsTab } from './ModelResultsTab';
+import { FlutterCodeTab } from './FlutterCodeTab';
 import { exportLogsToCsv } from '../services/storageService';
 import { ConfirmModal, ResetPasswordModal, AddUserModal } from './Modals';
 
@@ -39,7 +41,7 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
   onSignOut,
   onShowToast,
 }) => {
-  const [activeTab, setActiveTab] = useState<'users' | 'audit' | 'research'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'audit' | 'research' | 'flutter'>('users');
 
   // Modals state
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -206,6 +208,19 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
           >
             <FlaskConical className="w-4 h-4 text-emerald-600" />
             <span>Research Analytics Portal</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('flutter')}
+            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+              activeTab === 'flutter'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Smartphone className="w-4 h-4 text-emerald-600" />
+            <span>Flutter Mobile Code (Dart)</span>
           </button>
         </div>
       </nav>

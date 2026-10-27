@@ -23,95 +23,56 @@ export const HARVEST_BASELINE = {
 // Models 1–6 = Ordinary Off-the-Shelf Baselines (no extra layers);
 // Model 7 = Proposed Pipeline (In-Fold Training Hygiene + [W, W², ln(W)] + L2 Ridge α = 0.01).
 export const THESIS_MODELS: Record<string, ModelBenchmark> = {
-  slr: {
-    name: 'Simple Linear Regression (SLR)',
-    shortName: 'SLR',
-    role: 'Ordinary Linear Baseline (W only, no layers)',
-    correlationR: 0.9061,
-    r2Percent: 80.74,
-    maeMl: 0.5142,
-    rmseMl: 0.6423,
-    mapePercent: 10.92,
-    formula: 'Juice (ml) = 0.4162 × Weight - 0.0432 (Ordinary Raw Fit)',
-    badge: 'Ordinary Baseline',
+  mlr: {
+    name: 'Multiple Linear Regression (MLR)',
+    shortName: 'V1 MLR (W + Size)',
+    role: 'Version 1 Supporting Baseline (Raw Fit, No Layers)',
+    correlationR: 0.8950,
+    r2Percent: 79.71,
+    maeMl: 0.5288,
+    rmseMl: 0.6593,
+    mapePercent: 11.28,
+    formula: 'Juice (ml) = -0.5423 + 0.4530(Weight) + 0.0098(Size)',
+    badge: 'V1 Baseline (-2.57%)',
     isChampion: false,
   },
   poly: {
-    name: 'Polynomial Regression (Degree 2)',
-    shortName: 'Poly (d=2)',
-    role: 'Ordinary Quadratic Baseline (W, W², no layers)',
+    name: 'Ordinary Polynomial Regression (Degree 2)',
+    shortName: 'Ordinary Poly (d=2)',
+    role: 'Version 1 Supporting Baseline (Raw Fit, No Layers)',
     correlationR: 0.8764,
     r2Percent: 76.23,
     maeMl: 0.5690,
     rmseMl: 0.7136,
     mapePercent: 12.86,
-    formula: 'Juice (ml) = 2.1605 + 0.0419(W) + 0.01500(W²) (Unregularized Raw Fit)',
-    badge: 'Ordinary Quadratic',
+    formula: 'Juice (ml) = 2.1605 + 0.0419(W) + 0.01500(W²) (Raw Fit)',
+    badge: 'Raw Quadratic (-6.05%)',
     isChampion: false,
   },
-  svr: {
-    name: 'Support Vector Regression (Ordinary RBF)',
-    shortName: 'SVR (RBF)',
-    role: 'Default Off-the-Shelf SVR (W only, no layers)',
-    correlationR: 0.8976,
-    r2Percent: 80.53,
-    maeMl: 0.5128,
-    rmseMl: 0.6458,
-    mapePercent: 10.99,
-    formula: 'Default RBF Kernel on raw W (C=1.0, ε=0.1, no extra layers)',
-    badge: 'Ordinary SVR',
-    isChampion: false,
-  },
-  catboost: {
-    name: 'CatBoost Regressor (Ordinary Default)',
-    shortName: 'CatBoost',
-    role: 'Default Symmetric Boosting (W only, no layers)',
-    correlationR: 0.8585,
-    r2Percent: 73.04,
-    maeMl: 0.6170,
-    rmseMl: 0.7599,
-    mapePercent: 12.70,
-    formula: 'Default symmetric step-function trees on raw W (no extra layers)',
-    badge: 'Ordinary CatBoost',
-    isChampion: false,
-  },
-  xgboost: {
-    name: 'XGBoost Regressor (Ordinary Default)',
-    shortName: 'XGBoost',
-    role: 'Default Asymmetric Boosting (W only, no layers)',
-    correlationR: 0.8585,
-    r2Percent: 73.04,
-    maeMl: 0.6170,
-    rmseMl: 0.7599,
-    mapePercent: 12.70,
-    formula: 'Default asymmetric step-function trees on raw W (no extra layers)',
-    badge: 'Ordinary XGBoost',
-    isChampion: false,
-  },
-  rf: {
-    name: 'Random Forest Regressor (Ordinary Default)',
-    shortName: 'Random Forest',
-    role: 'Default Unpruned Bagging (W only, no layers)',
-    correlationR: 0.8581,
-    r2Percent: 73.01,
-    maeMl: 0.6172,
-    rmseMl: 0.7604,
-    mapePercent: 12.70,
-    formula: '100 default bootstrap step-function trees on raw W (no extra layers)',
-    badge: 'Ordinary RF',
+  slr: {
+    name: 'Simple Linear Regression (SLR)',
+    shortName: 'SLR',
+    role: 'Supporting Linear Baseline (Raw Fit, No Layers)',
+    correlationR: 0.9061,
+    r2Percent: 80.74,
+    maeMl: 0.5142,
+    rmseMl: 0.6423,
+    mapePercent: 10.92,
+    formula: 'Juice (ml) = 0.4162 × Weight - 0.0432 (Raw Fit)',
+    badge: 'Linear Baseline (-1.54%)',
     isChampion: false,
   },
   cbPoly: {
     name: 'Polynomial Regression (d=2) + ln(W) & L2 Ridge',
-    shortName: 'Poly + ln(W) + Ridge',
-    role: '★ Proposed Model (In-Fold Clean + ln W + L2 Ridge)',
+    shortName: '★ Upgraded Poly + ln(W) + Ridge',
+    role: '★ Proposed Champion (In-Fold Clean + ln W + L2 Ridge)',
     correlationR: 0.9071,
     r2Percent: 82.28,
     maeMl: 0.4896,
     rmseMl: 0.6160,
     mapePercent: 10.05,
     formula: 'Juice (ml) = 2.3179 + 1.1004(W) - 0.01415(W²) - 3.4460·ln(W)',
-    badge: '★ Best Fit',
+    badge: '★ #1 Best Fit Champion',
     isChampion: true,
   },
 };
@@ -182,6 +143,11 @@ export function predictSimplePerFruit(w: number): number {
   return val > 0 ? val : 0;
 }
 
+export function predictMlrPerFruit(w: number): number {
+  const val = -0.5423 + 0.4530 * w + 0.0098 * 1.97;
+  return val > 0 ? val : 0;
+}
+
 export function predictPolyPerFruit(w: number): number {
   const val = 2.160503 + 0.041943 * w + 0.014995 * w * w;
   return val > 0 ? val : 0;
@@ -216,6 +182,7 @@ export function runCalculationEngine(weightG: number): PredictionResult {
   const countFloat = weightG / repWeight;
 
   const slrPerFruit = predictSimplePerFruit(repWeight);
+  const mlrPerFruit = predictMlrPerFruit(repWeight);
   const polyPerFruit = predictPolyPerFruit(repWeight);
   const svrPerFruit = predictSvrPerFruit(repWeight);
   const xgbPerFruit = predictXgbPerFruit(repWeight);
@@ -224,6 +191,7 @@ export function runCalculationEngine(weightG: number): PredictionResult {
   const cbPolyPerFruit = predictCbPolyPerFruit(repWeight);
 
   const slrTotalMl = countFloat * slrPerFruit;
+  const mlrTotalMl = countFloat * mlrPerFruit;
   const polyTotalMl = countFloat * polyPerFruit;
   const svrTotalMl = countFloat * svrPerFruit;
   const xgbTotalMl = countFloat * xgbPerFruit;
@@ -235,6 +203,7 @@ export function runCalculationEngine(weightG: number): PredictionResult {
     count,
     repWeight: +repWeight.toFixed(2),
     slrTotalMl,
+    mlrTotalMl,
     polyTotalMl,
     svrTotalMl,
     xgbTotalMl,

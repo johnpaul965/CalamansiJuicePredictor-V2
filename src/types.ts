@@ -14,6 +14,7 @@ export interface PredictionResult {
   count: number;
   repWeight: number;
   slrTotalMl: number;
+  mlrTotalMl: number;
   polyTotalMl: number;
   svrTotalMl: number;
   xgbTotalMl: number;
