@@ -1,216 +1,411 @@
 import 'package:flutter/material.dart';
+import '../models/prediction_result.dart';
+import '../services/prediction_service.dart';
 
 class ModelComparisonScreen extends StatelessWidget {
   const ModelComparisonScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F9F6),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF15803D),
+          elevation: 0,
+          title: const Text(
+            '4-Model Benchmark Suite',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+          ),
+          bottom: const TabBar(
+            indicatorColor: Colors.white,
+            indicatorWeight: 3,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            tabs: [
+              Tab(text: 'Benchmarks (N=1,478)'),
+              Tab(text: 'Data Hygiene'),
+              Tab(text: 'Formulas'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
           children: [
-            // Top Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8F5E9),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFA5D6A7)),
-              ),
-              child: const Text(
-                'Tacloban City Calamansi Harvest Study (Chapter 4 Model Benchmark)',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1B5E20),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Performance Benchmark Table Card
-            Card(
-              elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Model Benchmark Comparison',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '5-Fold Cross-Validation on Cleaned Ground-Truth Harvest Data (N = 1,478)',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 16),
-                    _modelMetricCard(
-                      title: '★ Proposed: Poly (d=2) + ln(W) & L2 Ridge',
-                      role: 'Proposed Champion Architecture',
-                      r2: '82.28%',
-                      mae: '0.4896 mL',
-                      rmse: '0.6160 mL',
-                      isChampion: true,
-                    ),
-                    const SizedBox(height: 10),
-                    _modelMetricCard(
-                      title: 'Simple Linear Regression (SLR)',
-                      role: 'Linear Baseline (Raw Fit, No Layers)',
-                      r2: '80.74%',
-                      mae: '0.5142 mL',
-                      rmse: '0.6423 mL',
-                    ),
-                    const SizedBox(height: 10),
-                    _modelMetricCard(
-                      title: 'Multiple Linear Regression (MLR)',
-                      role: 'Version 1 Supporting Baseline (Weight + Size)',
-                      r2: '79.71%',
-                      mae: '0.5288 mL',
-                      rmse: '0.6593 mL',
-                    ),
-                    const SizedBox(height: 10),
-                    _modelMetricCard(
-                      title: 'Ordinary Polynomial Regression (degree 2)',
-                      role: 'Raw Quadratic Baseline (Distorted by Outliers)',
-                      r2: '76.23%',
-                      mae: '0.5690 mL',
-                      rmse: '0.7136 mL',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Visual R² Comparison Chart (Bar Chart)
-            Card(
-              elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'R² Accuracy Comparison (Higher is Better)',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Shows the clear +6.05% performance advantage of the Proposed Model',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 16),
-                    _visualBar(label: 'Proposed Poly+ln(W)+Ridge', value: 82.28, max: 100, isChampion: true),
-                    _visualBar(label: 'Simple Linear (SLR)', value: 80.74, max: 100),
-                    _visualBar(label: 'Multiple Linear (MLR)', value: 79.71, max: 100),
-                    _visualBar(label: 'Ordinary Poly (d=2)', value: 76.23, max: 100),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Visual MAE Error Comparison Chart (Lower is Better)
-            Card(
-              elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Mean Absolute Error (MAE in mL — Lower is Better)',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Proposed model achieves the lowest average prediction error (<0.49 mL)',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 16),
-                    _visualBar(label: 'Proposed Poly+ln(W)+Ridge', value: 0.4896, max: 0.65, isChampion: true, isError: true),
-                    _visualBar(label: 'Simple Linear (SLR)', value: 0.5142, max: 0.65, isError: true),
-                    _visualBar(label: 'Multiple Linear (MLR)', value: 0.5288, max: 0.65, isError: true),
-                    _visualBar(label: 'Ordinary Poly (d=2)', value: 0.5690, max: 0.65, isError: true),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Exact Mathematical Equations
-            Card(
-              elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Trained Regression Formulas',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      '1. ★ Proposed Model:\nJuice = 2.3179 + 1.1004(W) - 0.01415(W²) - 3.4460·ln(W)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1B5E20),
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '2. Simple Linear Regression:\nJuice = 0.4162 × Weight - 0.0432',
-                      style: TextStyle(fontSize: 12, color: Colors.black87, fontFamily: 'monospace'),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '3. Multiple Linear Regression:\nJuice = -0.5423 + 0.4530(Weight) + 0.0098(Size)',
-                      style: TextStyle(fontSize: 12, color: Colors.black87, fontFamily: 'monospace'),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '4. Ordinary Polynomial (d=2):\nJuice = 2.1605 + 0.0419(W) + 0.0150(W²)',
-                      style: TextStyle(fontSize: 12, color: Colors.black87, fontFamily: 'monospace'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
+            _BenchmarkTab(),
+            _DataHygieneTab(),
+            _FormulasTab(),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _modelMetricCard({
+class _BenchmarkTab extends StatelessWidget {
+  const _BenchmarkTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final benchmarks = PredictionService.benchmarks;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header Card
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  '4-Model Benchmark Suite: 3 Ordinary Baselines vs. 1 Layered Model',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'Evaluated fairly on the exact same N = 1,478 test fruits using Weight-Grouped 5-Fold Cross-Validation (((W + 1) // 2) % 5) so models must predict unseen fruit weights.',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // 4 Model Cards
+          ...benchmarks.map((item) {
+            final isChamp = item.isChampion;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isChamp ? const Color(0xFFECFDF5) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isChamp ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+                  width: isChamp ? 2 : 1,
+                ),
+                boxShadow: isChamp
+                    ? [
+                        BoxShadow(
+                          color: const Color(0xFF10B981).withOpacity(0.12),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.name,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: isChamp ? const Color(0xFF065F46) : const Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item.configuration,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isChamp ? const Color(0xFF047857) : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isChamp ? const Color(0xFF15803D) : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          item.status,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isChamp ? Colors.white : const Color(0xFF475569),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isChamp ? Colors.white.withOpacity(0.8) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: isChamp ? const Color(0xFFA7F3D0) : const Color(0xFFE2E8F0)),
+                    ),
+                    child: Text(
+                      item.formula,
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isChamp ? const Color(0xFF047857) : const Color(0xFF334155),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildMetricCol('R² (%)', '${item.r2.toStringAsFixed(2)}%', isChamp: isChamp),
+                      _buildMetricCol('MAE', '${item.mae.toStringAsFixed(4)} mL', isChamp: isChamp),
+                      _buildMetricCol('RMSE', '${item.rmse.toStringAsFixed(4)} mL', isChamp: isChamp),
+                      _buildMetricCol('MAPE', '${item.mape.toStringAsFixed(2)}%', isChamp: isChamp),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildMetricCol(String label, String value, {bool isChamp = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'monospace',
+            color: isChamp ? const Color(0xFF065F46) : const Color(0xFF0F172A),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DataHygieneTab extends StatelessWidget {
+  const _DataHygieneTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = PredictionService.dataHygieneSteps;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'Chapter 4: Data Cleaning & Hygiene Audit',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'Rigorous 3-step filtering pipeline designed to eliminate physical harvesting artifacts while preserving genuine biological variance in calamansi fruits.',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...steps.map((s) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 14,
+                        backgroundColor: const Color(0xFF15803D),
+                        child: Text(
+                          '${s.step}',
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          s.title,
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    s.description,
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStat('Input', '${s.inputCount}'),
+                        const Icon(Icons.arrow_forward, size: 16, color: Color(0xFF94A3B8)),
+                        _buildStat('Output', '${s.outputCount}'),
+                        const Icon(Icons.remove_circle_outline, size: 16, color: Color(0xFFEF4444)),
+                        _buildStat('Dropped', '-${s.dropCount}', color: const Color(0xFFEF4444)),
+                        _buildStat('Retained', '${s.percentageRetained.toStringAsFixed(1)}%', color: const Color(0xFF15803D)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFBBF7D0)),
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.verified, color: Color(0xFF15803D), size: 28),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Chapter 4 Audit Confirmed: N = 1,478 pristine data points ready for benchmark regression without data leakage.',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF166534)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildStat(String label, String value, {Color? color}) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'monospace',
+            color: color ?? const Color(0xFF0F172A),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FormulasTab extends StatelessWidget {
+  const _FormulasTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildFormulaCard(
+            title: '1. Simple Linear Regression (SLR)',
+            badge: 'Ordinary Baseline',
+            equation: 'Juice = 0.416169 · W - 0.043154',
+            notes: 'Unconstrained ordinary least squares regression directly connecting fresh weight to juice output.',
+          ),
+          const SizedBox(height: 12),
+          _buildFormulaCard(
+            title: '2. Support Vector Regression (SVR - RBF)',
+            badge: 'Kernel ML',
+            equation: 'f(W) = Σ (αᵢ - αᵢ*) · K(Wᵢ, W) + b\nK(Wᵢ, W) = exp(-γ · ||Wᵢ - W||²)',
+            notes: 'Radial Basis Function kernel with epsilon-insensitive loss margin (ε = 0.1, C = 1.0).',
+          ),
+          const SizedBox(height: 12),
+          _buildFormulaCard(
+            title: '3. Polynomial Regression (Degree 2)',
+            badge: 'Quadratic Baseline',
+            equation: 'Juice = 2.160503 + 0.041943(W) + 0.014995(W²)',
+            notes: 'Captures peel-to-volume curvature without natural logarithm transformation.',
+          ),
+          const SizedBox(height: 12),
+          _buildFormulaCard(
+            title: '4. Proposed Model: Poly (d=2) + ln(W) & L2 Ridge',
+            badge: '★ Champion Architecture',
+            isChampion: true,
+            equation: 'Juice = 2.317885 + 1.100407(W) - 0.014151(W²) - 3.445975·ln(W)\nLoss = ||Y - Xβ||₂² + 0.01 · ||β||₂²',
+            notes: 'Combines biological volume physics (ln W peel boundary) with L2 Ridge shrinkage (α = 0.01) to eliminate multicollinearity.',
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildFormulaCard({
     required String title,
-    required String role,
-    required String r2,
-    required String mae,
-    required String rmse,
+    required String badge,
+    required String equation,
+    required String notes,
     bool isChampion = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isChampion ? const Color(0xFFE8F5E9) : Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
+        color: isChampion ? const Color(0xFFECFDF5) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isChampion ? const Color(0xFF81C784) : Colors.grey.shade200,
-          width: isChampion ? 1.5 : 1,
+          color: isChampion ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+          width: isChampion ? 2 : 1,
         ),
       ),
       child: Column(
@@ -223,103 +418,53 @@ class ModelComparisonScreen extends StatelessWidget {
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: isChampion ? const Color(0xFF1B5E20) : Colors.black87,
+                    color: isChampion ? const Color(0xFF065F46) : const Color(0xFF0F172A),
                   ),
                 ),
               ),
-              if (isChampion)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1B5E20),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'WINNER',
-                    style: TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isChampion ? const Color(0xFF15803D) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text(role, style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _metricChip('R²', r2, isChampion),
-              _metricChip('MAE', mae, isChampion),
-              _metricChip('RMSE', rmse, isChampion),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _metricChip(String label, String value, bool isChampion) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: isChampion ? const Color(0xFF1B5E20) : Colors.black87,
-          ),
-        ),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-      ],
-    );
-  }
-
-  Widget _visualBar({
-    required String label,
-    required double value,
-    required double max,
-    bool isChampion = false,
-    bool isError = false,
-  }) {
-    final double pct = (value / max).clamp(0.0, 1.0);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isChampion ? FontWeight.bold : FontWeight.w500,
-                  color: isChampion ? const Color(0xFF1B5E20) : Colors.black87,
-                ),
-              ),
-              Text(
-                isError ? '${value.toStringAsFixed(4)} mL' : '${value.toStringAsFixed(2)}%',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: isChampion ? const Color(0xFF1B5E20) : Colors.black87,
+                child: Text(
+                  badge,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: isChampion ? Colors.white : const Color(0xFF475569),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: pct,
-              minHeight: 10,
-              backgroundColor: Colors.grey.shade200,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                isChampion ? const Color(0xFF2E7D32) : (isError ? Colors.orange.shade600 : Colors.blue.shade600),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isChampion ? Colors.white.withOpacity(0.85) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: isChampion ? const Color(0xFFA7F3D0) : const Color(0xFFE2E8F0)),
+            ),
+            child: Text(
+              equation,
+              style: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isChampion ? const Color(0xFF047857) : const Color(0xFF1E293B),
+                height: 1.4,
               ),
             ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            notes,
+            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.3),
           ),
         ],
       ),

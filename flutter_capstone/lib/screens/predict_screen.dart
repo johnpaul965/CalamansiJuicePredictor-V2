@@ -5,478 +5,627 @@ import '../services/prediction_service.dart';
 import '../services/storage_service.dart';
 
 class PredictScreen extends StatefulWidget {
-  final VoidCallback? onLogAdded;
-  const PredictScreen({Key? key, this.onLogAdded}) : super(key: key);
+  const PredictScreen({Key? key}) : super(key: key);
 
   @override
   State<PredictScreen> createState() => _PredictScreenState();
 }
 
 class _PredictScreenState extends State<PredictScreen> {
-  final TextEditingController _weightController = TextEditingController(text: '5');
-  String _selectedUnit = 'kg'; // 'kg' or 'g'
+  final TextEditingController _weightController = TextEditingController(text: '10');
+  String _unit = 'kg'; // 'kg' or 'g'
   PredictionResult? _result;
-  String? _errorMessage;
+  UserAccount? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    _calculate(5000); // Default 5 kg calculation
+    _loadUser();
+    _calculate();
   }
 
-  void _calculate([double? directGrams]) {
-    setState(() => _errorMessage = null);
-    double grams;
+  Future<void> _loadUser() async {
+    final user = await StorageService.getActiveUser();
+    if (mounted) {
+      setState(() {
+        _currentUser = user;
+      });
+    }
+  }
 
-    if (directGrams != null) {
-      grams = directGrams;
-    } else {
-      final double? parsed = double.tryParse(_weightController.text.trim());
-      if (parsed == null || parsed <= 0) {
-        setState(() => _errorMessage = 'Please enter a valid batch weight > 0');
-        return;
-      }
-      grams = _selectedUnit == 'kg' ? parsed * 1000.0 : parsed;
+  void _calculate() {
+    final text = _weightController.text.trim();
+    final parsed = double.tryParse(text);
+    if (parsed == null || parsed <= 0) {
+      setState(() {
+        _result = null;
+      });
+      return;
     }
 
-    final res = PredictionService.calculateBatch(grams);
-    setState(() => _result = res);
-
-    // Save to history log
-    final nowStr = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
-    final displayWeight = grams >= 1000
-        ? '${(grams / 1000.0).toStringAsFixed(2)} kg (${grams.toStringAsFixed(0)}g)'
-        : '${grams.toStringAsFixed(0)} g';
-
-    final log = HarvestLog(
-      id: 'log_${DateTime.now().millisecondsSinceEpoch}',
-      dateTime: nowStr,
-      weightText: displayWeight,
-      weightG: grams,
-      fruitCount: res.fruitCount,
-      proposedMl: res.proposedJuiceMl,
-      slrMl: res.slrJuiceMl,
-      polyMl: res.polyJuiceMl,
-      mlrMl: res.mlrJuiceMl,
-    );
-    StorageService.saveLog(log);
-    widget.onLogAdded?.call();
+    // Convert to grams
+    final weightInGrams = _unit == 'kg' ? parsed * 1000.0 : parsed;
+    final res = PredictionService.calculateBatch(weightInGrams);
+    setState(() {
+      _result = res;
+    });
   }
 
   void _setPreset(double val, String unit) {
     setState(() {
-      _selectedUnit = unit;
-      _weightController.text = val.toString();
+      _unit = unit;
+      _weightController.text = val.toStringAsFixed(val.truncateToDouble() == val ? 0 : 2);
     });
-    final grams = unit == 'kg' ? val * 1000.0 : val;
-    _calculate(grams);
+    _calculate();
+  }
+
+  Future<void> _saveToHistory() async {
+    if (_result == null) return;
+    final text = _weightController.text.trim();
+    final parsed = double.tryParse(text) ?? 0;
+    final weightInG = _unit == 'kg' ? parsed * 1000.0 : parsed;
+    final formatted = _unit == 'kg'
+        ? '${parsed.toStringAsFixed(2)} kg'
+        : '${parsed.toStringAsFixed(0)} g';
+
+    final now = DateTime.now();
+    final dateStr = DateFormat('yyyy-MM-dd HH:mm').format(now);
+    final user = _currentUser?.name ?? 'Farmer Juan';
+
+    final logItem = PredictionLogItem(
+      id: 'log_${now.millisecondsSinceEpoch}',
+      date: dateStr,
+      user: user,
+      weightG: weightInG,
+      weightFormatted: formatted,
+      count: _result!.count,
+      proposedMl: _result!.proposedTotalMl,
+      slrMl: _result!.slrTotalMl,
+      polyMl: _result!.polyTotalMl,
+      svrMl: _result!.svrTotalMl,
+      bottles330: _result!.bottles330,
+      bottles500: _result!.bottles500,
+      bottles1000: _result!.bottles1000,
+    );
+
+    await StorageService.addHistoryItem(logItem);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Saved $formatted harvest batch prediction to History!'),
+          backgroundColor: const Color(0xFF15803D),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final currentGrams = _selectedUnit == 'kg'
-        ? (double.tryParse(_weightController.text) ?? 5.0) * 1000.0
-        : (double.tryParse(_weightController.text) ?? 5000.0);
-    final batchAcc = PredictionService.getBatchAccuracy(currentGrams);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9F6),
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        title: const Text(
+          'Harvest Yield Predictor',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF15803D),
+        elevation: 0,
+        actions: [
+          if (_currentUser != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: Chip(
+                backgroundColor: const Color(0xFF166534),
+                label: Text(
+                  _currentUser!.name,
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                ),
+                avatar: const Icon(Icons.person, color: Colors.white, size: 14),
+              ),
+            ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Top Study Info Banner
+            // Batch Weight Input Card
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFE8F5E9),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFA5D6A7)),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('🍋', style: TextStyle(fontSize: 22)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Leyte Normal University • Tacloban City Study',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1B5E20),
-                          ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Total Calamansi Batch Weight',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        Text(
-                          'Batch Weight Scale Input (Manual Size Categorization Removed)',
-                          style: TextStyle(fontSize: 11, color: Color(0xFF2E7D32)),
+                        child: Row(
+                          children: [
+                            _buildUnitButton('kg', 'Kilograms (kg)'),
+                            _buildUnitButton('g', 'Grams (g)'),
+                          ],
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _weightController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (_) => _calculate(),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF15803D), width: 2),
+                      ),
+                      suffixText: _unit,
+                      suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B), fontSize: 16),
+                      prefixIcon: const Icon(Icons.scale_outlined, color: Color(0xFF15803D)),
                     ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      _buildPresetChip(500, 'g', '500 g pack'),
+                      _buildPresetChip(1, 'kg', '1 kg basket'),
+                      _buildPresetChip(5, 'kg', '5 kg bag'),
+                      _buildPresetChip(10, 'kg', '10 kg crate'),
+                      _buildPresetChip(25, 'kg', '25 kg sack'),
+                    ],
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 16),
 
-            // Card 1: Batch Weight Input
-            Card(
-              elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+            if (_result != null) ...[
+              // Expected Juice Yield Primary Display
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF15803D), Color(0xFF047857)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF15803D).withOpacity(0.25),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'Batch Harvest Weight',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          'Estimated Pure Juice Yield',
+                          style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
                         ),
                         Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Row(
-                            children: [
-                              _unitButton('kg'),
-                              _unitButton('g'),
-                            ],
+                          child: const Text(
+                            'Proposed Champion Model',
+                            style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    TextField(
-                      controller: _weightController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                        suffixText: _selectedUnit,
-                        suffixStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        prefixIcon: const Icon(Icons.scale, color: Color(0xFF2E7D32)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        errorText: _errorMessage,
-                      ),
-                      onSubmitted: (_) => _calculate(),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Quick Presets:',
-                      style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 8,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
-                        _presetChip(1, 'kg'),
-                        _presetChip(5, 'kg'),
-                        _presetChip(10, 'kg'),
-                        _presetChip(25, 'kg'),
-                        _presetChip(50, 'kg'),
+                        Text(
+                          _result!.proposedTotalMl >= 1000
+                              ? (_result!.proposedTotalMl / 1000.0).toStringAsFixed(2)
+                              : _result!.proposedTotalMl.toStringAsFixed(1),
+                          style: const TextStyle(
+                            fontSize: 38,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: -1,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _result!.proposedTotalMl >= 1000 ? 'Liters (L)' : 'mL',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 14),
-                    ElevatedButton.icon(
-                      onPressed: () => _calculate(),
-                      icon: const Icon(Icons.bolt, color: Colors.white),
-                      label: const Text(
-                        'Estimate Juice Yield',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1B5E20),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Equivalent: ${_result!.proposedTotalMl.toStringAsFixed(1)} mL',
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                        Text(
+                          'Extraction: ${_result!.extractionRatio.toStringAsFixed(1)}% w/w',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
 
-            // Card 2: Champion Result Card
-            if (_result != null) ...[
-              Card(
-                elevation: 2,
-                color: const Color(0xFF1B5E20),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFD54F),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              '★ PROPOSED CHAMPION MODEL',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFF3E2723),
-                              ),
-                            ),
+              const SizedBox(height: 16),
+
+              // Mini Batch Stats
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMiniStat(
+                      icon: Icons.grain,
+                      label: 'Est. Fruit Count',
+                      value: '${_result!.count} fruits',
+                      subtext: '~12.69g per fruit',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildMiniStat(
+                      icon: Icons.water_drop,
+                      label: 'Avg Juice/Fruit',
+                      value: '${(_result!.proposedTotalMl / _result!.count).toStringAsFixed(2)} mL',
+                      subtext: 'N = 1,478 calibrated',
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Commercial Bottling Distribution Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Commercial Bottling Capacity',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Ready-to-pack bottles calculated from predicted pure juice volume:',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildBottleCard(
+                            size: '330 mL',
+                            type: 'Standard Bottle',
+                            count: _result!.bottles330,
+                            color: const Color(0xFF0284C7),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'R² = 82.28% • MAE = 0.49 mL',
-                              style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Polynomial (d=2) + ln(W) & L2 Ridge',
-                        style: TextStyle(fontSize: 14, color: Color(0xFFA5D6A7), fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '${_result!.proposedJuiceMl.toStringAsFixed(1)} mL',
-                        style: const TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
                         ),
-                      ),
-                      Text(
-                        '≈ ${(_result!.proposedJuiceMl / 1000.0).toStringAsFixed(2)} Liters of pure juice extracted',
-                        style: const TextStyle(fontSize: 13, color: Colors.white70),
-                      ),
-                      const Divider(color: Colors.white24, height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _statTile('Fruit Count', '~${_result!.fruitCount} pcs'),
-                          _statTile('Extraction Ratio', '${_result!.extractionRatioPercent.toStringAsFixed(1)}%'),
-                          _statTile('Batch Reliability', '${batchAcc['accuracy']}%'),
-                        ],
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildBottleCard(
+                            size: '500 mL',
+                            type: 'Retail Bottle',
+                            count: _result!.bottles500,
+                            color: const Color(0xFF15803D),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildBottleCard(
+                            size: '1.0 L',
+                            type: 'Bulk Jug',
+                            count: _result!.bottles1000,
+                            color: const Color(0xFFD97706),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
+
               const SizedBox(height: 16),
 
-              // Card 3: Commercial Bottling Projections
-              Card(
-                elevation: 1,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Commercial Bottling Projections',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(child: _bottleCard('330 mL Bottle', _result!.bottles330, Icons.local_drink)),
-                          const SizedBox(width: 8),
-                          Expanded(child: _bottleCard('500 mL Bottle', _result!.bottles500, Icons.water_drop)),
-                          const SizedBox(width: 8),
-                          Expanded(child: _bottleCard('1.0 L Jug', _result!.bottles1000, Icons.wine_bar)),
-                        ],
-                      ),
-                    ],
-                  ),
+              // Live 4-Model Comparative Breakdown Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text(
+                          'Live 4-Model Comparison for this Batch',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        ),
+                        Text(
+                          '5-Fold CV',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF15803D)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildModelRow(
+                      name: 'Proposed Model (ln W + Ridge)',
+                      yieldMl: _result!.proposedTotalMl,
+                      isProposed: true,
+                      r2: '82.28%',
+                      diff: '★ Benchmark Reference',
+                    ),
+                    const Divider(height: 16, color: Color(0xFFF1F5F9)),
+                    _buildModelRow(
+                      name: 'Simple Linear Regression (SLR)',
+                      yieldMl: _result!.slrTotalMl,
+                      isProposed: false,
+                      r2: '80.74%',
+                      diff: '${(_result!.slrTotalMl - _result!.proposedTotalMl).toStringAsFixed(1)} mL',
+                    ),
+                    const Divider(height: 16, color: Color(0xFFF1F5F9)),
+                    _buildModelRow(
+                      name: 'Support Vector Regression (RBF)',
+                      yieldMl: _result!.svrTotalMl,
+                      isProposed: false,
+                      r2: '80.53%',
+                      diff: '${(_result!.svrTotalMl - _result!.proposedTotalMl).toStringAsFixed(1)} mL',
+                    ),
+                    const Divider(height: 16, color: Color(0xFFF1F5F9)),
+                    _buildModelRow(
+                      name: 'Polynomial Regression (Degree 2)',
+                      yieldMl: _result!.polyTotalMl,
+                      isProposed: false,
+                      r2: '76.23%',
+                      diff: '${(_result!.polyTotalMl - _result!.proposedTotalMl).toStringAsFixed(1)} mL',
+                    ),
+                  ],
                 ),
               ),
+
               const SizedBox(height: 16),
 
-              // Card 4: Baseline Models Comparison
-              Card(
-                elevation: 1,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Supporting Baseline Models Comparison',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Demonstrates the clear +6.05% performance gap of the Proposed Model',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 12),
-                      _modelRow(
-                        name: '★ Proposed Poly + ln(W) & Ridge',
-                        juiceMl: _result!.proposedJuiceMl,
-                        r2: '82.28%',
-                        mae: '0.4896 mL',
-                        isChampion: true,
-                      ),
-                      const Divider(height: 16),
-                      _modelRow(
-                        name: 'Simple Linear Regression (SLR)',
-                        juiceMl: _result!.slrJuiceMl,
-                        r2: '80.74%',
-                        mae: '0.5142 mL',
-                      ),
-                      const Divider(height: 16),
-                      _modelRow(
-                        name: 'Multiple Linear Regression (MLR)',
-                        juiceMl: _result!.mlrJuiceMl,
-                        r2: '79.71%',
-                        mae: '0.5288 mL',
-                      ),
-                      const Divider(height: 16),
-                      _modelRow(
-                        name: 'Ordinary Polynomial (degree 2)',
-                        juiceMl: _result!.polyJuiceMl,
-                        r2: '76.23%',
-                        mae: '0.5690 mL',
-                      ),
-                    ],
-                  ),
+              // Save to History Action Button
+              ElevatedButton.icon(
+                onPressed: _saveToHistory,
+                icon: const Icon(Icons.bookmark_added_outlined, color: Colors.white),
+                label: const Text(
+                  'Save Prediction to Batch History',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF15803D),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
                 ),
               ),
+              const SizedBox(height: 24),
             ],
-            const SizedBox(height: 24),
           ],
         ),
       ),
     );
   }
 
-  Widget _unitButton(String u) {
-    final bool active = _selectedUnit == u;
+  Widget _buildUnitButton(String unitKey, String tooltip) {
+    final isSelected = _unit == unitKey;
     return GestureDetector(
       onTap: () {
-        if (_selectedUnit == u) return;
-        final currentVal = double.tryParse(_weightController.text) ?? 5.0;
-        setState(() {
-          _selectedUnit = u;
-          if (u == 'g') {
-            _weightController.text = (currentVal * 1000).toStringAsFixed(0);
-          } else {
-            _weightController.text = (currentVal / 1000).toStringAsFixed(2);
-          }
-        });
+        if (_unit != unitKey) {
+          final text = _weightController.text.trim();
+          final parsed = double.tryParse(text);
+          setState(() {
+            _unit = unitKey;
+            if (parsed != null) {
+              if (unitKey == 'g') {
+                _weightController.text = (parsed * 1000).toStringAsFixed(0);
+              } else {
+                _weightController.text = (parsed / 1000).toStringAsFixed(2);
+              }
+            }
+          });
+          _calculate();
+        }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: active ? const Color(0xFF1B5E20) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? const Color(0xFF15803D) : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
-          u,
+          unitKey.toUpperCase(),
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
-            color: active ? Colors.white : Colors.black87,
+            color: isSelected ? Colors.white : const Color(0xFF64748B),
           ),
         ),
       ),
     );
   }
 
-  Widget _presetChip(double val, String unit) {
+  Widget _buildPresetChip(double val, String unit, String label) {
     return ActionChip(
-      label: Text('$val $unit'),
-      labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-      backgroundColor: Colors.grey.shade100,
+      label: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+      backgroundColor: const Color(0xFFF1F5F9),
+      side: const BorderSide(color: Color(0xFFE2E8F0)),
       onPressed: () => _setPreset(val, unit),
     );
   }
 
-  Widget _statTile(String label, String value) {
-    return Column(
-      children: [
-        Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
-        const SizedBox(height: 2),
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.white70)),
-      ],
-    );
-  }
-
-  Widget _bottleCard(String label, double count, IconData icon) {
+  Widget _buildMiniStat({
+    required IconData icon,
+    required String label,
+    required String value,
+    required String subtext,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F8E9),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFDCEDC8)),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF33691E), size: 24),
-          const SizedBox(height: 6),
-          Text(
-            count.toStringAsFixed(1),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1B5E20)),
+          Row(
+            children: [
+              Icon(icon, size: 16, color: const Color(0xFF15803D)),
+              const SizedBox(width: 6),
+              Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+            ],
           ),
-          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF558B2F))),
+          const SizedBox(height: 6),
+          Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+          const SizedBox(height: 2),
+          Text(subtext, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
         ],
       ),
     );
   }
 
-  Widget _modelRow({
+  Widget _buildBottleCard({
+    required String size,
+    required String type,
+    required double count,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(size, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
+          const SizedBox(height: 2),
+          Text(type, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+          const SizedBox(height: 8),
+          Text(
+            count >= 1 ? count.toStringAsFixed(1) : count.toStringAsFixed(2),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: color),
+          ),
+          const Text('bottles', style: TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModelRow({
     required String name,
-    required double juiceMl,
+    required double yieldMl,
+    required bool isProposed,
     required String r2,
-    required String mae,
-    bool isChampion = false,
+    required String diff,
   }) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
+          flex: 4,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 name,
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isChampion ? FontWeight.w900 : FontWeight.w600,
-                  color: isChampion ? const Color(0xFF1B5E20) : Colors.black87,
+                  fontSize: 12,
+                  fontWeight: isProposed ? FontWeight.bold : FontWeight.w500,
+                  color: isProposed ? const Color(0xFF15803D) : const Color(0xFF0F172A),
                 ),
               ),
-              Text('R²: $r2 | MAE: $mae', style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+              const SizedBox(height: 2),
+              Text('R²: $r2', style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
             ],
           ),
         ),
-        Text(
-          '${juiceMl.toStringAsFixed(1)} mL',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: isChampion ? const Color(0xFF1B5E20) : Colors.black87,
+        Expanded(
+          flex: 3,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${yieldMl.toStringAsFixed(1)} mL',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                  color: isProposed ? const Color(0xFF15803D) : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                diff,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: isProposed ? const Color(0xFF15803D) : const Color(0xFF64748B),
+                ),
+              ),
+            ],
           ),
         ),
       ],

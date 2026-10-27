@@ -18,61 +18,61 @@ export const HARVEST_BASELINE = {
   ratioPercent: 41.19,          // Extraction ratio (juice mL / weight g)
 };
 
-// All 7 Models Evaluated via Thesis-Legal Weight-Grouped 5-Fold Cross-Validation ((W+1)//2 % 5)
-// on the Exact Same Verified Clean Ground-Truth Test Set (N = 1,478) & Exact Same Raw Training Folds:
-// Models 1–6 = Ordinary Off-the-Shelf Baselines (no extra layers);
-// Model 7 = Proposed Pipeline (In-Fold Training Hygiene + [W, W², ln(W)] + L2 Ridge α = 0.01).
+// 4 Authentic Thesis Models Evaluated via Thesis-Legal Weight-Grouped 5-Fold Cross-Validation ((W+1)//2 % 5)
+// on the Exact Same Verified Clean Ground-Truth Test Set (N = 1,478):
+// Models 1–3 = Ordinary Off-the-Shelf Baselines (no extra layers);
+// Model 4 = Proposed Pipeline (In-Fold Training Hygiene + [W, W², ln(W)] + L2 Ridge α = 0.01).
 export const THESIS_MODELS: Record<string, ModelBenchmark> = {
-  mlr: {
-    name: 'Multiple Linear Regression (MLR)',
-    shortName: 'V1 MLR (W + Size)',
-    role: 'Version 1 Supporting Baseline (Raw Fit, No Layers)',
-    correlationR: 0.8950,
-    r2Percent: 79.71,
-    maeMl: 0.5288,
-    rmseMl: 0.6593,
-    mapePercent: 11.28,
-    formula: 'Juice (ml) = -0.5423 + 0.4530(Weight) + 0.0098(Size)',
-    badge: 'V1 Baseline (-2.57%)',
-    isChampion: false,
-  },
-  poly: {
-    name: 'Ordinary Polynomial Regression (Degree 2)',
-    shortName: 'Ordinary Poly (d=2)',
-    role: 'Version 1 Supporting Baseline (Raw Fit, No Layers)',
-    correlationR: 0.8764,
-    r2Percent: 76.23,
-    maeMl: 0.5690,
-    rmseMl: 0.7136,
-    mapePercent: 12.86,
-    formula: 'Juice (ml) = 2.1605 + 0.0419(W) + 0.01500(W²) (Raw Fit)',
-    badge: 'Raw Quadratic (-6.05%)',
-    isChampion: false,
-  },
   slr: {
     name: 'Simple Linear Regression (SLR)',
     shortName: 'SLR',
-    role: 'Supporting Linear Baseline (Raw Fit, No Layers)',
+    role: 'Ordinary Linear Baseline (W only, no layers)',
     correlationR: 0.9061,
     r2Percent: 80.74,
     maeMl: 0.5142,
     rmseMl: 0.6423,
     mapePercent: 10.92,
-    formula: 'Juice (ml) = 0.4162 × Weight - 0.0432 (Raw Fit)',
-    badge: 'Linear Baseline (-1.54%)',
+    formula: 'Juice (ml) = 0.4162 × Weight - 0.0432 (Ordinary Raw Fit)',
+    badge: 'Ordinary Baseline',
+    isChampion: false,
+  },
+  svr: {
+    name: 'Support Vector Regression (Ordinary RBF)',
+    shortName: 'SVR (RBF)',
+    role: 'Default Off-the-Shelf SVR (W only, no layers)',
+    correlationR: 0.8976,
+    r2Percent: 80.53,
+    maeMl: 0.5128,
+    rmseMl: 0.6458,
+    mapePercent: 10.99,
+    formula: 'Default RBF Kernel on raw W (C=1.0, ε=0.1, no extra layers)',
+    badge: 'Ordinary SVR',
+    isChampion: false,
+  },
+  poly: {
+    name: 'Polynomial Regression (Degree 2)',
+    shortName: 'Poly (d=2)',
+    role: 'Ordinary Quadratic Baseline (W, W², no layers)',
+    correlationR: 0.8764,
+    r2Percent: 76.23,
+    maeMl: 0.5690,
+    rmseMl: 0.7136,
+    mapePercent: 12.86,
+    formula: 'Juice (ml) = 2.1605 + 0.0419(W) + 0.01500(W²) (Unregularized Raw Fit)',
+    badge: 'Ordinary Quadratic',
     isChampion: false,
   },
   cbPoly: {
     name: 'Polynomial Regression (d=2) + ln(W) & L2 Ridge',
-    shortName: '★ Upgraded Poly + ln(W) + Ridge',
-    role: '★ Proposed Champion (In-Fold Clean + ln W + L2 Ridge)',
+    shortName: 'Poly + ln(W) + Ridge',
+    role: '★ Proposed Model (In-Fold Clean + ln W + L2 Ridge)',
     correlationR: 0.9071,
     r2Percent: 82.28,
     maeMl: 0.4896,
     rmseMl: 0.6160,
     mapePercent: 10.05,
     formula: 'Juice (ml) = 2.3179 + 1.1004(W) - 0.01415(W²) - 3.4460·ln(W)',
-    badge: '★ #1 Best Fit Champion',
+    badge: '★ Best Fit',
     isChampion: true,
   },
 };
@@ -115,18 +115,6 @@ const SVR_TRAINED_GRID = [
   2.3423, 2.3001, 2.6539, 3.1004, 3.5432, 4.0000, 4.4439, 4.9004, 5.4126,
   5.8996, 6.2999, 6.7099, 7.2001, 7.6996, 8.1002, 8.2598, 8.0029,
 ];
-const CATBOOST_TRAINED_GRID = [
-  2.1500, 2.1500, 2.6823, 3.0227, 3.4716, 4.0229, 4.4548, 4.8851, 5.4013,
-  5.8691, 6.2787, 6.7156, 7.2394, 7.7882, 7.7286, 8.4385, 7.9000,
-];
-const XGBOOST_TRAINED_GRID = [
-  2.1500, 2.1500, 2.6823, 3.0227, 3.4716, 4.0229, 4.4548, 4.8851, 5.4013,
-  5.8691, 6.2787, 6.7156, 7.2394, 7.7882, 7.7286, 8.4385, 7.9000,
-];
-const RF_TRAINED_GRID = [
-  2.1624, 2.1624, 2.6796, 3.0334, 3.4786, 4.0175, 4.4502, 4.8914, 5.3983,
-  5.8678, 6.2731, 6.7008, 7.2385, 7.7871, 7.7384, 8.4371, 7.9855,
-];
 
 function evaluateTrainedGrid(grid: number[], w: number): number {
   const clamped = Math.max(5, Math.min(21, w));
@@ -143,11 +131,6 @@ export function predictSimplePerFruit(w: number): number {
   return val > 0 ? val : 0;
 }
 
-export function predictMlrPerFruit(w: number): number {
-  const val = -0.5423 + 0.4530 * w + 0.0098 * 1.97;
-  return val > 0 ? val : 0;
-}
-
 export function predictPolyPerFruit(w: number): number {
   const val = 2.160503 + 0.041943 * w + 0.014995 * w * w;
   return val > 0 ? val : 0;
@@ -155,18 +138,6 @@ export function predictPolyPerFruit(w: number): number {
 
 export function predictSvrPerFruit(w: number): number {
   return evaluateTrainedGrid(SVR_TRAINED_GRID, w);
-}
-
-export function predictXgbPerFruit(w: number): number {
-  return evaluateTrainedGrid(XGBOOST_TRAINED_GRID, w);
-}
-
-export function predictCatBoostPerFruit(w: number): number {
-  return evaluateTrainedGrid(CATBOOST_TRAINED_GRID, w);
-}
-
-export function predictRfPerFruit(w: number): number {
-  return evaluateTrainedGrid(RF_TRAINED_GRID, w);
 }
 
 export function predictCbPolyPerFruit(w: number): number {
@@ -182,33 +153,21 @@ export function runCalculationEngine(weightG: number): PredictionResult {
   const countFloat = weightG / repWeight;
 
   const slrPerFruit = predictSimplePerFruit(repWeight);
-  const mlrPerFruit = predictMlrPerFruit(repWeight);
   const polyPerFruit = predictPolyPerFruit(repWeight);
   const svrPerFruit = predictSvrPerFruit(repWeight);
-  const xgbPerFruit = predictXgbPerFruit(repWeight);
-  const catboostPerFruit = predictCatBoostPerFruit(repWeight);
-  const rfPerFruit = predictRfPerFruit(repWeight);
   const cbPolyPerFruit = predictCbPolyPerFruit(repWeight);
 
   const slrTotalMl = countFloat * slrPerFruit;
-  const mlrTotalMl = countFloat * mlrPerFruit;
   const polyTotalMl = countFloat * polyPerFruit;
   const svrTotalMl = countFloat * svrPerFruit;
-  const xgbTotalMl = countFloat * xgbPerFruit;
-  const catboostTotalMl = countFloat * catboostPerFruit;
-  const rfTotalMl = countFloat * rfPerFruit;
   const cbPolyTotalMl = countFloat * cbPolyPerFruit;
 
   return {
     count,
     repWeight: +repWeight.toFixed(2),
     slrTotalMl,
-    mlrTotalMl,
     polyTotalMl,
     svrTotalMl,
-    xgbTotalMl,
-    catboostTotalMl,
-    rfTotalMl,
     cbPolyTotalMl,
     bottles330: +(cbPolyTotalMl / 330).toFixed(1),
     bottles500: +(cbPolyTotalMl / 500).toFixed(1),

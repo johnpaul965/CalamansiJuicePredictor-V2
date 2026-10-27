@@ -1,1 +1,1 @@
-- [Dataset size labeling](dataset-size-labeling.md) — The Size feature was removed in Version 2; the dataset schema is now solely `Weight,Juice`.
+- [Dataset size labeling](dataset-size-labeling.md) — uploaded measurements without reliable size labels use weight-based Small/Medium/Large buckets.

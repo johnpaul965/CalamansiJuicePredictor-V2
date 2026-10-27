@@ -6,7 +6,6 @@ import {
   ShieldCheck,
   ArrowLeft,
   AlertTriangle,
-  Download,
 } from 'lucide-react';
 import {
   THESIS_MODELS,
@@ -48,16 +47,6 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
 
         {/* Actions & Switcher */}
         <div className="flex items-center gap-2 flex-wrap">
-          <a
-            href="/Calamansi_System_Complete_Student_Guide_V1_vs_V2.docx"
-            download="Calamansi_System_Complete_Student_Guide_V1_vs_V2.docx"
-            className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs transition shadow-2xs flex items-center gap-1.5 cursor-pointer"
-            title="Download the single complete student & teacher guide (Version 1 vs Version 2, formulas, data cleaning, and defense Q&A)"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download Complete V1 vs V2 Guide (.docx)</span>
-          </a>
-
           {/* View Switcher */}
           <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
             <button
@@ -70,7 +59,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Model Benchmark & Layers</span>
+              <span>4-Model Benchmark & Layers</span>
             </button>
             <button
               type="button"
@@ -88,7 +77,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
         </div>
       </div>
 
-      {/* ──────────────── TAB 1: DEFENSE & 7-MODEL SUITE ──────────────── */}
+      {/* ──────────────── TAB 1: DEFENSE & 4-MODEL SUITE ──────────────── */}
       {viewMode === 'defense' && (
         <>
           {/* Header Hero Banner */}
@@ -103,7 +92,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                   Polynomial Regression (d=2) + ln(W) & L2 Ridge
                 </h2>
                 <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-                  All 7 models receive the exact same training folds and are tested on the exact same <code className="font-mono text-emerald-200">N = 1,478</code> verified clean ground-truth fruits under <strong>Weight-Grouped 5-Fold Cross-Validation</strong> (testing unseen fruit weights). Models 1–6 run as ordinary baselines (no extra layers), while Model 7 applies in-fold training hygiene + <code className="font-mono text-emerald-200">ln(W)</code> + <code className="font-mono text-emerald-200">L2 Ridge (α = 0.01)</code>.
+                  All 4 models receive the exact same training folds and are tested on the exact same <code className="font-mono text-emerald-200">N = 1,478</code> verified clean ground-truth fruits under <strong>Weight-Grouped 5-Fold Cross-Validation</strong> (testing unseen fruit weights). Models 1–3 run as ordinary baselines (no extra layers), while Model 4 applies in-fold training hygiene + <code className="font-mono text-emerald-200">ln(W)</code> + <code className="font-mono text-emerald-200">L2 Ridge (α = 0.01)</code>.
                 </p>
               </div>
 
@@ -115,18 +104,18 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                   82.28%
                 </div>
                 <div className="text-[11px] text-emerald-200 mt-0.5 font-mono">
-                  Correlation (r) = 0.9071 (Very Strong)
+                  MAE = 0.4896 mL • RMSE = 0.6160 mL
                 </div>
               </div>
             </div>
           </section>
 
-          {/* 7 Authentic Thesis Models Comparative Benchmark Suite */}
+          {/* 4 Authentic Thesis Models Comparative Benchmark Suite */}
           <section className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                  7-Model Benchmark Suite: 6 Ordinary Baselines vs. 1 Layered Model (N = 1,478)
+                  4-Model Benchmark Suite: 3 Ordinary Baselines vs. 1 Layered Model (N = 1,478)
                 </h3>
                 <p className="text-xs text-slate-500">
                   Evaluated fairly on the exact same N = 1,478 test fruits using Weight-Grouped 5-Fold Cross-Validation (<code className="font-mono">((W + 1) // 2) % 5</code>) so models must predict unseen fruit weights:
@@ -143,7 +132,6 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                   <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
                     <th className="py-3 px-3.5">Model Architecture</th>
                     <th className="py-3 px-3.5">Configuration & Layers</th>
-                    <th className="py-3 px-3.5 text-right font-mono">Correlation (r)</th>
                     <th className="py-3 px-3.5 text-right font-mono">R² (%)</th>
                     <th className="py-3 px-3.5 text-right font-mono">MAE</th>
                     <th className="py-3 px-3.5 text-right font-mono">RMSE</th>
@@ -153,20 +141,13 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {[
-                    { m: THESIS_MODELS.slr, cls: 'bg-slate-100 text-slate-700', tag: 'Linear Baseline (-1.54%)' },
-                    { m: THESIS_MODELS.mlr, cls: 'bg-blue-50 text-blue-800', tag: 'V1 Baseline (-2.57%)' },
-                    { m: THESIS_MODELS.poly, cls: 'bg-amber-50 text-amber-800', tag: 'Raw Quadratic (-6.05%)' },
-                    { m: THESIS_MODELS.svr, cls: 'bg-purple-50 text-purple-800', tag: 'Kernel Machine' },
-                    { m: THESIS_MODELS.catboost, cls: 'bg-cyan-50 text-cyan-800', tag: 'Step-Tree (-9.24%)' },
-                    { m: THESIS_MODELS.xgboost, cls: 'bg-indigo-50 text-indigo-800', tag: 'Step-Tree (-9.24%)' },
-                    { m: THESIS_MODELS.rf, cls: 'bg-slate-100 text-slate-700', tag: 'Tree Bagging (-9.27%)' },
+                    { m: THESIS_MODELS.slr, cls: 'bg-slate-100 text-slate-700', tag: 'No Layers (-1.54%)' },
+                    { m: THESIS_MODELS.svr, cls: 'bg-purple-50 text-purple-800', tag: 'No Layers (-1.75%)' },
+                    { m: THESIS_MODELS.poly, cls: 'bg-blue-50 text-blue-800', tag: 'No Layers (-6.05%)' },
                   ].map(({ m, cls, tag }) => (
                     <tr key={m.name} className="hover:bg-slate-50 transition">
                       <td className="py-3.5 px-3.5 font-bold text-slate-800">{m.name}</td>
                       <td className="py-3.5 px-3.5 text-slate-600">{m.role}</td>
-                      <td className="py-3.5 px-3.5 text-right font-mono text-slate-700">
-                        {m.correlationR.toFixed(4)}
-                      </td>
                       <td className="py-3.5 px-3.5 text-right font-mono font-medium text-slate-800">
                         {m.r2Percent.toFixed(2)}%
                       </td>
@@ -187,7 +168,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                     </tr>
                   ))}
 
-                  {/* 7. Polynomial Regression (d=2) + ln(W) & L2 Ridge */}
+                  {/* 4. Polynomial Regression (d=2) + ln(W) & L2 Ridge */}
                   <tr className="bg-emerald-50/80 font-semibold hover:bg-emerald-50 transition border-t-2 border-emerald-400">
                     <td className="py-3.5 px-3.5 font-bold text-emerald-950 flex items-center gap-1.5">
                       <Award className="w-4 h-4 text-emerald-700 shrink-0" />
@@ -195,9 +176,6 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
                     </td>
                     <td className="py-3.5 px-3.5 text-emerald-900 font-bold">
                       {THESIS_MODELS.cbPoly.role}
-                    </td>
-                    <td className="py-3.5 px-3.5 text-right font-mono font-bold text-emerald-800">
-                      {THESIS_MODELS.cbPoly.correlationR.toFixed(4)}
                     </td>
                     <td className="py-3.5 px-3.5 text-right font-mono font-extrabold text-emerald-700 text-sm">
                       {THESIS_MODELS.cbPoly.r2Percent.toFixed(2)}%
@@ -224,11 +202,11 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               <div className="p-3.5 bg-purple-50/60 border border-purple-200 rounded-xl text-slate-700 leading-relaxed">
                 <strong className="text-purple-950">Why Ordinary Polynomial Drops to 76.23%:</strong>{' '}
-                Without in-fold training cleaning and L2 Ridge, squaring weight (<code className="font-mono">W²</code>) bends the ordinary quadratic curve toward raw field typos (<code className="font-mono">2g→16mL</code>), dropping it <code className="font-mono">-6.05%</code> behind Model 7.
+                Without in-fold training cleaning and L2 Ridge, squaring weight (<code className="font-mono">W²</code>) bends the ordinary quadratic curve toward raw field typos (<code className="font-mono">2g→16mL</code>), dropping it <code className="font-mono">-6.05%</code> behind Model 4.
               </div>
-              <div className="p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl text-slate-700 leading-relaxed">
-                <strong className="text-indigo-950">Why Tree Ensembles Drop to ~73.0%:</strong>{' '}
-                Decision trees (CatBoost, XGBoost, Random Forest) use flat step-functions and cannot smoothly interpolate unseen fruit weights, losing <code className="font-mono">~9.2%</code> compared to our smooth <code className="font-mono">Poly + ln(W) + Ridge</code> curve (<code className="font-mono">82.28%</code>).
+              <div className="p-3.5 bg-emerald-50/60 border border-emerald-200 rounded-xl text-slate-700 leading-relaxed">
+                <strong className="text-emerald-950">Why SVR & SLR Lag Behind Proposed Model:</strong>{' '}
+                While SVR (<code className="font-mono">80.53%</code>) and SLR (<code className="font-mono">80.74%</code>) offer solid baselines on raw weight, they miss the natural logarithmic term <code className="font-mono">ln(W)</code> and botanical mass-balance screening, which deliver <code className="font-mono">82.28% R²</code> in Model 4.
               </div>
             </div>
 
@@ -245,11 +223,11 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
             <div className="flex items-center gap-2 mb-2">
               <Layers className="w-5 h-5 text-emerald-700" />
               <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                4-Layer Pipeline Inside Proposed Model (.fit() Only — Same Test Set Across All 7 Models)
+                4-Layer Pipeline Inside Proposed Model (.fit() Only — Same Test Set Across All 4 Models)
               </h3>
             </div>
             <p className="text-xs text-slate-500 mb-5">
-              All 7 models are tested on the exact same N = 1,478 clean ground-truth set; only Model 7 applies these 4 layers during training:
+              All 4 models are tested on the exact same N = 1,478 clean ground-truth set; only Model 4 applies these 4 layers during training:
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -476,7 +454,16 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                 <div className="text-xs font-bold text-slate-700 mb-1">
-                  2. Polynomial Regression Degree 2 (Ordinary Baseline — Raw Fit, No Extra Layers):
+                  2. Support Vector Regression (Ordinary Baseline — Default RBF Kernel, No Layers):
+                </div>
+                <code className="block p-3 rounded-lg bg-white border border-slate-200 font-mono text-xs sm:text-sm text-slate-800 font-bold">
+                  Kernel: Radial Basis Function (RBF), C = 1.0, ε = 0.1 on raw Weight (W)
+                </code>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="text-xs font-bold text-slate-700 mb-1">
+                  3. Polynomial Regression Degree 2 (Ordinary Baseline — Raw Fit, No Extra Layers):
                 </div>
                 <code className="block p-3 rounded-lg bg-white border border-slate-200 font-mono text-xs sm:text-sm text-slate-800 font-bold">
                   Juice (mL) = 2.1605 + 0.0419(W) + 0.01500(W²)
@@ -486,7 +473,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
               <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300">
                 <div className="text-xs font-bold text-emerald-950 mb-1 flex items-center gap-1.5">
                   <Award className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>3. Polynomial Regression (Degree 2) + ln(W) & L2 Ridge (Proposed Pipeline, α = 0.01):</span>
+                  <span>4. Polynomial Regression (Degree 2) + ln(W) & L2 Ridge (Proposed Pipeline, α = 0.01):</span>
                 </div>
                 <code className="block p-3 rounded-lg bg-white border border-emerald-200 font-mono text-xs sm:text-sm text-emerald-900 font-bold overflow-x-auto">
                   Juice (mL) = 2.3179 + 1.1004(W) - 0.01415(W²) - 3.4460·ln(W)

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Zap, Clock, LogOut, BarChart3, Smartphone } from 'lucide-react';
+import { Zap, Clock, LogOut, Coins, FlaskConical } from 'lucide-react';
 import { AppUser, PredictionLog } from '../types';
 import { PredictTab } from './PredictTab';
 import { HistoryTab } from './HistoryTab';
-import { ModelResultsTab } from './ModelResultsTab';
-import { FlutterCodeTab } from './FlutterCodeTab';
+import { ProfitCalculator } from './ProfitCalculator';
+import { DostSugarFormulator } from './DostSugarFormulator';
 
 interface UserScaffoldProps {
   currentUser: AppUser;
@@ -21,7 +21,22 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
   onClearLogs,
   onSignOut,
 }) => {
-  const [activeTab, setActiveTab] = useState<'predict' | 'models' | 'history' | 'flutter'>('predict');
+  const [activeTab, setActiveTab] = useState<'predict' | 'profit' | 'dost-recipe' | 'history'>('predict');
+
+  // Shared state between Yield Estimator, Profit Calculator, and DOST Formulator
+  const [sharedWeightKg, setSharedWeightKg] = useState<number>(10);
+  const [sharedJuiceMl, setSharedJuiceMl] = useState<number>(4120);
+
+  const handleNavigateToProfit = (weightKg?: number, bottles?: number) => {
+    if (weightKg !== undefined) setSharedWeightKg(weightKg);
+    setActiveTab('profit');
+  };
+
+  const handleNavigateToDost = (juiceMl?: number, weightKg?: number) => {
+    if (juiceMl !== undefined) setSharedJuiceMl(juiceMl);
+    if (weightKg !== undefined) setSharedWeightKg(weightKg);
+    setActiveTab('dost-recipe');
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -37,7 +52,7 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
                 Calamansi Yield Predictor
               </div>
               <div className="text-[11px] text-emerald-200/90 font-medium">
-                Leyte Normal University • Tacloban City Study (Flutter Mobile Capstone)
+                Leyte Normal University • Tacloban City Study
               </div>
             </div>
           </div>
@@ -66,11 +81,11 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
 
       {/* Navigation Tabs Bar */}
       <nav className="bg-white border-b border-slate-200 sticky top-16 z-20 shadow-2xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-2 sm:gap-4 overflow-x-auto">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-1 sm:gap-3 overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveTab('predict')}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+            className={`py-3.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
               activeTab === 'predict'
                 ? 'border-emerald-700 text-emerald-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -82,21 +97,40 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
 
           <button
             type="button"
-            onClick={() => setActiveTab('models')}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 'models'
+            onClick={() => setActiveTab('profit')}
+            className={`py-3.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+              activeTab === 'profit'
                 ? 'border-emerald-700 text-emerald-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
-            <BarChart3 className="w-4 h-4" />
-            <span>Model Comparison (V1 + V2 Updates)</span>
+            <Coins className={`w-4 h-4 ${activeTab === 'profit' ? 'text-emerald-600' : ''}`} />
+            <span>Money &amp; Profit Calculator</span>
+            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-extrabold hidden sm:inline">
+              Farmgate vs Bottled
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('dost-recipe')}
+            className={`py-3.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+              activeTab === 'dost-recipe'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <FlaskConical className={`w-4 h-4 ${activeTab === 'dost-recipe' ? 'text-teal-600' : ''}`} />
+            <span>DOST Sugar Recipe</span>
+            <span className="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded-md font-extrabold hidden sm:inline">
+              Juice Concentrate
+            </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('history')}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+            className={`py-3.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
               activeTab === 'history'
                 ? 'border-emerald-700 text-emerald-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -104,19 +138,6 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
           >
             <Clock className="w-4 h-4" />
             <span>Harvest History</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('flutter')}
-            className={`py-3.5 px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 'flutter'
-                ? 'border-emerald-700 text-emerald-800'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <Smartphone className="w-4 h-4 text-emerald-700" />
-            <span>Flutter Mobile Code (Dart)</span>
           </button>
         </div>
       </nav>
@@ -128,10 +149,37 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             currentUser={currentUser}
             logs={logs}
             onRefreshLogs={onRefreshLogs}
+            onNavigateToProfit={(weightKg, juiceMl) => {
+              if (weightKg !== undefined) setSharedWeightKg(weightKg);
+              if (juiceMl !== undefined) setSharedJuiceMl(juiceMl);
+              setActiveTab('profit');
+            }}
+            onNavigateToDost={(juiceMl, weightKg) => {
+              if (juiceMl !== undefined) setSharedJuiceMl(juiceMl);
+              if (weightKg !== undefined) setSharedWeightKg(weightKg);
+              setActiveTab('dost-recipe');
+            }}
           />
         )}
-        {activeTab === 'models' && (
-          <ModelResultsTab />
+        {activeTab === 'profit' && (
+          <ProfitCalculator
+            initialWeightKg={sharedWeightKg}
+            initialJuiceMl={sharedJuiceMl}
+            onNavigateToDost={(juiceMl) => {
+              setSharedJuiceMl(juiceMl);
+              setActiveTab('dost-recipe');
+            }}
+          />
+        )}
+        {activeTab === 'dost-recipe' && (
+          <DostSugarFormulator
+            initialJuiceMl={sharedJuiceMl}
+            initialWeightKg={sharedWeightKg}
+            onNavigateToProfit={(weightKg, bottles) => {
+              setSharedWeightKg(weightKg);
+              setActiveTab('profit');
+            }}
+          />
         )}
         {activeTab === 'history' && (
           <HistoryTab
@@ -139,9 +187,6 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             logs={logs}
             onClearLogs={onClearLogs}
           />
-        )}
-        {activeTab === 'flutter' && (
-          <FlutterCodeTab />
         )}
       </main>
     </div>
