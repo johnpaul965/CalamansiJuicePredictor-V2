@@ -98,22 +98,23 @@ export function saveUsers(users: AppUser[]): void {
   // Background sync to Supabase if configured
   const supabase = getSupabase();
   if (supabase) {
-    supabase
-      .from('calamansi_users')
-      .upsert(
-        users.map((u) => ({
-          id: u.id,
-          username: u.username,
-          password: u.password || '',
-          role: u.role,
-          status: u.status,
-          joined: u.joined,
-        }))
-      )
-      .then(({ error }) => {
+    void (async () => {
+      try {
+        const { error } = await supabase.from('calamansi_users').upsert(
+          users.map((u) => ({
+            id: u.id,
+            username: u.username,
+            password: u.password || '',
+            role: u.role,
+            status: u.status,
+            joined: u.joined,
+          }))
+        );
         if (error) console.warn('[Supabase] Error syncing users:', error.message);
-      })
-      .catch((err) => console.warn('[Supabase] Network error syncing users:', err));
+      } catch (err: unknown) {
+        console.warn('[Supabase] Network error syncing users:', err);
+      }
+    })();
   }
 }
 
@@ -147,24 +148,25 @@ export function addLog(log: PredictionLog): void {
   // Background sync to Supabase
   const supabase = getSupabase();
   if (supabase) {
-    supabase
-      .from('calamansi_harvest_logs')
-      .upsert({
-        id: log.id,
-        date: log.date,
-        username: log.user,
-        weight_g: log.weightG,
-        weight_label: log.weight,
-        count: log.count,
-        slr_ml: log.slrMl ?? null,
-        primary_ml: log.primaryMl ?? null,
-        poly_ml: log.polyMl ?? null,
-        rbf_ml: log.rbfMl ?? null,
-      })
-      .then(({ error }) => {
+    void (async () => {
+      try {
+        const { error } = await supabase.from('calamansi_harvest_logs').upsert({
+          id: log.id,
+          date: log.date,
+          username: log.user,
+          weight_g: log.weightG,
+          weight_label: log.weight,
+          count: log.count,
+          slr_ml: log.slrMl ?? null,
+          primary_ml: log.primaryMl ?? null,
+          poly_ml: log.polyMl ?? null,
+          rbf_ml: log.rbfMl ?? null,
+        });
         if (error) console.warn('[Supabase] Error inserting harvest log:', error.message);
-      })
-      .catch((err) => console.warn('[Supabase] Network error inserting log:', err));
+      } catch (err: unknown) {
+        console.warn('[Supabase] Network error inserting log:', err);
+      }
+    })();
   }
 }
 
@@ -173,14 +175,17 @@ export function clearLogs(): void {
 
   const supabase = getSupabase();
   if (supabase) {
-    supabase
-      .from('calamansi_harvest_logs')
-      .delete()
-      .neq('id', '___all___')
-      .then(({ error }) => {
+    void (async () => {
+      try {
+        const { error } = await supabase
+          .from('calamansi_harvest_logs')
+          .delete()
+          .neq('id', '___all___');
         if (error) console.warn('[Supabase] Error clearing logs:', error.message);
-      })
-      .catch((err) => console.warn('[Supabase] Network error clearing logs:', err));
+      } catch (err: unknown) {
+        console.warn('[Supabase] Network error clearing logs:', err);
+      }
+    })();
   }
 }
 
