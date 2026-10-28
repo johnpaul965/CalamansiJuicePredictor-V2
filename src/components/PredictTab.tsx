@@ -84,11 +84,13 @@ export const PredictTab: React.FC<PredictTabProps> = ({
       weight: weightDisplay,
       count: calc.count,
       slr: `${calc.slrTotalMl.toFixed(2)} ml`,
-      poly: `${calc.polyTotalMl.toFixed(2)} ml`,
-      cbPoly: `${calc.cbPolyTotalMl.toFixed(2)} ml`,
       slrMl: calc.slrTotalMl,
+      poly: `${calc.polyTotalMl.toFixed(2)} ml`,
       polyMl: calc.polyTotalMl,
-      cbPolyMl: calc.cbPolyTotalMl,
+      rbf: `${calc.rbfTotalMl.toFixed(2)} ml`,
+      rbfMl: calc.rbfTotalMl,
+      primary: `${calc.primaryTotalMl.toFixed(2)} ml`,
+      primaryMl: calc.primaryTotalMl,
     };
 
     addLog(newLog);
@@ -252,7 +254,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Champion Forecast
+                  Primary Forecast
                 </button>
                 <button
                   type="button"
@@ -263,7 +265,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Compare All 4
+                  Compare with baseline
                 </button>
               </div>
             </div>
@@ -276,13 +278,13 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 <div>
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 text-[11px] font-bold uppercase tracking-wider mb-2">
                     <Award className="w-3 h-3 text-amber-300" />
-                    <span>Polynomial Regression (d=2) + ln(W) & L2 Ridge</span>
+                    <span>{THESIS_MODELS.primary.name}</span>
                   </div>
                   <div className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-white">
-                    {result.cbPolyTotalMl.toFixed(2)} mL
+                    {result.primaryTotalMl.toFixed(2)} mL
                   </div>
                   <div className="text-sm font-mono text-emerald-200 font-medium mt-1">
-                    ~{(result.cbPolyTotalMl / 1000).toFixed(3)} Liters Pure Juice
+                    ~{(result.primaryTotalMl / 1000).toFixed(3)} Liters Pure Juice
                   </div>
                 </div>
 
@@ -304,132 +306,90 @@ export const PredictTab: React.FC<PredictTabProps> = ({
 
               <div className="pt-3 flex items-center justify-between text-xs text-emerald-200">
                 <span>
-                  Model Calibration: R² = {THESIS_MODELS.cbPoly.r2Percent.toFixed(2)}% • MAE = {THESIS_MODELS.cbPoly.maeMl.toFixed(4)} mL
+                  Grouped 5-fold CV: R² = {THESIS_MODELS.primary.r2Percent.toFixed(2)}% • MAE = {THESIS_MODELS.primary.maeMl.toFixed(4)} mL
                 </span>
                 <span className="font-mono text-emerald-300 text-[11px]">
-                  Unseen-Weight 5-Fold CV
+                  Weight-only, out-of-fold estimate
                 </span>
               </div>
             </div>
           ) : (
-            /* 4-Model Live Comparison Grid */
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {[
                 {
-                  label: 'Model 1',
-                  badge: 'Ordinary Baseline (W)',
-                  badgeCls: 'bg-slate-200 text-slate-700',
-                  title: 'Simple Linear (SLR)',
+                  label: 'Untuned reference',
+                  badge: 'Linear weight-only baseline',
+                  title: THESIS_MODELS.slr.name,
                   totalMl: result.slrTotalMl,
                   meta: THESIS_MODELS.slr,
+                  cardClass: 'bg-slate-50 border-slate-200',
                 },
                 {
-                  label: 'Model 2',
-                  badge: 'Ordinary Quadratic (W, W²)',
-                  badgeCls: 'bg-blue-100 text-blue-800',
-                  title: 'Polynomial (d=2)',
+                  label: 'Untuned reference',
+                  badge: 'Quadratic weight-only baseline',
+                  title: THESIS_MODELS.poly.name,
                   totalMl: result.polyTotalMl,
                   meta: THESIS_MODELS.poly,
+                  cardClass: 'bg-slate-50 border-slate-200',
                 },
                 {
-                  label: 'Model 3',
-                  badge: 'RBF Gaussian Kernel',
-                  badgeCls: 'bg-purple-100 text-purple-800',
-                  title: 'SVR (Ordinary Default)',
-                  totalMl: result.svrTotalMl,
-                  meta: THESIS_MODELS.svr,
+                  label: 'Untuned reference',
+                  badge: 'Untuned RBF epsilon-SVR',
+                  title: THESIS_MODELS.rbf.name,
+                  totalMl: result.rbfTotalMl,
+                  meta: THESIS_MODELS.rbf,
+                  cardClass: 'bg-slate-50 border-slate-200',
                 },
-              ].map((m) => (
+                {
+                  label: 'Primary model',
+                  badge: 'Weight-only, tuned inside nested CV',
+                  title: THESIS_MODELS.primary.name,
+                  totalMl: result.primaryTotalMl,
+                  meta: THESIS_MODELS.primary,
+                  cardClass: 'bg-emerald-50 border-emerald-300',
+                },
+              ].map((model) => (
                 <div
-                  key={m.title}
-                  className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between"
+                  key={model.title}
+                  className={`rounded-2xl border p-5 flex flex-col justify-between ${model.cardClass}`}
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        {m.label}
-                      </span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${m.badgeCls}`}>
-                        {m.badge}
-                      </span>
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      {model.label}
                     </div>
-                    <h3 className="font-bold text-slate-900 text-sm mb-3">{m.title}</h3>
+                    <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/80 text-slate-700 mt-1">
+                      {model.badge}
+                    </span>
+                    <h3 className="font-bold text-slate-900 text-sm mt-2 mb-3">{model.title}</h3>
                     <div className="text-2xl font-extrabold font-mono text-slate-800 tracking-tight">
-                      {m.totalMl.toFixed(2)} mL
+                      {model.totalMl.toFixed(2)} mL
                     </div>
                     <div className="text-xs font-mono text-slate-500 mt-0.5">
-                      ~{(m.totalMl / 1000).toFixed(3)} L
+                      ~{(model.totalMl / 1000).toFixed(3)} L
                     </div>
                   </div>
-
                   <div className="pt-3 border-t border-slate-200 space-y-1.5 text-xs text-slate-600 mt-4">
                     <div className="flex justify-between">
-                      <span>R² Fit:</span>
+                      <span>Grouped CV R²:</span>
                       <span className="font-mono font-bold text-slate-800">
-                        {m.meta.r2Percent.toFixed(2)}%
+                        {model.meta.r2Percent.toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>MAE:</span>
                       <span className="font-mono text-slate-700">
-                        {m.meta.maeMl.toFixed(4)} mL
+                        {model.meta.maeMl.toFixed(4)} mL
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>RMSE:</span>
                       <span className="font-mono text-slate-700">
-                        {m.meta.rmseMl.toFixed(4)} mL
+                        {model.meta.rmseMl.toFixed(4)} mL
                       </span>
                     </div>
                   </div>
                 </div>
               ))}
-
-              {/* 4. Polynomial Regression (d=2) + ln(W) & L2 Ridge */}
-              <div className="bg-emerald-50 rounded-2xl border-2 border-emerald-600 p-5 flex flex-col justify-between shadow-xs sm:col-span-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-                        Model 4
-                      </span>
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 bg-emerald-700 text-white rounded-full">
-                        ★ Best Performing Fit
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-emerald-950 text-base mb-1">
-                      Polynomial Regression (d=2) + ln(W) & L2 Ridge
-                    </h3>
-                    <div className="text-3xl font-extrabold font-mono text-emerald-700 tracking-tight">
-                      {result.cbPolyTotalMl.toFixed(2)} mL{' '}
-                      <span className="text-sm font-semibold text-emerald-800/80">
-                        (~{(result.cbPolyTotalMl / 1000).toFixed(3)} L)
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 text-xs text-emerald-900 bg-white/80 p-3.5 rounded-xl border border-emerald-200">
-                    <div>
-                      <div className="text-emerald-700/80">R² Fit</div>
-                      <div className="font-mono font-bold text-emerald-800 text-sm mt-0.5">
-                        {THESIS_MODELS.cbPoly.r2Percent.toFixed(2)}%
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-emerald-700/80">MAE</div>
-                      <div className="font-mono font-bold text-emerald-800 text-sm mt-0.5">
-                        {THESIS_MODELS.cbPoly.maeMl.toFixed(4)} mL
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-emerald-700/80">RMSE</div>
-                      <div className="font-mono font-bold text-emerald-800 text-sm mt-0.5">
-                        {THESIS_MODELS.cbPoly.rmseMl.toFixed(4)} mL
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
@@ -490,7 +450,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                   type="button"
                   onClick={() => {
                     const kg = unit === 'kg' ? parseFloat(weightValue) || 10 : (parseFloat(weightValue) || 10000) / 1000;
-                    onNavigateToProfit(kg, result.cbPolyTotalMl);
+                    onNavigateToProfit(kg, result.primaryTotalMl);
                   }}
                   className="w-full py-2.5 px-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                 >
@@ -522,7 +482,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                   type="button"
                   onClick={() => {
                     const kg = unit === 'kg' ? parseFloat(weightValue) || 10 : (parseFloat(weightValue) || 10000) / 1000;
-                    onNavigateToDost(result.cbPolyTotalMl, kg);
+                    onNavigateToDost(result.primaryTotalMl, kg);
                   }}
                   className="w-full py-2.5 px-3.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                 >
@@ -564,14 +524,15 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 <th className="py-2.5 px-3">Batch Weight</th>
                 <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
                 <th className="py-2.5 px-3 font-mono">Simple Linear</th>
-                <th className="py-2.5 px-3 font-mono">Polynomial (d=2)</th>
-                <th className="py-2.5 px-3 font-mono text-emerald-700">Poly + ln(W) + Ridge</th>
+                <th className="py-2.5 px-3 font-mono">Quadratic</th>
+                <th className="py-2.5 px-3 font-mono">RBF Feature Ridge</th>
+                <th className="py-2.5 px-3 font-mono text-emerald-700">Primary model</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {userRecentLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400">
+                  <td colSpan={7} className="py-8 text-center text-slate-400">
                     No harvest predictions recorded yet.
                   </td>
                 </tr>
@@ -584,8 +545,15 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                       ~{log.count} calamansi
                     </td>
                     <td className="py-3 px-3 font-mono text-slate-600">{log.slr}</td>
-                    <td className="py-3 px-3 font-mono text-slate-600">{log.poly}</td>
-                    <td className="py-3 px-3 font-mono font-bold text-emerald-700">{log.cbPoly}</td>
+                    <td className="py-3 px-3 font-mono text-slate-600">
+                      {log.poly ?? log.polyMl?.toFixed(2) ?? '—'}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-slate-600">
+                      {log.rbf ?? log.rbfMl?.toFixed(2) ?? '—'}
+                    </td>
+                    <td className="py-3 px-3 font-mono font-bold text-emerald-700">
+                      {log.primary ?? log.cbPoly ?? '—'}
+                    </td>
                   </tr>
                 ))
               )}

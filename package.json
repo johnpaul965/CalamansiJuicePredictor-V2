@@ -4,9 +4,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "train:model": "node scripts/train_model.mjs",
+    "predev": "npm run train:model",
     "dev": "vite --host 0.0.0.0 --port 3000",
+    "prebuild": "npm run train:model",
     "build": "vite build",
-    "lint": "vite build",
+    "lint": "npm run build",
+    "test:model": "node --test scripts/modelTraining.test.mjs",
     "preview": "vite preview --host 0.0.0.0 --port 3000"
   },
   "devDependencies": {
@@ -20,6 +24,7 @@
     "vite": "^5.4.0"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "lucide-react": "^1.61.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

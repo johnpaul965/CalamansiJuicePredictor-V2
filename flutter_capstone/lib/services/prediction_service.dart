@@ -2,44 +2,49 @@ import 'dart:math';
 import '../models/prediction_result.dart';
 
 class PredictionService {
-  // Empirical mean single fruit weight from Tacloban City harvest (N = 1,478 clean fruits)
-  static const double representativeFruitWeightG = 12.686;
+  // Empirical mean single fruit weight from the 1,478 cleaned training rows.
+  static const double representativeFruitWeightG = 12.686062;
 
   // ── 1. SIMPLE LINEAR REGRESSION (SLR Baseline) ──
-  // Ordinary Linear Baseline: Juice = 0.416169 * W - 0.043154
+  // Current trained baseline: Juice = -0.5488877886 + 0.4551336614 * W
   static double predictSLR(double w) {
-    final val = 0.416169 * w - 0.043154;
+    final val = -0.5488877886 + 0.4551336614 * w;
     return val > 0 ? val : 0.0;
   }
 
   // ── 2. POLYNOMIAL REGRESSION d=2 (Quadratic Baseline) ──
-  // Ordinary Quadratic Baseline: Juice = 2.160503 + 0.041943 * W + 0.014995 * W²
+  // Current trained baseline: Juice = -0.8979234205 + 0.5136818207 * W - 0.002323394 * W²
   static double predictPoly(double w) {
-    final val = 2.160503 + 0.041943 * w + 0.014995 * w * w;
+    final val = -0.8979234205 + 0.5136818207 * w - 0.002323394 * w * w;
     return val > 0 ? val : 0.0;
   }
 
   // ── 3. SUPPORT VECTOR REGRESSION (SVR - RBF Kernel) ──
-  // Evaluated on trained SVR grid (C=1.0, epsilon=0.1, RBF kernel on W)
+  // Current trained RBF model predictions at integer weights from 5 g to 21 g.
+  // Intermediate inputs use linear interpolation, as in the existing app.
   static const List<double> _svrGrid = [
-    2.3423, 2.3001, 2.6539, 3.1004, 3.5432, 4.0000, 4.4439, 4.9004, 5.4126,
-    5.8996, 6.2999, 6.7099, 7.2001, 7.6996, 8.1002, 8.2598, 8.0029
+    2.2095, 2.3342, 2.6713, 3.1000, 3.5308, 3.9511, 4.4000, 4.9000, 5.4187,
+    5.9000, 6.3284, 6.7489, 7.2127, 7.7000, 8.0992, 8.2672, 8.1220
   ];
 
   static double predictSVR(double w) {
     final clamped = max(5.0, min(21.0, w));
     final lo = (clamped.floor() - 5).clamp(0, _svrGrid.length - 2);
     final hi = min(_svrGrid.length - 1, lo + 1);
-    final frac = clamped - clamped.floor();
+    final frac = clamped - (lo + 5.0);
     final val = _svrGrid[lo] * (1.0 - frac) + _svrGrid[hi] * frac;
     return val > 0 ? val : 0.0;
   }
 
-  // ── 4. ★ PROPOSED CHAMPION MODEL: Poly (d=2) + ln(W) & L2 Ridge (alpha = 0.01) ──
-  // Juice = 2.317885 + 1.100407 * W - 0.014151 * W² - 3.445975 * ln(W)
+  // ── 4. ★ SELECTED PROPOSED MODEL: Poly (d=2) + ln(W) & L2 Ridge ──
+  // Current trained formula; nested grouped CV selected alpha = 0.0001.
   static double predictProposed(double w) {
     final logW = log(max(1.0, w));
-    final val = 2.317885 + 1.100407 * w - 0.014151 * (w * w) - 3.445975 * logW;
+    final val =
+        2.6495262773 +
+        1.1609929751 * w -
+        0.01537347 * (w * w) -
+        3.8015944292 * logW;
     return val > 0 ? val : 0.0;
   }
 
@@ -67,57 +72,62 @@ class PredictionService {
     );
   }
 
-  // Official 4-Model Comparative Benchmark Suite (Weight-Grouped 5-Fold Cross-Validation, N = 1,478)
+  // Current grouped 5-fold out-of-fold metrics; all 1,522 source rows are scored.
   static final List<ModelBenchmarkItem> benchmarks = [
     ModelBenchmarkItem(
       id: 'slr',
       name: 'Simple Linear Regression (SLR)',
-      formula: 'Juice = 0.4162(W) - 0.0432',
+      formula: 'Juice = max(0, -0.5488877886 + 0.4551336614·W)',
       configuration: 'Ordinary Linear Baseline (W only, no layers)',
-      r2: 80.74,
-      mae: 0.5142,
-      rmse: 0.6423,
-      mape: 10.92,
-      status: 'No Layers (-1.54%)',
+      r2: 62.082862,
+      mae: 0.552509,
+      rmse: 0.956406,
+      mape: 11.258224,
+      status: 'Linear baseline',
       isChampion: false,
     ),
     ModelBenchmarkItem(
       id: 'svr',
-      name: 'Support Vector Regression (Ordinary RBF)',
-      formula: 'RBF Kernel (C=1.0, ε=0.1, γ=scale)',
-      configuration: 'Default Off-the-Shelf SVR (W only, no layers)',
-      r2: 80.53,
-      mae: 0.5128,
-      rmse: 0.6458,
-      mape: 10.99,
-      status: 'No Layers (-1.75%)',
+      name: 'Support Vector Regression (RBF Kernel)',
+      formula: 'RBF Kernel (C=1, ε=0.1, γ=0.05)',
+      configuration: 'Fixed-parameter RBF SVR (W only)',
+      r2: 68.052238,
+      mae: 0.549738,
+      rmse: 0.877899,
+      mape: 11.358018,
+      status: 'Highest validation R²',
       isChampion: false,
     ),
     ModelBenchmarkItem(
       id: 'poly',
       name: 'Polynomial Regression (Degree 2)',
-      formula: 'Juice = 2.1605 + 0.0419(W) + 0.0150(W²)',
+      formula: 'Juice = max(0, -0.8979234205 + 0.5136818207·W - 0.002323394·W²)',
       configuration: 'Ordinary Quadratic Baseline (W, W², no layers)',
-      r2: 76.23,
-      mae: 0.5690,
-      rmse: 0.7136,
-      mape: 12.86,
-      status: 'No Layers (-6.05%)',
+      r2: 61.426123,
+      mae: 0.554179,
+      rmse: 0.964653,
+      mape: 11.281201,
+      status: 'Quadratic baseline',
       isChampion: false,
     ),
     ModelBenchmarkItem(
       id: 'proposed',
       name: 'Polynomial Regression (d=2) + ln(W) & L2 Ridge',
-      formula: 'Juice = 2.3179 + 1.1004(W) - 0.01415(W²) - 3.4460·ln(W)',
-      configuration: '★ Proposed Model (In-Fold Clean + ln W + L2 Ridge)',
-      r2: 82.28,
-      mae: 0.4896,
-      rmse: 0.6160,
-      mape: 10.05,
-      status: '★ BEST FIT',
+      formula: 'Juice = max(0, 2.6495262773 + 1.1609929751·W - 0.01537347·W² - 3.8015944292·ln(W))',
+      configuration: '★ Selected Poly+ model (nested grouped CV; α = 0.0001)',
+      r2: 65.022333,
+      mae: 0.550195,
+      rmse: 0.918586,
+      mape: 11.247535,
+      status: '★ Proposed model',
       isChampion: true,
     ),
   ];
+
+  static String r2Label(String modelId) {
+    final benchmark = benchmarks.firstWhere((item) => item.id == modelId);
+    return '${benchmark.r2.toStringAsFixed(2)}%';
+  }
 
   // Chapter 4 Data Cleaning & Hygiene Audit Pipeline
   static final List<DataCleaningStep> dataHygieneSteps = [

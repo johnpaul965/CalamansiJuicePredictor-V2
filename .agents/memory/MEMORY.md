@@ -1,1 +1,5 @@
-- [Dataset size labeling](dataset-size-labeling.md) — uploaded measurements without reliable size labels use weight-based Small/Medium/Large buckets.
+- [Weight-only model inputs](weight-only-model-inputs.md) — fruit weight is the predictor and measured juice in mL is the target; Size is not a model input.
+- [RBF SVR optimization](rbf-svr-optimization.md) — dual-coordinate eligibility needs a tolerance at ±C; full-data CV exposed stalling hidden by small examples.
+- [Bun lockfile compatibility](bun-lockfile-compatibility.md) — the imported version-2 lockfile is incompatible with managed Bun 1.3, which may ignore it and rewrite package configuration.
+- [Poly+ model selection](poly-plus-model-selection.md) — keep Poly+ selected; current all-held-out R² is not directly comparable to older clean-only scores.
+- [R² objective](r2-objective.md) — the project objective is at least 80% R², evaluated without changing the validation rules to inflate the score.

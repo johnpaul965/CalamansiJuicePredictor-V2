@@ -15,8 +15,8 @@ export interface PredictionResult {
   repWeight: number;
   slrTotalMl: number;
   polyTotalMl: number;
-  svrTotalMl: number;
-  cbPolyTotalMl: number;
+  rbfTotalMl: number;
+  primaryTotalMl: number;
   bottles330: number;
   bottles500: number;
   bottles1000: number;
@@ -31,11 +31,16 @@ export interface PredictionLog {
   weight: string;
   count: number;
   slr: string;
-  poly: string;
-  cbPoly: string;
-  slrMl: number;
-  polyMl: number;
-  cbPolyMl: number;
+  primary: string;
+  slrMl?: number;
+  polyMl?: number;
+  rbf?: string;
+  rbfMl?: number;
+  primaryMl?: number;
+  // Older browser histories used these fields before the primary-model update.
+  poly?: string;
+  cbPoly?: string;
+  cbPolyMl?: number;
 }
 
 export interface ModelBenchmark {
@@ -50,6 +55,7 @@ export interface ModelBenchmark {
   formula: string;
   badge: string;
   isChampion?: boolean;
+  alpha?: number;
 }
 
 export interface ResearchMetadata {
@@ -57,8 +63,6 @@ export interface ResearchMetadata {
   study: string;
   total_samples: number;
   clean_samples: number;
-  training_samples: number;
-  testing_samples: number;
   overall_mean_fruit_weight_g: number;
   overall_mean_fruit_juice_ml: number;
 }

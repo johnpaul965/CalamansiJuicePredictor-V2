@@ -25,10 +25,11 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
 
   const filteredLogs = userLogs.filter((l) => {
     const q = searchQuery.toLowerCase();
+    const primaryResult = l.primary ?? l.cbPoly ?? '';
     return (
       l.weight.toLowerCase().includes(q) ||
       l.date.toLowerCase().includes(q) ||
-      l.cbPoly.toLowerCase().includes(q) ||
+      primaryResult.toLowerCase().includes(q) ||
       l.user.toLowerCase().includes(q)
     );
   });
@@ -120,7 +121,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                       {item.weight}
                     </span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      <Award className="w-2.5 h-2.5" /> Poly + ln(W) + Ridge
+                      <Award className="w-2.5 h-2.5" /> Weight-only primary model
                     </span>
                   </div>
 
@@ -142,10 +143,10 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
 
               <div className="sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
                 <div className="text-xl font-extrabold font-mono text-emerald-700">
-                  {item.cbPoly}
+                  {item.primary ?? item.cbPoly ?? '—'}
                 </div>
                 <div className="text-[11px] font-mono text-slate-400 mt-0.5">
-                  SLR: {item.slr} | Poly: {item.poly}
+                  SLR: {item.slr} · Quadratic: {item.poly ?? '—'} · RBF SVR: {item.rbf ?? '—'}
                 </div>
               </div>
             </div>

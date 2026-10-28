@@ -1,139 +1,126 @@
-import { PredictionResult, ResearchMetadata, ModelBenchmark } from '../types';
-import liveMetrics from '../data/model_metrics.json';
+import { ModelBenchmark, PredictionResult, ResearchMetadata } from '../types';
+import trainedMetrics from '../data/model_metrics.json';
 
-// Initialize dynamically from train_model.py output (model_metrics.json)
 export const RESEARCH_METADATA: ResearchMetadata = {
-  institution: liveMetrics.metadata.institution,
-  study: liveMetrics.metadata.study,
-  total_samples: liveMetrics.metadata.total_raw_samples,
-  clean_samples: liveMetrics.metadata.clean_samples,
-  training_samples: Math.round(liveMetrics.metadata.clean_samples * 0.8),
-  testing_samples: Math.round(liveMetrics.metadata.clean_samples * 0.2),
-  overall_mean_fruit_weight_g: liveMetrics.metadata.representative_weight_g,
-  overall_mean_fruit_juice_ml: liveMetrics.metadata.representative_juice_ml,
+  institution: trainedMetrics.metadata.institution,
+  study: trainedMetrics.metadata.study,
+  total_samples: trainedMetrics.metadata.total_raw_samples,
+  clean_samples: trainedMetrics.metadata.clean_samples,
+  overall_mean_fruit_weight_g: trainedMetrics.metadata.representative_weight_g,
+  overall_mean_fruit_juice_ml: trainedMetrics.metadata.representative_juice_ml,
 };
 
-// Empirical harvest baseline computed directly from clean dataset
 export const HARVEST_BASELINE = {
-  representativeWeight: liveMetrics.metadata.representative_weight_g,
-  representativeJuice: liveMetrics.metadata.representative_juice_ml,
-  ratioPercent: liveMetrics.metadata.extraction_ratio_pct,
+  representativeWeight: trainedMetrics.metadata.representative_weight_g,
+  representativeJuice: trainedMetrics.metadata.representative_juice_ml,
+  ratioPercent: trainedMetrics.metadata.extraction_ratio_pct,
 };
 
-// 4 Models Loaded Live from Cleaned Benchmark in model_metrics.json
-export const THESIS_MODELS: Record<string, ModelBenchmark> = {
-  slr: {
-    name: liveMetrics.clean_benchmarks.slr.name,
-    shortName: 'SLR',
-    role: liveMetrics.clean_benchmarks.slr.role,
-    correlationR: liveMetrics.clean_benchmarks.slr.correlation_r,
-    r2Percent: liveMetrics.clean_benchmarks.slr.r2_percent,
-    maeMl: liveMetrics.clean_benchmarks.slr.mae,
-    rmseMl: liveMetrics.clean_benchmarks.slr.rmse,
-    mapePercent: liveMetrics.clean_benchmarks.slr.mape,
-    formula: liveMetrics.clean_benchmarks.slr.formula,
-    badge: liveMetrics.clean_benchmarks.slr.isChampion ? '★ Best Fit' : 'Linear Baseline',
-    isChampion: liveMetrics.clean_benchmarks.slr.isChampion,
-  },
-  poly: {
-    name: liveMetrics.clean_benchmarks.poly.name,
-    shortName: 'Poly (d=2)',
-    role: liveMetrics.clean_benchmarks.poly.role,
-    correlationR: liveMetrics.clean_benchmarks.poly.correlation_r,
-    r2Percent: liveMetrics.clean_benchmarks.poly.r2_percent,
-    maeMl: liveMetrics.clean_benchmarks.poly.mae,
-    rmseMl: liveMetrics.clean_benchmarks.poly.rmse,
-    mapePercent: liveMetrics.clean_benchmarks.poly.mape,
-    formula: liveMetrics.clean_benchmarks.poly.formula,
-    badge: liveMetrics.clean_benchmarks.poly.isChampion ? '★ Best Fit' : 'Quadratic Baseline',
-    isChampion: liveMetrics.clean_benchmarks.poly.isChampion,
-  },
-  svr: {
-    name: liveMetrics.clean_benchmarks.svr.name,
-    shortName: 'SVR (RBF)',
-    role: liveMetrics.clean_benchmarks.svr.role,
-    correlationR: liveMetrics.clean_benchmarks.svr.correlation_r,
-    r2Percent: liveMetrics.clean_benchmarks.svr.r2_percent,
-    maeMl: liveMetrics.clean_benchmarks.svr.mae,
-    rmseMl: liveMetrics.clean_benchmarks.svr.rmse,
-    mapePercent: liveMetrics.clean_benchmarks.svr.mape,
-    formula: liveMetrics.clean_benchmarks.svr.formula,
-    badge: liveMetrics.clean_benchmarks.svr.isChampion ? '★ Best Fit' : 'RBF Kernel',
-    isChampion: liveMetrics.clean_benchmarks.svr.isChampion,
-  },
-  cbPoly: {
-    name: liveMetrics.clean_benchmarks.proposed.name,
-    shortName: 'Poly + ln(W) + Ridge',
-    role: liveMetrics.clean_benchmarks.proposed.role,
-    correlationR: liveMetrics.clean_benchmarks.proposed.correlation_r,
-    r2Percent: liveMetrics.clean_benchmarks.proposed.r2_percent,
-    maeMl: liveMetrics.clean_benchmarks.proposed.mae,
-    rmseMl: liveMetrics.clean_benchmarks.proposed.rmse,
-    mapePercent: liveMetrics.clean_benchmarks.proposed.mape,
-    formula: liveMetrics.clean_benchmarks.proposed.formula,
-    badge: liveMetrics.clean_benchmarks.proposed.isChampion ? '★ Best Fit' : 'Proposed Model',
-    isChampion: liveMetrics.clean_benchmarks.proposed.isChampion,
-  },
+function toBenchmark(
+  model: (typeof trainedMetrics.benchmarks)[keyof typeof trainedMetrics.benchmarks],
+  shortName: string,
+  badge: string
+): ModelBenchmark {
+  return {
+    name: model.name,
+    shortName,
+    role: model.role,
+    correlationR: model.correlation_r,
+    r2Percent: model.r2_percent,
+    maeMl: model.mae,
+    rmseMl: model.rmse,
+    mapePercent: model.mape,
+    formula: model.formula,
+    badge,
+    isChampion: model.isChampion,
+    ...('alpha' in model ? { alpha: model.alpha } : {}),
+  };
+}
+
+export const THESIS_MODELS = {
+  slr: toBenchmark(
+    trainedMetrics.benchmarks.slr,
+    'Simple Linear Regression (SLR)',
+    'Linear Baseline'
+  ),
+  poly: toBenchmark(
+    trainedMetrics.benchmarks.poly,
+    'Polynomial Regression (Degree 2)',
+    'Quadratic Baseline'
+  ),
+  rbf: toBenchmark(
+    trainedMetrics.benchmarks.svr,
+    'Support Vector Regression (RBF Kernel)',
+    'RBF Kernel'
+  ),
+  primary: toBenchmark(
+    trainedMetrics.benchmarks.primary,
+    'Polynomial (d=2) + ln(W) & L2 Ridge',
+    'Selected Final'
+  ),
 };
 
-export const CLEAN_BENCHMARKS = liveMetrics.clean_benchmarks;
+const SLR_COEFFICIENTS = trainedMetrics.benchmarks.slr.coefficients;
+const POLY_COEFFICIENTS = trainedMetrics.benchmarks.poly.coefficients;
+const RBF_MODEL = trainedMetrics.benchmarks.svr;
+const PRIMARY_COEFFICIENTS = trainedMetrics.benchmarks.primary.coefficients;
 
-
-// Empirical Monte Carlo Batch Scaling Accuracy (200 Resampling Trials)
-export const BATCH_SCALING_BENCHMARK = liveMetrics.batch_scaling_clt;
-
-// Dynamic Trained Coefficients
-const SLR_COEFFS = liveMetrics.clean_benchmarks.slr.coefficients;
-const SVR_COEFFS = liveMetrics.clean_benchmarks.svr.coefficients;
-const POLY_COEFFS = liveMetrics.clean_benchmarks.poly.coefficients;
-const PROP_COEFFS = liveMetrics.clean_benchmarks.proposed.coefficients;
-
-// Unit Predictions per Individual Fruit (g)
-export function predictSimplePerFruit(w: number): number {
-  const val = SLR_COEFFS[0] + SLR_COEFFS[1] * w;
-  return val > 0 ? val : 0;
+export function predictSimplePerFruit(weightG: number): number {
+  return Math.max(0, SLR_COEFFICIENTS[0] + SLR_COEFFICIENTS[1] * weightG);
 }
 
-export function predictSvrPerFruit(w: number): number {
-  const val = SVR_COEFFS[0] + SVR_COEFFS[1] * w;
-  return val > 0 ? val : 0;
+export function predictPolynomialPerFruit(weightG: number): number {
+  const value =
+    POLY_COEFFICIENTS[0] +
+    POLY_COEFFICIENTS[1] * weightG +
+    POLY_COEFFICIENTS[2] * weightG ** 2;
+  return Math.max(0, value);
 }
 
-export function predictPolyPerFruit(w: number): number {
-  const val = POLY_COEFFS[0] + POLY_COEFFS[1] * w + POLY_COEFFS[2] * w * w;
-  return val > 0 ? val : 0;
+export function predictRbfPerFruit(weightG: number): number {
+  const value =
+    RBF_MODEL.intercept +
+    RBF_MODEL.support_vectors.reduce(
+      (sum, supportVector, index) =>
+        sum +
+        RBF_MODEL.coefficients[index] *
+          Math.exp(-RBF_MODEL.gamma * (weightG - supportVector) ** 2),
+      0
+    );
+  return Math.max(0, value);
 }
 
-export function predictCbPolyPerFruit(w: number): number {
-  const logW = Math.log(Math.max(1, w));
-  const val =
-    PROP_COEFFS[0] +
-    PROP_COEFFS[1] * w +
-    PROP_COEFFS[2] * w * w +
-    PROP_COEFFS[3] * logW;
-  return val > 0 ? val : 0;
+export function predictPrimaryPerFruit(weightG: number): number {
+  const value =
+    PRIMARY_COEFFICIENTS[0] +
+    PRIMARY_COEFFICIENTS[1] * weightG +
+    PRIMARY_COEFFICIENTS[2] * weightG ** 2 +
+    PRIMARY_COEFFICIENTS[3] * Math.log(Math.max(1, weightG));
+  return Math.max(0, value);
 }
 
-// Operational Calculation Engine
 export function runCalculationEngine(weightG: number): PredictionResult {
-  const repWeight = HARVEST_BASELINE.representativeWeight;
-  const count = Math.max(1, Math.round(weightG / repWeight));
+  if (!Number.isFinite(weightG) || weightG <= 0) {
+    throw new Error('Batch weight must be a finite number greater than zero.');
+  }
 
-  const slrTotalMl = predictSimplePerFruit(repWeight) * count;
-  const polyTotalMl = predictPolyPerFruit(repWeight) * count;
-  const svrTotalMl = predictSvrPerFruit(repWeight) * count;
-  const cbPolyTotalMl = predictCbPolyPerFruit(repWeight) * count;
+  const representativeWeight = HARVEST_BASELINE.representativeWeight;
+  const count = Math.max(1, Math.round(weightG / representativeWeight));
+  const slrTotalMl = predictSimplePerFruit(representativeWeight) * count;
+  const polyTotalMl = predictPolynomialPerFruit(representativeWeight) * count;
+  const rbfTotalMl = predictRbfPerFruit(representativeWeight) * count;
+  const primaryTotalMl = predictPrimaryPerFruit(representativeWeight) * count;
 
   return {
     count,
-    repWeight,
+    repWeight: representativeWeight,
     slrTotalMl: Number(slrTotalMl.toFixed(1)),
     polyTotalMl: Number(polyTotalMl.toFixed(1)),
-    svrTotalMl: Number(svrTotalMl.toFixed(1)),
-    cbPolyTotalMl: Number(cbPolyTotalMl.toFixed(1)),
-    bottles330: Number((cbPolyTotalMl / 330).toFixed(1)),
-    bottles500: Number((cbPolyTotalMl / 500).toFixed(1)),
-    bottles1000: Number((cbPolyTotalMl / 1000).toFixed(2)),
-    extractionRatioPercent: Number(((cbPolyTotalMl / weightG) * 100).toFixed(2)),
+    rbfTotalMl: Number(rbfTotalMl.toFixed(1)),
+    primaryTotalMl: Number(primaryTotalMl.toFixed(1)),
+    bottles330: Number((primaryTotalMl / 330).toFixed(1)),
+    bottles500: Number((primaryTotalMl / 500).toFixed(1)),
+    bottles1000: Number((primaryTotalMl / 1000).toFixed(2)),
+    extractionRatioPercent: Number(((primaryTotalMl / weightG) * 100).toFixed(2)),
   };
 }

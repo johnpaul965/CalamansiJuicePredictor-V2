@@ -391,14 +391,15 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
                       <th className="py-2.5 px-3">Batch Weight</th>
                       <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
                       <th className="py-2.5 px-3 font-mono">Simple Linear</th>
-                      <th className="py-2.5 px-3 font-mono">Polynomial (d=2)</th>
-                      <th className="py-2.5 px-3 font-mono text-emerald-700">Poly + ln(W) + Ridge</th>
+                      <th className="py-2.5 px-3 font-mono">Quadratic</th>
+                      <th className="py-2.5 px-3 font-mono">RBF SVR</th>
+                      <th className="py-2.5 px-3 font-mono text-emerald-700">Primary model</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {logs.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="py-10 text-center text-slate-400">
+                        <td colSpan={8} className="py-10 text-center text-slate-400">
                           No prediction logs recorded in system yet.
                         </td>
                       </tr>
@@ -414,9 +415,14 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
                             ~{log.count} fruits
                           </td>
                           <td className="py-3 px-3 font-mono text-slate-600">{log.slr}</td>
-                          <td className="py-3 px-3 font-mono text-slate-600">{log.poly}</td>
+                          <td className="py-3 px-3 font-mono text-slate-600">
+                            {log.poly ?? log.polyMl?.toFixed(2) ?? '—'}
+                          </td>
+                          <td className="py-3 px-3 font-mono text-slate-600">
+                            {log.rbf ?? log.rbfMl?.toFixed(2) ?? '—'}
+                          </td>
                           <td className="py-3 px-3 font-mono font-bold text-emerald-700">
-                            {log.cbPoly}
+                            {log.primary ?? log.cbPoly ?? '—'}
                           </td>
                         </tr>
                       ))

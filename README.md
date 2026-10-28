@@ -1,22 +1,27 @@
 # Calamansi Yield Predictor
 
-An empirical agricultural yield prediction web application rewritten in React, TypeScript, and Tailwind CSS based on the calamansi harvest research study conducted by Leyte Normal University in Tacloban City, Philippines.
+An agricultural yield prediction web application built with React, TypeScript, and Tailwind CSS. The dataset contains calamansi weight and measured juice-yield records.
 
 ## Overview
 
-The application accurately predicts pure calamansi juice extraction yield using three trained regression architectures evaluated on 1,522 real fruit harvest samples:
-1. **Simple Linear Regression (SLR)**: Baseline model based on batch weight (`Juice = 0.4569 × Weight - 0.6080`, R² = 0.7099)
-2. **Multiple Linear Regression (MLR)**: Evaluates batch weight and size grade (`Juice = 0.4580 × Weight - 0.0053 × Size - 0.6108`, R² = 0.7100)
-3. **Polynomial Regression (Degree 2)**: Best-performing non-linear architecture (`Juice = -0.5480 + 0.4357(W) + 0.0865(S) - 0.0031(W²) + 0.0474(W·S) - 0.1641(S²)`, R² = 0.7102, MAE = 0.5279 ml)
+The prediction compares four weight-only models: **Simple Linear Regression (SLR)**, **Polynomial Regression (Degree 2)**, **Support Vector Regression (RBF Kernel)**, and **Polynomial (d=2) + ln(W) & L2 Ridge**. The Poly+ model is the proposed champion model (82.44% R², 0.4874 mL MAE). Model parameters and validation metrics are trained from `dataset.csv`; the app uses those same generated parameters for predictions.
+
+Training and evaluation rules:
+- `Size` is excluded; the system operates strictly on fruit weight (`W`).
+- Stratified 5-fold cross-validation partitions verified clean harvest records (N = 1,478) across weight strata with clerical data-entry errors removed.
+- All four models are evaluated under the identical stratified validation protocol.
+- Primary Poly+ model's Ridge strength is selected via nested cross-validation (selected α = 0.001).
+- Fixed parameters for RBF SVR: `C = 1`, `ε = 0.1`, and `γ = 0.05` with dual SMO solver evaluating 1,283 support vectors.
 
 ## Key Features
 
-- **Batch Yield Estimator**: Interactive calculator supporting kilograms (`kg`) and grams (`g`) with quick select presets and empirical size grading.
-- **Model Comparison Suite**: Side-by-side evaluation of all three models with accuracy metrics (R², MAE, RMSE, MSE, MAPE) and commercial packaging estimates (330ml, 500ml, 1.0L bottles).
-- **Research Analytics**: Dataset breakdown of 1,522 samples across Small, Medium, and Large size categories, complete formulas, and learned coefficients.
-- **Harvest History**: Detailed log of past calculations with instant search and clear capabilities.
-- **Admin Console**: User account management (create, suspend/activate, change role, reset password), prediction audit logs, and CSV data export.
-- **Demo Accounts**: Quick sign-in buttons for `farmer_juan` (User) and `admin` (Administrator).
+- **Batch Yield Estimator**: Interactive calculator supporting kilograms (`kg`) and grams (`g`) with quick select presets.
+- **Model Evaluation**: Four weight-only models compared on the same stratified folds, with R², MAE, RMSE, MAPE, and generated formulas.
+- **Research Analytics**: Dataset sample counts, weight-only model formulas, and training settings.
+- **Harvest History**: Detailed log of past calculations with instant search, multi-device cloud sync, and CSV data export with formula injection protection.
+- **Admin Console**: User account management (create, suspend/activate, change role, reset password), prediction audit logs, and Supabase cloud database settings.
+- **Dual Persistence Architecture**: Supabase PostgreSQL cloud sync for multi-device live deployment, with automatic seamless offline localStorage fallback.
+- **Demo Accounts**: Instant sign-in buttons for `farmer_juan` (User) and `admin` (Administrator).
 
 ## Tech Stack
 
@@ -24,4 +29,8 @@ The application accurately predicts pure calamansi juice extraction yield using 
 - **Bundler**: Vite
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
-- **Storage**: In-memory and browser localStorage persistence
+- **Cloud Database**: Supabase (PostgreSQL) + LocalStorage offline fallback
+
+## Model training
+
+Run `npm run train:model` to train the models and regenerate the metric files from the root `dataset.csv`. `npm run dev` and `npm run build` run training automatically first. Run `npm run test:model` for the training-pipeline checks.

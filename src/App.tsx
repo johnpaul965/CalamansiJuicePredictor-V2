@@ -7,6 +7,7 @@ import {
   clearLogs,
   getSavedSession,
   setSavedSession,
+  syncFromSupabase,
 } from './services/storageService';
 import { LoginScreen } from './components/LoginScreen';
 import { UserScaffold } from './components/UserScaffold';
@@ -18,6 +19,20 @@ export const App: React.FC = () => {
   const [users, setUsers] = useState<AppUser[]>(() => getUsers());
   const [logs, setLogs] = useState<PredictionLog[]>(() => getLogs());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Background sync from Supabase if configured
+  useEffect(() => {
+    syncFromSupabase().then((res) => {
+      if (res.synced) {
+        if (res.users && res.users.length > 0) {
+          setUsers(res.users);
+        }
+        if (res.logs && res.logs.length > 0) {
+          setLogs(res.logs);
+        }
+      }
+    });
+  }, []);
 
   // Sync users in state and localStorage
   const handleUpdateUsers = (newUsers: AppUser[]) => {

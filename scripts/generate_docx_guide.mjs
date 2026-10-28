@@ -160,7 +160,7 @@ async function buildDoc() {
           ),
           ...createCallout(
             'Rule 1A: Botanical Mass-Balance Ratio (Juice / Weight <= 0.60) — Removes 8 Impossible Rows (1,522 -> 1,514)',
-            'Botanical Fact: When you squeeze a calamansi fruit, the external peel, white albedo/pith, carpel membrane walls, and internal seeds physically comprise at least 40% of the fruit mass. Liquid juice can NEVER physically exceed 60% of fruit weight.\n\nIn the raw 1,522 rows, sorting Column D (=Juice/Weight in Excel) immediately revealed 8 physically impossible recording errors:\n• Row 997: 2g fruit -> 16 mL juice (800% of weight! Obvious typing typo)\n• Row 1013: 3g fruit -> 17 mL juice (567% of weight! Obvious typing typo)\n• Row 1025: 4g fruit -> 15 mL juice (375% of weight! Obvious typing typo)\n• Rows 75, 63, 1471, 60, 502: Fruits showing 62% to 77% juice (caused by measuring cylinder carryover where juice was not emptied before the next fruit was squeezed).\n\nRemoving these 8 physically impossible errors left 1,514 valid fruits.'
+            'Botanical Fact: When you squeeze a calamansi fruit, the external peel, white albedo/pith, carpel membrane walls, and internal seeds physically comprise at least 40% of the fruit mass. Liquid juice can NEVER physically exceed 60% of fruit weight.\n\nIn the raw 1,522 rows, sorting Column C (=Juice/Weight in Excel, with Weight in Column A and Juice in Column B) immediately revealed 8 physically impossible recording errors:\n• Row 997: 2g fruit -> 16 mL juice (800% of weight! Obvious typing typo)\n• Row 1013: 3g fruit -> 17 mL juice (567% of weight! Obvious typing typo)\n• Row 1025: 4g fruit -> 15 mL juice (375% of weight! Obvious typing typo)\n• Rows 75, 63, 1471, 60, 502: Fruits showing 62% to 77% juice (caused by measuring cylinder carryover where juice was not emptied before the next fruit was squeezed).\n\nRemoving these 8 physically impossible errors left 1,514 valid fruits.'
           ),
           ...createCallout(
             'Rule 1B: Textbook 98% Confidence Interval Z-Score (|Z| <= 2.326) — Removes 36 Outliers (1,514 -> 1,478)',
@@ -259,8 +259,8 @@ async function buildDoc() {
             'Textbook Intercept Formula:\nIntercept (B0) = J_mean - (Slope * W_mean)\n\nSubstitute the numbers:\nB0 = 5.2250 - (0.455134 * 12.6861)\nB0 = 5.2250 - 5.7739 = -0.548888 (~-0.5489)\n\nFinal Manual Regression Line:\nJuice = 0.4551 * (Weight) - 0.5489'
           ),
           ...createCallout(
-            'Step 3: Manual Pearson Correlation (r) & Accuracy (R^2)',
-            'Pearson r Formula:\nr = Top / SquareRoot [ Bottom_W * Bottom_J ]\n\nWhere:\nBottom_W = 18,608,512.00\nBottom_J = [ 1,478 * 43,515.75 - (7,722.50)^2 ] = 64,316,278.50 - 59,636,006.25 = 4,680,272.25\nSquareRoot Part = SquareRoot(18,608,512.00 * 4,680,272.25) = 9,332,359.97\n\nDivide:\nr = 8,469,360.20 / 9,332,359.97 = 0.907623 (Extremely strong positive correlation!)\nR^2 = r^2 = (0.907623)^2 = 0.8238 = 82.38%!'
+            'Step 3: Current Out-of-Fold R²',
+            'R² is calculated from the held-out predictions across all five grouped folds, not by squaring Pearson correlation. The current selected Poly+ model has R² = 65.02% across 1,522 scored source rows. The RBF SVR currently scores 68.05%. The selected Poly+ model remains the agreed project model; neither result reaches the 80% target.'
           ),
 
           // SECTION 3: OFFICIAL 4-MODEL BENCHMARK TABLE
@@ -269,7 +269,7 @@ async function buildDoc() {
             spacing: { before: 300, after: 140 },
             children: [
               new TextRun({
-                text: '3. Official 4-Model Comparative Benchmark Table (Ground-Truth N = 1,478)',
+                text: '3. Official 4-Model Comparative Benchmark Table (Out-of-Fold N = 1,522; Final Fit N = 1,478)',
                 bold: true,
                 color: '15803D',
                 font: 'Arial',
@@ -292,42 +292,42 @@ async function buildDoc() {
               }),
               new TableRow({
                 children: [
-                  createDataCell('1', 6, false, AlignmentType.CENTER),
+                  createDataCell('3', 6, false, AlignmentType.CENTER),
                   createDataCell('Simple Linear Regression (SLR)', 32),
                   createDataCell('W only', 16, false, AlignmentType.CENTER),
-                  createDataCell('80.74%', 14, false, AlignmentType.CENTER),
-                  createDataCell('0.5142', 14, false, AlignmentType.CENTER),
+                  createDataCell('62.08%', 14, false, AlignmentType.CENTER),
+                  createDataCell('0.5525', 14, false, AlignmentType.CENTER),
                   createDataCell('Linear Baseline', 18),
                 ],
               }),
               new TableRow({
                 children: [
-                  createDataCell('2', 6, false, AlignmentType.CENTER),
+                  createDataCell('4', 6, false, AlignmentType.CENTER),
                   createDataCell('Polynomial Regression (d=2)', 32),
                   createDataCell('W, W²', 16, false, AlignmentType.CENTER),
-                  createDataCell('76.23%', 14, false, AlignmentType.CENTER),
-                  createDataCell('0.5690', 14, false, AlignmentType.CENTER),
+                  createDataCell('61.43%', 14, false, AlignmentType.CENTER),
+                  createDataCell('0.5542', 14, false, AlignmentType.CENTER),
                   createDataCell('Quadratic Baseline', 18),
                 ],
               }),
               new TableRow({
                 children: [
-                  createDataCell('3', 6, false, AlignmentType.CENTER),
+                  createDataCell('1', 6, false, AlignmentType.CENTER),
                   createDataCell('Support Vector Regression (SVR - RBF)', 32),
                   createDataCell('W (RBF)', 16, false, AlignmentType.CENTER),
-                  createDataCell('80.53%', 14, false, AlignmentType.CENTER),
-                  createDataCell('0.5128', 14, false, AlignmentType.CENTER),
-                  createDataCell('Replaces MLR (Modern ML)', 18),
+                  createDataCell('68.05%', 14, false, AlignmentType.CENTER),
+                  createDataCell('0.5497', 14, false, AlignmentType.CENTER),
+                  createDataCell('Highest current CV R²', 18),
                 ],
               }),
               new TableRow({
                 children: [
-                  createDataCell('4', 6, true, AlignmentType.CENTER),
+                  createDataCell('2', 6, true, AlignmentType.CENTER),
                   createDataCell('★ Poly (d=2) + ln(W) & L2 Ridge', 32, true),
                   createDataCell('W, W², ln(W)', 16, true, AlignmentType.CENTER),
-                  createDataCell('82.28%', 14, true, AlignmentType.CENTER),
-                  createDataCell('0.4896', 14, true, AlignmentType.CENTER),
-                  createDataCell('★ Proposed Champion', 18, true),
+                  createDataCell('65.02%', 14, true, AlignmentType.CENTER),
+                  createDataCell('0.5502', 14, true, AlignmentType.CENTER),
+                  createDataCell('★ Selected Poly+ model', 18, true),
                 ],
               }),
             ],
@@ -402,7 +402,7 @@ async function buildDoc() {
           }),
           ...createCallout(
             'Q1: "Why did you remove fruit Size and replace MLR with SVR?"',
-            'Answer: "In Version 1, MLR tested Weight and Size. However, our dataset showed that Size had a correlation coefficient of only -0.0053 and added only 0.01% to R², while forcing farmers to sort hundreds of tiny calamansi by hand. Therefore, we replaced MLR with Support Vector Regression (SVR with RBF kernel) as our modern machine learning baseline (80.53%), and developed our Proposed Model (82.28%). Both operate directly on Weight alone, eliminating manual sizing while significantly improving prediction accuracy."'
+            'Answer: "In Version 1, MLR tested Weight and Size. We now compare four weight-only models under grouped 5-fold cross-validation. The current RBF SVR scores 68.05% R² and the selected Poly+ model scores 65.02%; the Poly+ model remains the agreed project choice, but the current results do not meet an 80% target. All operate directly on Weight, so farmers do not need to sort fruit by size."'
           ),
           ...createCallout(
             'Q2: "Can you prove that this model was not trained by AI or hardcoded?"',

@@ -25,7 +25,7 @@ class ModelComparisonScreen extends StatelessWidget {
             unselectedLabelColor: Colors.white70,
             labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             tabs: [
-              Tab(text: 'Benchmarks (N=1,478)'),
+              Tab(text: 'Benchmarks (N=1,522)'),
               Tab(text: 'Data Hygiene'),
               Tab(text: 'Formulas'),
             ],
@@ -67,12 +67,12 @@ class _BenchmarkTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  '4-Model Benchmark Suite: 3 Ordinary Baselines vs. 1 Layered Model',
+                  '4-Model Benchmark Suite: 3 Baselines vs. 1 Selected Poly+ Model',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                 ),
                 SizedBox(height: 6),
                 Text(
-                  'Evaluated fairly on the exact same N = 1,478 test fruits using Weight-Grouped 5-Fold Cross-Validation (((W + 1) // 2) % 5) so models must predict unseen fruit weights.',
+                  'Grouped 5-fold cross-validation by rounded weight: all 1,522 source rows are scored, while cleaning is fit only on each training fold. The final models use 1,478 cleaned training rows.',
                   style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
                 ),
               ],
@@ -317,7 +317,7 @@ class _DataHygieneTab extends StatelessWidget {
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Chapter 4 Audit Confirmed: N = 1,478 pristine data points ready for benchmark regression without data leakage.',
+                    'Final models fit on 1,478 cleaned rows; grouped cross-validation scores all 1,522 source rows.',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF166534)),
                   ),
                 ),
