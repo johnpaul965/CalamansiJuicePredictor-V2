@@ -4,22 +4,22 @@ An agricultural yield prediction web application built with React, TypeScript, a
 
 ## Overview
 
-The prediction compares four weight-only models: **Simple Linear Regression (SLR)**, **Polynomial Regression (Degree 2)**, **Support Vector Regression (RBF Kernel)**, and **Polynomial (d=2) + ln(W) & L2 Ridge**. The Poly+ model is the proposed champion model (82.44% R², 0.4874 mL MAE). Model parameters and validation metrics are trained from `dataset.csv`; the app uses those same generated parameters for predictions.
+The prediction compares four weight-only models: **Simple Linear Regression (SLR)**, **Polynomial Regression (Degree 2)**, **Support Vector Regression (RBF Kernel)**, and **Polynomial (d=2) + ln(W) & L2 Ridge**. The Poly+ pipeline is the top-performing model (`82.28%` R², `0.4897 mL` MAE). Model parameters and validation metrics are trained directly from `dataset.csv`; the app uses those same generated parameters for predictions.
 
 Training and evaluation rules:
 - `Size` is excluded; the system operates strictly on fruit weight (`W`).
-- Stratified 5-fold cross-validation partitions verified clean harvest records (N = 1,478) across weight strata with clerical data-entry errors removed.
-- All four models are evaluated under the identical stratified validation protocol.
-- Primary Poly+ model's Ridge strength is selected via nested cross-validation (selected α = 0.001).
-- Fixed parameters for RBF SVR: `C = 1`, `ε = 0.1`, and `γ = 0.05` with dual SMO solver evaluating 1,283 support vectors.
+- 2-gram weight-grouped 5-fold cross-validation (`((floor(W) + 1) // 2) % 5`) evaluates held-out fruit weight groups against verified clean ground-truth harvest records (`N = 1,478`, clerical data-entry errors removed).
+- The Proposed Poly+ model runs as an end-to-end pipeline with automated in-fold training sanitization (`Juice/Weight ≤ 0.60` and within-weight `|Z| ≤ 2.326`) and standardized L2 Ridge regularization (`α = 0.01`), benchmarked against untuned off-the-shelf baselines.
+- Fixed baseline parameters for RBF SVR: `C = 1`, `ε = 0.1`, and `γ = 0.05` with dual SMO solver (`1,283` support vectors on the final clean fit).
+- The champion flag (`isChampion`) is assigned dynamically to whichever model achieves the highest cross-validation `R²` (lowest `MAE` tie-breaker).
 
 ## Key Features
 
-- **Batch Yield Estimator**: Interactive calculator supporting kilograms (`kg`) and grams (`g`) with quick select presets.
-- **Model Evaluation**: Four weight-only models compared on the same stratified folds, with R², MAE, RMSE, MAPE, and generated formulas.
+- **Batch & Single-Fruit Yield Estimator**: Interactive calculator supporting kilograms (`kg`) and grams (`g`) with quick select presets.
+- **Model Evaluation**: Four weight-only models evaluated via weight-grouped 5-fold cross-validation, reporting `R²`, `MAE`, `RMSE`, `MAPE`, and generated formulas.
 - **Research Analytics**: Dataset sample counts, weight-only model formulas, and training settings.
 - **Harvest History**: Detailed log of past calculations with instant search, multi-device cloud sync, and CSV data export with formula injection protection.
-- **Admin Console**: User account management (create, suspend/activate, change role, reset password), prediction audit logs, and Supabase cloud database settings.
+- **Admin Console**: User account management (create, suspend/activate, change role, reset password), prediction audit logs, and Research Analytics Portal.
 - **Dual Persistence Architecture**: Supabase PostgreSQL cloud sync for multi-device live deployment, with automatic seamless offline localStorage fallback.
 - **Demo Accounts**: Instant sign-in buttons for `farmer_juan` (User) and `admin` (Administrator).
 

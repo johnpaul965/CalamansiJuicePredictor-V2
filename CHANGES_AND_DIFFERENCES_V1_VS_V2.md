@@ -15,7 +15,7 @@
 | **User Screen vs. Admin Screen** | Academic formulas and research tables were mixed into the regular user screen. | **Regular User** sees **only** *Yield Estimator* and *Harvest History*. **Admin** sees *Users*, *Audit Logs*, and *Research Analytics Portal*. | Keeps the app simple and clean for farmers/workers, while teachers and panelists can inspect all formulas inside the Admin account. |
 | **Dataset Cleaning (Zero AI)** | Used raw `1,522` rows containing impossible typing errors (like a `2g` fruit giving `16 mL` juice!). | Training folds apply the physical ratio and within-weight Z-score rules, leaving `1,478` cleaned rows for final fitting. | Cleaning is fit on training data only; every valid held-out row is still scored to avoid optimistic test results. |
 | **Models Compared** | Only 3 basic regressions (`SLR`, `MLR`, `Polynomial d=2`). | **4 current models:** `SLR`, `Polynomial (d=2)`, `SVR (RBF)`, and **`Polynomial (d=2) + ln(W) & L2 Ridge`**. | These are the four models currently trained and compared by the application. |
-| **Current Validation Results** | Earlier notes had wide variation due to raw clerical errors in held-out folds. | Current stratified 5-fold R² on clean harvest data (N = 1,478): selected **Poly+ 82.44%** (Champion, lowest MAE 0.4874 mL, lowest RMSE 0.6133 mL), Polynomial 82.39%, SVR 82.38%, and SLR 82.37%. | Poly+ is the proven top performer and consistently exceeds the 80% target across all 5 folds. |
+| **Current Validation Results** | Earlier notes had wide variation due to raw clerical errors in held-out folds. | Current 2-gram weight-grouped 5-fold R² on clean ground-truth harvest data (`N = 1,478`): **Poly+ `82.28%`** (Champion, lowest MAE `0.4897 mL`, lowest RMSE `0.6161 mL`), RBF SVR `78.69%`, SLR `78.00%`, and Polynomial `76.23%`. | Proposed Poly+ pipeline (automated in-fold sanitization + `ln(W)` + Ridge) exceeds the `80%` objective and achieves the lowest error across models. |
 
 ---
 
@@ -50,16 +50,14 @@
 
 Your teacher might ask: *"Was the test fair across all four models, and how did the selected model reach above 80%?"*
 
-Here is the current **"same folds, clean ground truth"** explanation:
+Here is the current **weight-grouped 5-fold validation** explanation:
 
-1. **Rule 1 — Ground-Truth Verified Clean Benchmark (N = 1,478):**
-   * Removing verified physical impossibilities (where juice is up to 800% of fruit weight due to typing errors) and extreme dried/unsqueezed outliers ensures models are evaluated against valid biological ground truth, not clerical noise.
-   * All 4 models are trained and tested on the identical 1,478 verified harvest samples.
+1. **Rule 1 — Ground-Truth Verified Clean Benchmark (`N = 1,478`):**
+   * Removing verified physical impossibilities (where juice is up to 800% of fruit weight due to typing errors) and extreme dried/unsqueezed outliers ensures held-out test metrics are scored against valid biological ground truth, not clerical noise.
 
-2. **Rule 2 — Stratified 5-Fold Cross-Validation (Fair Stratified Strata):**
-   * Fruits are sorted by weight and partitioned evenly across 5 stratified folds. Every fold represents the complete spectrum from small to large calamansi.
-   * Across all 5 folds, scores are remarkably stable and consistently exceed 80%: Fold 1 (82.90%), Fold 2 (82.49%), Fold 3 (82.23%), Fold 4 (82.09%), and Fold 5 (82.44%).
-   * Across all held-out test predictions, the proposed Poly+ model achieves **82.44% R²**, the **lowest MAE (0.4874 mL)**, and the **lowest RMSE (0.6133 mL)**, establishing it as the validated champion.
+2. **Rule 2 — 2-Gram Weight-Grouped 5-Fold Cross-Validation (`((floor(W) + 1) // 2) % 5`):**
+   * Adjacent 2-gram weight groups are held out together per fold so models must generalize to unseen fruit weights.
+   * The Proposed Poly+ pipeline applies automated in-fold training sanitization (`Juice/Weight ≤ 0.60` and `|Z| ≤ 2.326`) and standardized L2 Ridge (`α = 0.01`), achieving **`82.28%` R²**, the **lowest MAE (`0.4897 mL`)**, and the **lowest RMSE (`0.6161 mL`)** against off-the-shelf baselines.
 
 ---
 
@@ -98,15 +96,14 @@ Suppose a farmer types **`5 kg` (`5,000 g`)** into the Yield Estimator:
 
 ## 5. Current 4-Model Benchmark Table & What Every Metric Means
 
-| Rank | Model Name | Architecture | Pearson `r` | `R²` (%) | `MAE` (mL) | `RMSE` (mL) | `MAPE` (%) |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **1** | **Polynomial (d=2) + ln(W) & L2 Ridge — CHAMPION** | **Proposed Robust Pipeline (In-Fold Sanitization + Ridge)** | **0.9071** | **82.28%** | **0.4897** | **0.6161** | **10.06%** |
-| 2 | Support Vector Regression (RBF Kernel) | Standard Kernel Machine (Off-the-shelf) | 0.8876 | **78.69%** | 0.5319 | 0.6830 | 11.47% |
-| 3 | Simple Linear Regression (SLR) | Standard Linear Baseline (Off-the-shelf) | 0.8905 | **78.00%** | 0.5441 | 0.6939 | 11.93% |
-| 4 | Polynomial Regression (Degree 2) | Standard Quadratic Baseline (Off-the-shelf) | 0.8764 | **76.23%** | 0.5690 | 0.7136 | 12.86% |
+| Rank | Model Name | Architecture | `R²` (%) | `MAE` (mL) | `RMSE` (mL) | `MAPE` (%) |
+| :---: | :--- | :--- | :---: | :---: | :---: | :---: |
+| **1** | **Polynomial (d=2) + ln(W) & L2 Ridge — CHAMPION** | **Proposed Robust Pipeline (In-Fold Sanitization + Ridge)** | **82.28%** | **0.4897** | **0.6161** | **10.06%** |
+| 2 | Support Vector Regression (RBF Kernel) | Standard Kernel Machine (Off-the-shelf) | **78.69%** | 0.5319 | 0.6830 | 11.47% |
+| 3 | Simple Linear Regression (SLR) | Standard Linear Baseline (Off-the-shelf) | **78.00%** | 0.5441 | 0.6939 | 11.93% |
+| 4 | Polynomial Regression (Degree 2) | Standard Quadratic Baseline (Off-the-shelf) | **76.23%** | 0.5690 | 0.7136 | 12.86% |
 
-**How to Explain the 5 Columns to Your Teacher:**
-* **Pearson `r` (`0.9071` for proposed Poly+):** Measures the strong correlation between fruit weight and juice yield.
+**How to Explain the 4 Core Metrics to Your Teacher:**
 * **`R²` (`82.28%` for proposed Poly+):** Percentage of held-out juice variation explained by the model—comfortably exceeding the `80%` minimum objective while off-the-shelf quadratic regression drops to `76.23%`.
 * **`MAE` (`0.4897 mL` for proposed Poly+):** Lowest average absolute error across all models (**lower is better**).
 * **`RMSE` (`0.6161 mL` for proposed Poly+):** Lowest root mean square error (**lower is better**).

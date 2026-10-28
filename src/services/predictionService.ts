@@ -25,7 +25,6 @@ function toBenchmark(
     name: model.name,
     shortName,
     role: model.role,
-    correlationR: model.correlation_r,
     r2Percent: model.r2_percent,
     maeMl: model.mae,
     rmseMl: model.rmse,
@@ -99,25 +98,38 @@ export function predictPrimaryPerFruit(weightG: number): number {
   return Math.max(0, value);
 }
 
-export function runCalculationEngine(weightG: number): PredictionResult {
+// Maximum weight (g) treated directly as a single calamansi fruit (dataset range: 2g–21g)
+export const SINGLE_FRUIT_MAX_WEIGHT_G = 25;
+
+export function runCalculationEngine(
+  weightG: number,
+  mode: 'auto' | 'single' | 'batch' = 'auto'
+): PredictionResult {
   if (!Number.isFinite(weightG) || weightG <= 0) {
     throw new Error('Batch weight must be a finite number greater than zero.');
   }
 
+  const isSingleFruit =
+    mode === 'single' || (mode === 'auto' && weightG <= SINGLE_FRUIT_MAX_WEIGHT_G);
+
   const representativeWeight = HARVEST_BASELINE.representativeWeight;
-  const count = Math.max(1, Math.round(weightG / representativeWeight));
-  const slrTotalMl = predictSimplePerFruit(representativeWeight) * count;
-  const polyTotalMl = predictPolynomialPerFruit(representativeWeight) * count;
-  const rbfTotalMl = predictRbfPerFruit(representativeWeight) * count;
-  const primaryTotalMl = predictPrimaryPerFruit(representativeWeight) * count;
+  const evalWeightG = isSingleFruit ? weightG : representativeWeight;
+  const exactFruitUnits = isSingleFruit ? 1 : weightG / representativeWeight;
+  const count = isSingleFruit ? 1 : Math.max(1, Math.round(exactFruitUnits));
+
+  const slrTotalMl = predictSimplePerFruit(evalWeightG) * exactFruitUnits;
+  const polyTotalMl = predictPolynomialPerFruit(evalWeightG) * exactFruitUnits;
+  const rbfTotalMl = predictRbfPerFruit(evalWeightG) * exactFruitUnits;
+  const primaryTotalMl = predictPrimaryPerFruit(evalWeightG) * exactFruitUnits;
 
   return {
     count,
-    repWeight: representativeWeight,
-    slrTotalMl: Number(slrTotalMl.toFixed(1)),
-    polyTotalMl: Number(polyTotalMl.toFixed(1)),
-    rbfTotalMl: Number(rbfTotalMl.toFixed(1)),
-    primaryTotalMl: Number(primaryTotalMl.toFixed(1)),
+    repWeight: evalWeightG,
+    isSingleFruit,
+    slrTotalMl: Number(slrTotalMl.toFixed(2)),
+    polyTotalMl: Number(polyTotalMl.toFixed(2)),
+    rbfTotalMl: Number(rbfTotalMl.toFixed(2)),
+    primaryTotalMl: Number(primaryTotalMl.toFixed(2)),
     bottles330: Number((primaryTotalMl / 330).toFixed(1)),
     bottles500: Number((primaryTotalMl / 500).toFixed(1)),
     bottles1000: Number((primaryTotalMl / 1000).toFixed(2)),

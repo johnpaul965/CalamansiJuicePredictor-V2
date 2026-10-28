@@ -13,6 +13,7 @@ export interface AppUser {
 export interface PredictionResult {
   count: number;
   repWeight: number;
+  isSingleFruit?: boolean;
   slrTotalMl: number;
   polyTotalMl: number;
   rbfTotalMl: number;
@@ -47,7 +48,6 @@ export interface ModelBenchmark {
   name: string;
   shortName: string;
   role: string;
-  correlationR: number;
   r2Percent: number;
   maeMl: number;
   rmseMl: number;

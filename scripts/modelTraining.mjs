@@ -503,22 +503,12 @@ export function evaluatePredictions(actual, predicted) {
   );
   const absoluteErrors = actual.map((value, index) => Math.abs(value - predicted[index]));
   const positiveActual = actual.map((value, index) => ({ value, index })).filter(({ value }) => value > 0);
-  const meanPrediction = predicted.reduce((sum, value) => sum + value, 0) / predicted.length;
-  const covariance = actual.reduce(
-    (sum, value, index) => sum + (value - mean) * (predicted[index] - meanPrediction),
-    0
-  );
-  const predictionVariance = predicted.reduce(
-    (sum, value) => sum + (value - meanPrediction) ** 2,
-    0
-  );
 
   return {
     r2: totalSumSquares > 0 ? 1 - residualSumSquares / totalSumSquares : 0,
     r2_percent: totalSumSquares > 0 ? (1 - residualSumSquares / totalSumSquares) * 100 : 0,
     mae: absoluteErrors.reduce((sum, value) => sum + value, 0) / actual.length,
     rmse: Math.sqrt(residualSumSquares / actual.length),
-    mse: residualSumSquares / actual.length,
     mape:
       positiveActual.length > 0
         ? (positiveActual.reduce(
@@ -527,10 +517,6 @@ export function evaluatePredictions(actual, predicted) {
           ) /
             positiveActual.length) *
           100
-        : 0,
-    correlation_r:
-      totalSumSquares > 0 && predictionVariance > 0
-        ? covariance / Math.sqrt(totalSumSquares * predictionVariance)
         : 0,
   };
 }
@@ -742,13 +728,30 @@ export function trainDataset(csvText) {
     finalClean.records.reduce((sum, record) => sum + record.juice, 0) /
     finalClean.records.length;
 
+  const championKey = [
+    ['primary', primaryCv.metrics],
+    ['slr', baselineCv.metrics],
+    ['poly', polynomialCv.metrics],
+    ['svr', svrCv.metrics],
+  ].reduce((best, candidate) => {
+    const [, bestMetrics] = best;
+    const [, candMetrics] = candidate;
+    if (
+      candMetrics.r2 > bestMetrics.r2 + 1e-10 ||
+      (Math.abs(candMetrics.r2 - bestMetrics.r2) <= 1e-10 && candMetrics.mae < bestMetrics.mae)
+    ) {
+      return candidate;
+    }
+    return best;
+  })[0];
+
   const primary = buildBenchmark({
     name: 'Polynomial (d=2) + ln(W) & L2 Ridge',
     role: 'Proposed Model (d=2 + ln W + Standardized Ridge)',
     formula: formatPrimaryFormula(primaryCoefficients),
     coefficients: primaryCoefficients,
     metrics: primaryCv.metrics,
-    isChampion: true,
+    isChampion: championKey === 'primary',
     alpha: selectedAlpha,
   });
   const baseline = buildBenchmark({
@@ -757,7 +760,7 @@ export function trainDataset(csvText) {
     formula: formatLinearFormula(baselineCoefficients),
     coefficients: baselineCoefficients,
     metrics: baselineCv.metrics,
-    isChampion: false,
+    isChampion: championKey === 'slr',
   });
   const polynomial = buildBenchmark({
     name: 'Polynomial Regression (Degree 2)',
@@ -765,7 +768,7 @@ export function trainDataset(csvText) {
     formula: formatPolynomialFormula(polynomialCoefficients),
     coefficients: polynomialCoefficients,
     metrics: polynomialCv.metrics,
-    isChampion: false,
+    isChampion: championKey === 'poly',
   });
   const svr = buildBenchmark({
     name: 'Support Vector Regression (RBF Kernel)',
@@ -773,7 +776,7 @@ export function trainDataset(csvText) {
     formula: formatSvrFormula(svrModel),
     coefficients: svrModel.dualCoefficients,
     metrics: svrCv.metrics,
-    isChampion: false,
+    isChampion: championKey === 'svr',
     extra: {
       intercept: svrModel.intercept,
       support_vectors: svrModel.supportVectors,

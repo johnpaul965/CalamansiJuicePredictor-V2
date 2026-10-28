@@ -107,11 +107,11 @@ export const PredictTab: React.FC<PredictTabProps> = ({
           { label: '50 kg', val: 50 },
         ]
       : [
+          { label: '10 g (1 fruit)', val: 10 },
+          { label: '15 g (1 fruit)', val: 15 },
           { label: '500 g', val: 500 },
           { label: '1000 g', val: 1000 },
-          { label: '2500 g', val: 2500 },
           { label: '5000 g', val: 5000 },
-          { label: '10000 g', val: 10000 },
         ];
 
   const userRecentLogs = logs
@@ -236,9 +236,16 @@ export const PredictTab: React.FC<PredictTabProps> = ({
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                 <span>Forecast Summary</span>
+                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  {result.isSingleFruit
+                    ? `Single-Fruit Formula (W = ${result.repWeight}g)`
+                    : `Batch Scaling (W̄ = ${result.repWeight.toFixed(2)}g/fruit)`}
+                </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Calibrated extraction metrics based on empirical calamansi density:
+                {result.isSingleFruit
+                  ? `Direct per-fruit regression output evaluated at W = ${result.repWeight} g:`
+                  : 'Calibrated extraction metrics based on empirical calamansi density:'}
               </p>
             </div>
 
@@ -292,7 +299,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                   <div className="bg-emerald-950/50 p-3 rounded-xl border border-emerald-700/50">
                     <div className="text-[11px] text-emerald-300">Estimated Calamansi</div>
                     <div className="text-lg font-bold font-mono text-white mt-0.5">
-                      ~{result.count} fruits
+                      {result.isSingleFruit ? '1 fruit' : `~${result.count} fruits`}
                     </div>
                   </div>
                   <div className="bg-emerald-950/50 p-3 rounded-xl border border-emerald-700/50">

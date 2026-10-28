@@ -29,7 +29,6 @@ export interface LiveModelMetrics {
   maeMl: number;
   rmseMl: number;
   mapePercent: number;
-  correlationR: number;
   formula: string;
   coefficients: number[];
   badge: string;
@@ -135,27 +134,15 @@ function evaluatePredictions(yTrue: number[], yPred: number[]) {
 
   const r2 = ssTot > 0 ? 1 - ssRes / ssTot : 0;
   const mae = yTrue.reduce((sum, y, i) => sum + Math.abs(y - yPred[i]), 0) / n;
-  const mse = ssRes / n;
-  const rmse = Math.sqrt(mse);
+  const rmse = Math.sqrt(ssRes / n);
   const mape =
     (yTrue.reduce((sum, y, i) => (y > 0 ? sum + Math.abs((y - yPred[i]) / y) : sum), 0) / n) * 100;
-
-  // Correlation r
-  const meanP = yPred.reduce((a, b) => a + b, 0) / n;
-  const num = yTrue.reduce((sum, y, i) => sum + (y - meanY) * (yPred[i] - meanP), 0);
-  const den = Math.sqrt(
-    yTrue.reduce((sum, y) => sum + (y - meanY) ** 2, 0) *
-      yPred.reduce((sum, p) => sum + (p - meanP) ** 2, 0)
-  );
-  const correlationR = den > 0 ? num / den : 0;
 
   return {
     r2Percent: Number((r2 * 100).toFixed(2)),
     maeMl: Number(mae.toFixed(4)),
     rmseMl: Number(rmse.toFixed(4)),
-    mseMl: Number(mse.toFixed(4)),
     mapePercent: Number(mape.toFixed(2)),
-    correlationR: Number(correlationR.toFixed(4)),
   };
 }
 
