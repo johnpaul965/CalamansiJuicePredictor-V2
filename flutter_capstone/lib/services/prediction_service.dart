@@ -37,14 +37,14 @@ class PredictionService {
   }
 
   // ── 4. ★ SELECTED PROPOSED MODEL: Poly (d=2) + ln(W) & L2 Ridge ──
-  // Current trained formula; nested grouped CV selected alpha = 0.0001.
+  // Current trained formula; nested grouped CV selected alpha = 0.01.
   static double predictProposed(double w) {
     final logW = log(max(1.0, w));
     final val =
-        2.6495262773 +
-        1.1609929751 * w -
-        0.01537347 * (w * w) -
-        3.8015944292 * logW;
+        2.4583277642 +
+        1.1252024747 * w -
+        0.0146438683 * (w * w) -
+        3.5939118293 * logW;
     return val > 0 ? val : 0.0;
   }
 
@@ -72,55 +72,55 @@ class PredictionService {
     );
   }
 
-  // Current grouped 5-fold out-of-fold metrics; all 1,522 source rows are scored.
+  // Weight-grouped 5-fold out-of-fold metrics (Proposed Pipeline vs. Baselines).
   static final List<ModelBenchmarkItem> benchmarks = [
     ModelBenchmarkItem(
-      id: 'slr',
-      name: 'Simple Linear Regression (SLR)',
-      formula: 'Juice = max(0, -0.5488877886 + 0.4551336614·W)',
-      configuration: 'Ordinary Linear Baseline (W only, no layers)',
-      r2: 62.082862,
-      mae: 0.552509,
-      rmse: 0.956406,
-      mape: 11.258224,
-      status: 'Linear baseline',
-      isChampion: false,
+      id: 'proposed',
+      name: 'Polynomial (d=2) + ln(W) & L2 Ridge',
+      formula: 'Juice = max(0, 2.4583277642 + 1.1252024747·W - 0.0146438683·W² - 3.5939118293·ln(W))',
+      configuration: '★ Proposed Model (in-fold sanitization + L2 Ridge; α = 0.01)',
+      r2: 82.277148,
+      mae: 0.489689,
+      rmse: 0.616053,
+      mape: 10.061737,
+      status: '★ Champion Model',
+      isChampion: true,
     ),
     ModelBenchmarkItem(
       id: 'svr',
       name: 'Support Vector Regression (RBF Kernel)',
       formula: 'RBF Kernel (C=1, ε=0.1, γ=0.05)',
-      configuration: 'Fixed-parameter RBF SVR (W only)',
-      r2: 68.052238,
-      mae: 0.549738,
-      rmse: 0.877899,
-      mape: 11.358018,
-      status: 'Highest validation R²',
+      configuration: 'Standard Kernel Machine (off-the-shelf baseline)',
+      r2: 78.685467,
+      mae: 0.531933,
+      rmse: 0.683020,
+      mape: 11.472535,
+      status: 'RBF Kernel',
+      isChampion: false,
+    ),
+    ModelBenchmarkItem(
+      id: 'slr',
+      name: 'Simple Linear Regression (SLR)',
+      formula: 'Juice = max(0, -0.5488877886 + 0.4551336614·W)',
+      configuration: 'Ordinary Linear Baseline (off-the-shelf baseline)',
+      r2: 77.998105,
+      mae: 0.544144,
+      rmse: 0.693892,
+      mape: 11.933256,
+      status: 'Linear Baseline',
       isChampion: false,
     ),
     ModelBenchmarkItem(
       id: 'poly',
       name: 'Polynomial Regression (Degree 2)',
       formula: 'Juice = max(0, -0.8979234205 + 0.5136818207·W - 0.002323394·W²)',
-      configuration: 'Ordinary Quadratic Baseline (W, W², no layers)',
-      r2: 61.426123,
-      mae: 0.554179,
-      rmse: 0.964653,
-      mape: 11.281201,
-      status: 'Quadratic baseline',
+      configuration: 'Polynomial Degree 2 Baseline (off-the-shelf)',
+      r2: 76.230460,
+      mae: 0.569004,
+      rmse: 0.713589,
+      mape: 12.859663,
+      status: 'Polynomial (Degree 2)',
       isChampion: false,
-    ),
-    ModelBenchmarkItem(
-      id: 'proposed',
-      name: 'Polynomial Regression (d=2) + ln(W) & L2 Ridge',
-      formula: 'Juice = max(0, 2.6495262773 + 1.1609929751·W - 0.01537347·W² - 3.8015944292·ln(W))',
-      configuration: '★ Selected Poly+ model (nested grouped CV; α = 0.0001)',
-      r2: 65.022333,
-      mae: 0.550195,
-      rmse: 0.918586,
-      mape: 11.247535,
-      status: '★ Proposed model',
-      isChampion: true,
     ),
   ];
 

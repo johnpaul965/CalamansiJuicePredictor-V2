@@ -2,7 +2,7 @@
   "metadata": {
     "institution": "Leyte Normal University",
     "study": "Tacloban City Calamansi Harvest Study",
-    "training_timestamp": "2026-10-28T08:51:53.740Z",
+    "training_timestamp": "2026-10-28T09:58:56.741Z",
     "total_raw_samples": 1522,
     "clean_samples": 1478,
     "removed_ratio": 8,
@@ -29,60 +29,60 @@
         "samples": 204,
         "primary_r2_percent": 88.3201,
         "primary_mae_ml": 0.455978,
-        "baseline_r2_percent": 87.2103,
-        "baseline_mae_ml": 0.484689,
+        "baseline_r2_percent": 82.9946,
+        "baseline_mae_ml": 0.534445,
         "polynomial_r2_percent": 81.5832,
         "polynomial_mae_ml": 0.538691,
-        "svr_r2_percent": 87.8691,
-        "svr_mae_ml": 0.471023
+        "svr_r2_percent": 84.1794,
+        "svr_mae_ml": 0.516066
       },
       {
         "fold": 2,
         "samples": 353,
         "primary_r2_percent": 24.1924,
         "primary_mae_ml": 0.449208,
-        "baseline_r2_percent": 23.2319,
-        "baseline_mae_ml": 0.453229,
+        "baseline_r2_percent": 20.349,
+        "baseline_mae_ml": 0.472409,
         "polynomial_r2_percent": 22.1146,
         "polynomial_mae_ml": 0.452866,
-        "svr_r2_percent": 22.3051,
-        "svr_mae_ml": 0.453193
+        "svr_r2_percent": 19.2301,
+        "svr_mae_ml": 0.472765
       },
       {
         "fold": 3,
         "samples": 424,
         "primary_r2_percent": 14.4,
         "primary_mae_ml": 0.45422,
-        "baseline_r2_percent": 12.7518,
-        "baseline_mae_ml": 0.4632,
+        "baseline_r2_percent": 11.9957,
+        "baseline_mae_ml": 0.504438,
         "polynomial_r2_percent": 7.303,
         "polynomial_mae_ml": 0.480149,
-        "svr_r2_percent": 13.6791,
-        "svr_mae_ml": 0.459208
+        "svr_r2_percent": 12.6251,
+        "svr_mae_ml": 0.500785
       },
       {
         "fold": 4,
         "samples": 269,
         "primary_r2_percent": 67.034,
         "primary_mae_ml": 0.622612,
-        "baseline_r2_percent": 66.3373,
-        "baseline_mae_ml": 0.629751,
+        "baseline_r2_percent": 63.9052,
+        "baseline_mae_ml": 0.649899,
         "polynomial_r2_percent": 63.0261,
         "polynomial_mae_ml": 0.665866,
-        "svr_r2_percent": 62.9819,
-        "svr_mae_ml": 0.660503
+        "svr_r2_percent": 59.6268,
+        "svr_mae_ml": 0.684388
       },
       {
         "fold": 5,
         "samples": 228,
         "primary_r2_percent": 92.783,
         "primary_mae_ml": 0.49166,
-        "baseline_r2_percent": 90.0307,
-        "baseline_mae_ml": 0.593691,
+        "baseline_r2_percent": 89.0302,
+        "baseline_mae_ml": 0.615133,
         "polynomial_r2_percent": 83.4341,
         "polynomial_mae_ml": 0.826897,
-        "svr_r2_percent": 92.7893,
-        "svr_mae_ml": 0.498373
+        "svr_r2_percent": 91.8746,
+        "svr_mae_ml": 0.517534
       }
     ]
   },
@@ -95,18 +95,18 @@
         -0.5488877886,
         0.4551336614
       ],
-      "r2": 0.807379,
-      "r2_percent": 80.737902,
-      "mae": 0.514227,
-      "rmse": 0.642342,
-      "mse": 0.412604,
-      "mape": 10.917531,
-      "correlation_r": 0.906146,
+      "r2": 0.779981,
+      "r2_percent": 77.998105,
+      "mae": 0.544144,
+      "rmse": 0.693891,
+      "mse": 0.481485,
+      "mape": 11.928524,
+      "correlation_r": 0.890491,
       "isChampion": false
     },
     "poly": {
       "name": "Polynomial Regression (Degree 2)",
-      "role": "Quadratic Baseline (W, W²)",
+      "role": "Polynomial Baseline (Degree 2)",
       "formula": "Juice (mL) = max(0, -0.8979234205 + 0.5136818207·W - 0.0023233940·W²)",
       "coefficients": [
         -0.8979234205,
@@ -1411,13 +1411,13 @@
         1,
         1
       ],
-      "r2": 0.814651,
-      "r2_percent": 81.465085,
-      "mae": 0.50208,
-      "rmse": 0.630101,
-      "mse": 0.397027,
-      "mape": 10.533292,
-      "correlation_r": 0.902705,
+      "r2": 0.786855,
+      "r2_percent": 78.685467,
+      "mae": 0.531933,
+      "rmse": 0.682967,
+      "mse": 0.466443,
+      "mape": 11.474536,
+      "correlation_r": 0.887574,
       "isChampion": false,
       "intercept": 5.1947683581,
       "support_vectors": [

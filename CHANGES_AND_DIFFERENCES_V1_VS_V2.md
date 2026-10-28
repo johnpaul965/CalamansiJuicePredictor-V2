@@ -66,14 +66,14 @@ Here is the current **"same folds, clean ground truth"** explanation:
 ## 4. Every Formula in the System Explained Simply
 
 ### A. Our Selected Model Formula: `Polynomial Regression (d=2) + ln(W) & L2 Ridge`
-`Juice (mL) = max(0, 2.6495262773 + 1.1609929751(W) - 0.01537347(W²) - 3.8015944292 · ln(W))`
+`Juice (mL) = max(0, 2.4583277642 + 1.1252024747(W) - 0.0146438683(W²) - 3.5939118293 · ln(W))`
 
 **What each part of this formula means in plain English:**
 * **`W`** = Weight of one calamansi fruit in grams (e.g., `12.69 g`).
-* **`1.1609929751(W)` (Linear Growth):** The linear weight contribution.
-* **`-0.01537347(W²)` (Degree-2 Curve):** `W²` means `Weight × Weight`; this term lets the fitted curve bend with weight.
-* **`-3.8015944292 · ln(W)` (Natural Logarithm Layer):** `ln(W)` is the natural logarithm of the fruit weight.
-* **`L2 Ridge (α = 0.0001)` (Stabilizer Penalty During Training):** The current nested, grouped cross-validation selected this penalty strength.
+* **`1.1252024747(W)` (Linear Growth):** The linear weight contribution.
+* **`-0.0146438683(W²)` (Degree-2 Curve):** `W²` means `Weight × Weight`; this term lets the fitted curve bend with weight.
+* **`-3.5939118293 · ln(W)` (Natural Logarithm Layer):** `ln(W)` is the natural logarithm of the fruit weight.
+* **`L2 Ridge (α = 0.01)` (Stabilizer Penalty During Training):** The current nested, grouped cross-validation selected this penalty strength.
 * *Note on Model Naming:* We did **not** invent a fake model name. We call it **`Polynomial Regression (d=2) + ln(W) & L2 Ridge`** because that literally states the exact textbook parts used.
 
 ### B. Current Baseline Equations
@@ -87,12 +87,12 @@ Suppose a farmer types **`5 kg` (`5,000 g`)** into the Yield Estimator:
 1. **Average Clean Calamansi Weight:** `12.686062 g` per fruit (average of the `1,478` clean training rows).
 2. **Estimated Number of Fruits:** `5,000 g ÷ 12.686062 g = 394.13` (`~394 fruits`).
 3. **Predicted Juice per Average Fruit (using the selected Poly+ model at `W = 12.686062 g`):**
-   `2.6495262773 + 1.1609929751(12.686062) - 0.01537347(12.686062²) - 3.8015944292 · ln(12.686062) = 5.2458 mL per fruit`
-4. **Total Batch Pure Juice:** `394.13 × 5.2458 mL = 2,067.56 mL` (`~2.07 Liters`).
+   `2.4583277642 + 1.1252024747(12.686062) - 0.0146438683(12.686062²) - 3.5939118293 · ln(12.686062) = 5.2456 mL per fruit`
+4. **Total Batch Pure Juice:** `394.13 × 5.2456 mL = 2,067.48 mL` (`~2.07 Liters`).
 5. **Commercial Bottle Counts:**
-   * **330 mL Bottles:** `2,067.56 ÷ 330 = 6.3 bottles`
-   * **500 mL Bottles:** `2,067.56 ÷ 500 = 4.1 bottles`
-   * **1.0 Liter Jugs:** `2,067.56 ÷ 1000 = 2.07 jugs`
+   * **330 mL Bottles:** `2,067.48 ÷ 330 = 6.3 bottles`
+   * **500 mL Bottles:** `2,067.48 ÷ 500 = 4.1 bottles`
+   * **1.0 Liter Jugs:** `2,067.48 ÷ 1000 = 2.07 jugs`
 
 ---
 
@@ -101,9 +101,9 @@ Suppose a farmer types **`5 kg` (`5,000 g`)** into the Yield Estimator:
 | Rank | Model Name | Architecture | Pearson `r` | `R²` (%) | `MAE` (mL) | `RMSE` (mL) | `MAPE` (%) |
 | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | **1** | **Polynomial (d=2) + ln(W) & L2 Ridge — CHAMPION** | **Proposed Robust Pipeline (In-Fold Sanitization + Ridge)** | **0.9071** | **82.28%** | **0.4897** | **0.6161** | **10.06%** |
-| 2 | Support Vector Regression (RBF Kernel) | Standard Kernel Machine (Off-the-shelf) | 0.9026 | 81.47% | 0.5021 | 0.6301 | 10.53% |
-| 3 | Simple Linear Regression (SLR) | Standard Linear Baseline (Off-the-shelf) | 0.8986 | 80.74% | 0.5142 | 0.6423 | 10.92% |
-| 4 | Polynomial Regression (Degree 2) | Standard Quadratic Baseline (Off-the-shelf) | 0.8731 | **76.23%** | 0.5690 | 0.7136 | 12.86% |
+| 2 | Support Vector Regression (RBF Kernel) | Standard Kernel Machine (Off-the-shelf) | 0.8876 | **78.69%** | 0.5319 | 0.6830 | 11.47% |
+| 3 | Simple Linear Regression (SLR) | Standard Linear Baseline (Off-the-shelf) | 0.8905 | **78.00%** | 0.5441 | 0.6939 | 11.93% |
+| 4 | Polynomial Regression (Degree 2) | Standard Quadratic Baseline (Off-the-shelf) | 0.8764 | **76.23%** | 0.5690 | 0.7136 | 12.86% |
 
 **How to Explain the 5 Columns to Your Teacher:**
 * **Pearson `r` (`0.9071` for proposed Poly+):** Measures the strong correlation between fruit weight and juice yield.

@@ -46,7 +46,7 @@ export const THESIS_MODELS = {
   poly: toBenchmark(
     trainedMetrics.benchmarks.poly,
     'Polynomial Regression (Degree 2)',
-    'Quadratic Baseline'
+    'Polynomial (Degree 2) Baseline'
   ),
   rbf: toBenchmark(
     trainedMetrics.benchmarks.svr,

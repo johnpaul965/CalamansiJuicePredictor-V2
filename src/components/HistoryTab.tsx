@@ -146,7 +146,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                   {item.primary ?? item.cbPoly ?? '—'}
                 </div>
                 <div className="text-[11px] font-mono text-slate-400 mt-0.5">
-                  SLR: {item.slr} · Quadratic: {item.poly ?? '—'} · RBF SVR: {item.rbf ?? '—'}
+                  SLR: {item.slr} · Poly (d=2): {item.poly ?? '—'} · RBF SVR: {item.rbf ?? '—'}
                 </div>
               </div>
             </div>

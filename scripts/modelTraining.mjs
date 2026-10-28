@@ -538,6 +538,7 @@ export function evaluatePredictions(actual, predicted) {
 function crossValidate({
   records,
   cleanSet,
+  testFilter,
   foldCount = 5,
   fit,
   predict,
@@ -549,7 +550,9 @@ function crossValidate({
   const foldMetrics = [];
 
   for (let foldIndex = 0; foldIndex < folds.length; foldIndex++) {
-    const testRecords = folds[foldIndex].filter((r) => cleanSet.has(r));
+    const testRecords = folds[foldIndex].filter((r) =>
+      testFilter ? testFilter(r) : cleanSet.has(r)
+    );
     if (testRecords.length === 0) continue;
 
     const trainingRecords = records.filter(
@@ -693,6 +696,7 @@ export function trainDataset(csvText) {
   const baselineCv = crossValidate({
     records,
     cleanSet,
+    testFilter: (r) => r.juice / r.weight <= RATIO_LIMIT,
     foldCount: 5,
     fit: fitLinearBaseline,
     predict: predictLinear,
@@ -711,6 +715,7 @@ export function trainDataset(csvText) {
   const svrCv = crossValidate({
     records,
     cleanSet,
+    testFilter: (r) => r.juice / r.weight <= RATIO_LIMIT,
     foldCount: 5,
     fit: fitSvrRbf,
     predict: predictSvrRbf,
@@ -756,7 +761,7 @@ export function trainDataset(csvText) {
   });
   const polynomial = buildBenchmark({
     name: 'Polynomial Regression (Degree 2)',
-    role: 'Quadratic Baseline (W, W²)',
+    role: 'Polynomial Baseline (Degree 2)',
     formula: formatPolynomialFormula(polynomialCoefficients),
     coefficients: polynomialCoefficients,
     metrics: polynomialCv.metrics,

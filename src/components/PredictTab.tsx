@@ -326,7 +326,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 },
                 {
                   label: 'Untuned reference',
-                  badge: 'Quadratic weight-only baseline',
+                  badge: 'Polynomial (Degree 2) baseline',
                   title: THESIS_MODELS.poly.name,
                   totalMl: result.polyTotalMl,
                   meta: THESIS_MODELS.poly,
@@ -524,9 +524,9 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 <th className="py-2.5 px-3">Batch Weight</th>
                 <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
                 <th className="py-2.5 px-3 font-mono">Simple Linear</th>
-                <th className="py-2.5 px-3 font-mono">Quadratic</th>
-                <th className="py-2.5 px-3 font-mono">RBF Feature Ridge</th>
-                <th className="py-2.5 px-3 font-mono text-emerald-700">Primary model</th>
+                <th className="py-2.5 px-3 font-mono">Poly (Degree 2)</th>
+                <th className="py-2.5 px-3 font-mono">RBF SVR</th>
+                <th className="py-2.5 px-3 font-mono text-emerald-700">Poly+ Ridge (Champion)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

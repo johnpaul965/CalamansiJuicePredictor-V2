@@ -23,7 +23,7 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
   ];
   const formulaModels = [
     { model: THESIS_MODELS.slr, label: 'Simple linear baseline' },
-    { model: THESIS_MODELS.poly, label: 'Quadratic baseline' },
+    { model: THESIS_MODELS.poly, label: 'Polynomial (Degree 2) baseline' },
     { model: THESIS_MODELS.rbf, label: 'RBF kernel SVR' },
     { model: THESIS_MODELS.primary, label: 'Poly+ final model' },
   ];

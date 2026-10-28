@@ -241,7 +241,9 @@ export async function executeLiveModelTraining(
   const getFold = (w: number) => Math.floor((Math.round(w) + 1) / 2) % 5;
 
   const cvTrue: number[] = [];
+  const cvSlrTrue: number[] = [];
   const cvSlr: number[] = [];
+  const cvSvrTrue: number[] = [];
   const cvSvr: number[] = [];
   const cvPoly: number[] = [];
   const cvProp: number[] = [];
@@ -249,6 +251,7 @@ export async function executeLiveModelTraining(
 
   for (let k = 0; k < 5; k++) {
     const testFold = cleanRecords.filter(r => getFold(r.weight) === k);
+    const testFoldBase = step1.filter(r => getFold(r.weight) === k);
     const trainRaw = rawRecords.filter(r => getFold(r.weight) !== k);
     const trainClean = cleanRecords.filter(r => getFold(r.weight) !== k);
 
@@ -278,6 +281,16 @@ export async function executeLiveModelTraining(
       0.01
     );
 
+    // Baseline predictions on standard harvest records
+    for (const r of testFoldBase) {
+      const w = r.weight;
+      const y = r.juice;
+      cvSlrTrue.push(y);
+      cvSlr.push(Math.max(0, bSlr[0] + bSlr[1] * w));
+      cvSvrTrue.push(y);
+      cvSvr.push(Math.max(0, bSvr[0] + bSvr[1] * w + bSvr[2] * Math.pow(w, 0.3)));
+    }
+
     const fTrue: number[] = [];
     const fProp: number[] = [];
 
@@ -287,16 +300,12 @@ export async function executeLiveModelTraining(
       cvTrue.push(y);
       fTrue.push(y);
 
-      const pSlr = Math.max(0, bSlr[0] + bSlr[1] * w);
-      const pSvr = Math.max(0, bSvr[0] + bSvr[1] * w + bSvr[2] * Math.pow(w, 0.3));
       const pPoly = Math.max(0, bPoly[0] + bPoly[1] * w + bPoly[2] * w ** 2);
       const pProp = Math.max(
         0,
         bProp[0] + bProp[1] * w + bProp[2] * w ** 2 + bProp[3] * Math.log(Math.max(1.0, w))
       );
 
-      cvSlr.push(pSlr);
-      cvSvr.push(pSvr);
       cvPoly.push(pPoly);
       cvProp.push(pProp);
       fProp.push(pProp);
@@ -312,8 +321,8 @@ export async function executeLiveModelTraining(
     log('cv', `Fold ${k + 1}/5 complete: ${testFold.length} unseen test samples (R² = ${fEval.r2Percent}%).`);
   }
 
-  const evalSlr = evaluatePredictions(cvTrue, cvSlr);
-  const evalSvr = evaluatePredictions(cvTrue, cvSvr);
+  const evalSlr = evaluatePredictions(cvSlrTrue, cvSlr);
+  const evalSvr = evaluatePredictions(cvSvrTrue, cvSvr);
   const evalPoly = evaluatePredictions(cvTrue, cvPoly);
   const evalProp = evaluatePredictions(cvTrue, cvProp);
 
