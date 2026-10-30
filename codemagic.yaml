@@ -9,23 +9,24 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Generate missing iOS and Android platform runners
+      - name: Clean caches and generate missing iOS and Android runners
         script: |
+          rm -rf .dart_tool .flutter-plugins .flutter-plugins-dependencies build
           flutter create --platforms=ios,android --org ph.edu.lnu --project-name calamansi_yield_capstone .
       - name: Install Flutter dependencies
         script: |
           flutter pub get
-      - name: Build Unsigned iOS IPA (for Sideloadly / AltStore)
+      - name: Build Slim Unsigned iOS IPA (for Sideloadly / AltStore)
         script: |
-          flutter build ios --release --no-codesign
+          flutter build ios --release --no-codesign --obfuscate --split-debug-info=build/ios-debug-info --tree-shake-icons
           rm -rf Payload Calamansi_Yield_Predictor.ipa
           mkdir -p Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
-          zip -r -y Calamansi_Yield_Predictor.ipa Payload
-      - name: Build Android Release APK
+          zip -9 -r -y -q Calamansi_Yield_Predictor.ipa Payload
+      - name: Build Slim Android Release APK (64-bit ARM)
         script: |
-          flutter build apk --release
-          cp build/app/outputs/flutter-apk/app-release.apk Calamansi_Yield_Predictor.apk
+          flutter build apk --release --target-platform android-arm64 --split-per-abi --obfuscate --split-debug-info=build/android-debug-info --tree-shake-icons
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk Calamansi_Yield_Predictor.apk
           ls -lh Calamansi_Yield_Predictor.ipa Calamansi_Yield_Predictor.apk
     artifacts:
       - Calamansi_Yield_Predictor.ipa

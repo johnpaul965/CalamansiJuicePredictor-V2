@@ -2,5 +2,12 @@ node_modules/
 .env
 
 *.zip
-node_modules/
 dist/
+
+# Flutter generated caches & build outputs
+flutter_capstone/.dart_tool/
+flutter_capstone/.flutter-plugins
+flutter_capstone/.flutter-plugins-dependencies
+flutter_capstone/build/
+*.apk
+*.ipa
