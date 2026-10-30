@@ -1,472 +1,709 @@
 import 'package:flutter/material.dart';
-import '../models/prediction_result.dart';
 import '../services/prediction_service.dart';
+import '../theme/app_colors.dart';
 
 class ModelComparisonScreen extends StatelessWidget {
-  const ModelComparisonScreen({Key? key}) : super(key: key);
+  final VoidCallback? onBackToPredict;
+
+  const ModelComparisonScreen({
+    super.key,
+    this.onBackToPredict,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF15803D),
-          elevation: 0,
-          title: const Text(
-            '4-Model Benchmark Suite',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
-          ),
-          bottom: const TabBar(
-            indicatorColor: Colors.white,
-            indicatorWeight: 3,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            tabs: [
-              Tab(text: 'Benchmarks (N=1,522)'),
-              Tab(text: 'Data Hygiene'),
-              Tab(text: 'Formulas'),
-            ],
-          ),
-        ),
-        body: const TabBarView(
+    const modelsList = ThesisModels.all;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1024),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _BenchmarkTab(),
-            _DataHygieneTab(),
-            _FormulasTab(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BenchmarkTab extends StatelessWidget {
-  const _BenchmarkTab({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final benchmarks = PredictionService.benchmarks;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Card
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  '4-Model Benchmark Suite: 3 Baselines vs. 1 Selected Poly+ Model',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  'Weight-grouped 5-fold cross-validation: the Proposed Poly+ Pipeline achieves 82.28% R² with in-fold sanitization and L2 Ridge, outperforming off-the-shelf baselines (76%–78%).',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // 4 Model Cards
-          ...benchmarks.map((item) {
-            final isChamp = item.isChampion;
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
+            // Portal Top Bar
+            Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isChamp ? const Color(0xFFECFDF5) : Colors.white,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isChamp ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
-                  width: isChamp ? 2 : 1,
-                ),
-                boxShadow: isChamp
-                    ? [
-                        BoxShadow(
-                          color: const Color(0xFF10B981).withOpacity(0.12),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : null,
+                border: Border.all(color: AppColors.slate200),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 12,
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
+                      if (onBackToPredict != null) ...[
+                        TextButton.icon(
+                          onPressed: onBackToPredict,
+                          icon: const Icon(Icons.arrow_back, size: 16),
+                          label: const Text('Back to Predictor'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.slate600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Flexible(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              item.name,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: isChamp ? const Color(0xFF065F46) : const Color(0xFF0F172A),
-                              ),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.emerald50,
+                                    borderRadius: BorderRadius.circular(999),
+                                    border: Border.all(
+                                      color: AppColors.emerald200,
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'WEIGHT-ONLY MODEL EVALUATION',
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.emerald700,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.slate100,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: const Text(
+                                    'Clean samples (N = ${ResearchMetadata.cleanSamples})',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.slate500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              item.configuration,
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Tacloban City Calamansi Harvest Study • Model Evaluation',
                               style: TextStyle(
-                                fontSize: 11,
-                                color: isChamp ? const Color(0xFF047857) : const Color(0xFF64748B),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.slate900,
+                                letterSpacing: -0.3,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isChamp ? const Color(0xFF15803D) : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(20),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.slate50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.slate200),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.verified_user_outlined,
+                          size: 16,
+                          color: AppColors.emerald600,
                         ),
-                        child: Text(
-                          item.status,
+                        SizedBox(width: 6),
+                        Text(
+                          ResearchMetadata.institution,
                           style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: isChamp ? Colors.white : const Color(0xFF475569),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.slate600,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isChamp ? Colors.white.withOpacity(0.8) : const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: isChamp ? const Color(0xFFA7F3D0) : const Color(0xFFE2E8F0)),
-                    ),
-                    child: Text(
-                      item.formula,
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: isChamp ? const Color(0xFF047857) : const Color(0xFF334155),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildMetricCol('R² (%)', '${item.r2.toStringAsFixed(2)}%', isChamp: isChamp),
-                      _buildMetricCol('MAE', '${item.mae.toStringAsFixed(4)} mL', isChamp: isChamp),
-                      _buildMetricCol('RMSE', '${item.rmse.toStringAsFixed(4)} mL', isChamp: isChamp),
-                      _buildMetricCol('MAPE', '${item.mape.toStringAsFixed(2)}%', isChamp: isChamp),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildMetricCol(String label, String value, {bool isChamp = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'monospace',
-            color: isChamp ? const Color(0xFF065F46) : const Color(0xFF0F172A),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DataHygieneTab extends StatelessWidget {
-  const _DataHygieneTab({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final steps = PredictionService.dataHygieneSteps;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Chapter 4: Data Cleaning & Hygiene Audit',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  'Rigorous 3-step filtering pipeline designed to eliminate physical harvesting artifacts while preserving genuine biological variance in calamansi fruits.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...steps.map((s) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 14,
-                        backgroundColor: const Color(0xFF15803D),
-                        child: Text(
-                          '${s.step}',
-                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          s.title,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    s.description,
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStat('Input', '${s.inputCount}'),
-                        const Icon(Icons.arrow_forward, size: 16, color: Color(0xFF94A3B8)),
-                        _buildStat('Output', '${s.outputCount}'),
-                        const Icon(Icons.remove_circle_outline, size: 16, color: Color(0xFFEF4444)),
-                        _buildStat('Dropped', '-${s.dropCount}', color: const Color(0xFFEF4444)),
-                        _buildStat('Retained', '${s.percentageRetained.toStringAsFixed(1)}%', color: const Color(0xFF15803D)),
                       ],
                     ),
                   ),
                 ],
               ),
-            );
-          }).toList(),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0FDF4),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFBBF7D0)),
             ),
-            child: Row(
-              children: const [
-                Icon(Icons.verified, color: Color(0xFF15803D), size: 28),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Final models fit on 1,478 cleaned rows; grouped cross-validation scores all 1,522 source rows.',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF166534)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+            const SizedBox(height: 24),
 
-  static Widget _buildStat(String label, String value, {Color? color}) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'monospace',
-            color: color ?? const Color(0xFF0F172A),
-          ),
+            // Header Hero Banner: Best-Performing Model
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    AppColors.slate900,
+                    AppColors.emerald950,
+                    AppColors.slate900,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.emerald700.withOpacity(0.45),
+                ),
+              ),
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 20,
+                runSpacing: 20,
+                children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 620),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.emerald500.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: AppColors.emerald500.withOpacity(0.35),
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.workspace_premium,
+                                size: 15,
+                                color: AppColors.amber300,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'BEST-PERFORMING MODEL (WEIGHT-GROUPED 5-FOLD CV)',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.emerald300,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          ThesisModels.primary.name,
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Evaluated using weight-grouped 5-fold cross-validation on ${ResearchMetadata.cleanSamples} verified clean calamansi samples with in-fold outlier cleaning and L2 Ridge regularization.',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            color: AppColors.slate300,
+                            height: 1.45,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.emerald900.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.emerald500.withOpacity(0.5),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'OUT-OF-FOLD R²',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.emerald300,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${ThesisModels.primary.r2Percent.toStringAsFixed(2)}%',
+                          style: const TextStyle(
+                            fontFamily: AppColors.monoFont,
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.amber300,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'MAE = ${ThesisModels.primary.maeMl.toStringAsFixed(4)} mL • RMSE = ${ThesisModels.primary.rmseMl.toStringAsFixed(4)} mL',
+                          style: const TextStyle(
+                            fontFamily: AppColors.monoFont,
+                            fontSize: 11,
+                            color: AppColors.emerald200,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 4 Models Comparative Table (Clean 5 columns: Regression Model | R² (%) | MAE | RMSE | MAPE)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.slate200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Four-Model Cross-Validation Results (N = ${ResearchMetadata.cleanSamples})',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.slate900,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          SizedBox(height: 3),
+                          Text(
+                            'Out-of-fold metrics across all four weight-only regression models evaluated on verified calamansi samples.',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: AppColors.slate500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.emerald100,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: const Text(
+                          'Grouped 5-Fold CV',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.emerald800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 720),
+                      child: Table(
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        columnWidths: const {
+                          0: FlexColumnWidth(2.4),
+                          1: FlexColumnWidth(1.1),
+                          2: FlexColumnWidth(1.2),
+                          3: FlexColumnWidth(1.2),
+                          4: FlexColumnWidth(1.1),
+                        },
+                        border: const TableBorder(
+                          top: BorderSide(color: AppColors.slate200),
+                          bottom: BorderSide(color: AppColors.slate200),
+                          horizontalInside:
+                              BorderSide(color: AppColors.slate100),
+                        ),
+                        children: [
+                          const TableRow(
+                            decoration: BoxDecoration(color: AppColors.slate50),
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                                child: Text(
+                                  'REGRESSION MODEL',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.slate500,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                                child: Text(
+                                  'R² (%)',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontFamily: AppColors.monoFont,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.slate500,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                                child: Text(
+                                  'MAE',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontFamily: AppColors.monoFont,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.slate500,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                                child: Text(
+                                  'RMSE',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontFamily: AppColors.monoFont,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.slate500,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                                child: Text(
+                                  'MAPE',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontFamily: AppColors.monoFont,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.slate500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          ...modelsList.map((m) {
+                            final isBest = m.isBest;
+                            return TableRow(
+                              decoration: isBest
+                                  ? const BoxDecoration(
+                                      color: AppColors.emerald50,
+                                    )
+                                  : null,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 13,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (isBest) ...[
+                                        const Icon(
+                                          Icons.workspace_premium,
+                                          size: 16,
+                                          color: AppColors.emerald700,
+                                        ),
+                                        const SizedBox(width: 6),
+                                      ],
+                                      Flexible(
+                                        child: Text(
+                                          m.name,
+                                          style: TextStyle(
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: isBest
+                                                ? AppColors.emerald950
+                                                : AppColors.slate800,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 13,
+                                  ),
+                                  child: Text(
+                                    '${m.r2Percent.toStringAsFixed(2)}%',
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      fontFamily: AppColors.monoFont,
+                                      fontSize: isBest ? 13.5 : 12.5,
+                                      fontWeight: isBest
+                                          ? FontWeight.w800
+                                          : FontWeight.w600,
+                                      color: isBest
+                                          ? AppColors.emerald700
+                                          : AppColors.slate800,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 13,
+                                  ),
+                                  child: Text(
+                                    '${m.maeMl.toStringAsFixed(4)} mL',
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      fontFamily: AppColors.monoFont,
+                                      fontSize: 12.5,
+                                      fontWeight: isBest
+                                          ? FontWeight.w700
+                                          : FontWeight.w400,
+                                      color: isBest
+                                          ? AppColors.emerald800
+                                          : AppColors.slate700,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 13,
+                                  ),
+                                  child: Text(
+                                    '${m.rmseMl.toStringAsFixed(4)} mL',
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      fontFamily: AppColors.monoFont,
+                                      fontSize: 12.5,
+                                      fontWeight: isBest
+                                          ? FontWeight.w700
+                                          : FontWeight.w400,
+                                      color: isBest
+                                          ? AppColors.emerald800
+                                          : AppColors.slate700,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 13,
+                                  ),
+                                  child: Text(
+                                    '${m.mapePercent.toStringAsFixed(2)}%',
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      fontFamily: AppColors.monoFont,
+                                      fontSize: 12.5,
+                                      fontWeight: isBest
+                                          ? FontWeight.w700
+                                          : FontWeight.w400,
+                                      color: isBest
+                                          ? AppColors.emerald800
+                                          : AppColors.slate700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Mathematical Regression Equations
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.slate200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.functions,
+                        size: 20,
+                        color: AppColors.emerald700,
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Trained Regression Equations (N = ${ResearchMetadata.cleanSamples})',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.slate900,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Fitted coefficients and parameters used by the predictor, where W is calamansi weight in grams.',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: AppColors.slate500,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  ...modelsList.map((model) {
+                    final isBest = model.isBest;
+                    final titleLabel = isBest && model.alpha != null
+                        ? '${model.name} (Ridge α = ${model.alpha})'
+                        : model.name;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isBest
+                              ? AppColors.emerald50
+                              : AppColors.slate50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isBest
+                                ? AppColors.emerald300
+                                : AppColors.slate200,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                if (isBest) ...[
+                                  const Icon(
+                                    Icons.workspace_premium,
+                                    size: 15,
+                                    color: AppColors.emerald700,
+                                  ),
+                                  const SizedBox(width: 6),
+                                ],
+                                Expanded(
+                                  child: Text(
+                                    titleLabel,
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: isBest
+                                          ? AppColors.emerald950
+                                          : AppColors.slate700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isBest
+                                      ? AppColors.emerald200
+                                      : AppColors.slate200,
+                                ),
+                              ),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SelectableText(
+                                  model.formula,
+                                  style: TextStyle(
+                                    fontFamily: AppColors.monoFont,
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: isBest
+                                        ? AppColors.emerald900
+                                        : AppColors.slate800,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
         ),
-      ],
-    );
-  }
-}
-
-class _FormulasTab extends StatelessWidget {
-  const _FormulasTab({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildFormulaCard(
-            title: '1. Simple Linear Regression (SLR)',
-            badge: 'Ordinary Baseline',
-            equation: 'Juice (mL) = max(0, -0.5488877886 + 0.4551336614·W)',
-            notes: 'Standard ordinary least squares baseline directly connecting fresh fruit weight to juice output.',
-          ),
-          const SizedBox(height: 12),
-          _buildFormulaCard(
-            title: '2. Support Vector Regression (SVR - RBF)',
-            badge: 'Kernel ML',
-            equation: 'f(W) = max(0, b + Σ βᵢ · exp(-γ·(W - SVᵢ)²))\nC = 1.0, ε = 0.1, γ = 0.05, Nsv = 1283',
-            notes: 'Radial Basis Function kernel evaluated with dual SMO coordinate optimization and linear slack penalties.',
-          ),
-          const SizedBox(height: 12),
-          _buildFormulaCard(
-            title: '3. Polynomial Regression (Degree 2)',
-            badge: 'Polynomial (Degree 2)',
-            equation: 'Juice (mL) = max(0, -0.8979234205 + 0.5136818207·W - 0.002323394·W²)',
-            notes: 'Captures peel-to-volume curvature without regularization; highly sensitive to raw field outliers.',
-          ),
-          const SizedBox(height: 12),
-          _buildFormulaCard(
-            title: '4. Proposed Model: Poly (d=2) + ln(W) & L2 Ridge',
-            badge: '★ Champion Architecture',
-            isChampion: true,
-            equation: 'Juice (mL) = max(0, 2.4583277642 + 1.1252024747·W - 0.0146438683·W² - 3.5939118293·ln(W))\nLoss = ||Y - Xβ||₂² + 0.01 · ||β||₂²',
-            notes: 'Combines biological volume physics (ln W peel boundary) with L2 Ridge shrinkage (α = 0.01) and automated in-fold sanitization.',
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildFormulaCard({
-    required String title,
-    required String badge,
-    required String equation,
-    required String notes,
-    bool isChampion = false,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isChampion ? const Color(0xFFECFDF5) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isChampion ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
-          width: isChampion ? 2 : 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: isChampion ? const Color(0xFF065F46) : const Color(0xFF0F172A),
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: isChampion ? const Color(0xFF15803D) : const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  badge,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: isChampion ? Colors.white : const Color(0xFF475569),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isChampion ? Colors.white.withOpacity(0.85) : const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: isChampion ? const Color(0xFFA7F3D0) : const Color(0xFFE2E8F0)),
-            ),
-            child: Text(
-              equation,
-              style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: isChampion ? const Color(0xFF047857) : const Color(0xFF1E293B),
-                height: 1.4,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            notes,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.3),
-          ),
-        ],
       ),
     );
   }

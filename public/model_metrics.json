@@ -2,7 +2,7 @@
   "metadata": {
     "institution": "Leyte Normal University",
     "study": "Tacloban City Calamansi Harvest Study",
-    "training_timestamp": "2026-10-28T09:58:56.741Z",
+    "training_timestamp": "2026-10-30T13:11:40.153Z",
     "total_raw_samples": 1522,
     "clean_samples": 1478,
     "removed_ratio": 8,
@@ -99,9 +99,7 @@
       "r2_percent": 77.998105,
       "mae": 0.544144,
       "rmse": 0.693891,
-      "mse": 0.481485,
       "mape": 11.928524,
-      "correlation_r": 0.890491,
       "isChampion": false
     },
     "poly": {
@@ -117,9 +115,7 @@
       "r2_percent": 76.23046,
       "mae": 0.569004,
       "rmse": 0.713551,
-      "mse": 0.509155,
       "mape": 12.861827,
-      "correlation_r": 0.876443,
       "isChampion": false
     },
     "svr": {
@@ -1415,9 +1411,7 @@
       "r2_percent": 78.685467,
       "mae": 0.531933,
       "rmse": 0.682967,
-      "mse": 0.466443,
       "mape": 11.474536,
-      "correlation_r": 0.887574,
       "isChampion": false,
       "intercept": 5.1947683581,
       "support_vectors": [
@@ -2724,9 +2718,7 @@
       "r2_percent": 82.277148,
       "mae": 0.489689,
       "rmse": 0.616143,
-      "mse": 0.379632,
       "mape": 10.061399,
-      "correlation_r": 0.907076,
       "isChampion": true,
       "alpha": 0.01
     }

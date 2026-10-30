@@ -1,175 +1,187 @@
+class AppUser {
+  final String id;
+  final String username;
+  final String password;
+  final String role; // 'admin' | 'user'
+  final String status; // 'Active' | 'Suspended'
+  final String joined;
+
+  const AppUser({
+    required this.id,
+    required this.username,
+    required this.password,
+    required this.role,
+    required this.status,
+    required this.joined,
+  });
+
+  AppUser copyWith({
+    String? id,
+    String? username,
+    String? password,
+    String? role,
+    String? status,
+    String? joined,
+  }) {
+    return AppUser(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      password: password ?? this.password,
+      role: role ?? this.role,
+      status: status ?? this.status,
+      joined: joined ?? this.joined,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'username': username,
+        'password': password,
+        'role': role,
+        'status': status,
+        'joined': joined,
+      };
+
+  factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
+        id: (json['id'] ?? '').toString(),
+        username: (json['username'] ?? '').toString(),
+        password: (json['password'] ?? '').toString(),
+        role: (json['role'] ?? 'user').toString(),
+        status: (json['status'] ?? 'Active').toString(),
+        joined: (json['joined'] ?? '2026-09-01').toString(),
+      );
+}
+
 class PredictionResult {
   final int count;
-  final double representativeWeight;
+  final double repWeight;
+  final bool isSingleSample;
   final double slrTotalMl;
   final double polyTotalMl;
-  final double svrTotalMl;
-  final double proposedTotalMl;
+  final double rbfTotalMl;
+  final double primaryTotalMl;
   final double bottles330;
   final double bottles500;
   final double bottles1000;
-  final double extractionRatio;
+  final double extractionRatioPercent;
 
-  PredictionResult({
+  const PredictionResult({
     required this.count,
-    required this.representativeWeight,
+    required this.repWeight,
+    required this.isSingleSample,
     required this.slrTotalMl,
     required this.polyTotalMl,
-    required this.svrTotalMl,
-    required this.proposedTotalMl,
+    required this.rbfTotalMl,
+    required this.primaryTotalMl,
     required this.bottles330,
     required this.bottles500,
     required this.bottles1000,
-    required this.extractionRatio,
+    required this.extractionRatioPercent,
   });
 }
 
-class ModelBenchmarkItem {
-  final String id;
-  final String name;
-  final String formula;
-  final String configuration;
-  final double r2;
-  final double mae;
-  final double rmse;
-  final double mape;
-  final String status;
-  final bool isChampion;
-
-  ModelBenchmarkItem({
-    required this.id,
-    required this.name,
-    required this.formula,
-    required this.configuration,
-    required this.r2,
-    required this.mae,
-    required this.rmse,
-    required this.mape,
-    required this.status,
-    this.isChampion = false,
-  });
-}
-
-class DataCleaningStep {
-  final int step;
-  final String title;
-  final String description;
-  final int inputCount;
-  final int outputCount;
-  final int dropCount;
-  final double percentageRetained;
-
-  DataCleaningStep({
-    required this.step,
-    required this.title,
-    required this.description,
-    required this.inputCount,
-    required this.outputCount,
-    required this.dropCount,
-    required this.percentageRetained,
-  });
-}
-
-class UserAccount {
-  final String id;
-  final String name;
-  final String username;
-  final String role; // 'user' or 'admin'
-  final String organization;
-  bool isActive;
-  final String dateCreated;
-
-  UserAccount({
-    required this.id,
-    required this.name,
-    required this.username,
-    required this.role,
-    required this.organization,
-    required this.isActive,
-    required this.dateCreated,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'username': username,
-    'role': role,
-    'organization': organization,
-    'isActive': isActive,
-    'dateCreated': dateCreated,
-  };
-
-  factory UserAccount.fromJson(Map<String, dynamic> json) => UserAccount(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    username: json['username'] as String,
-    role: json['role'] as String,
-    organization: json['organization'] as String,
-    isActive: json['isActive'] as bool? ?? true,
-    dateCreated: json['dateCreated'] as String,
-  );
-}
-
-class PredictionLogItem {
+class PredictionLog {
   final String id;
   final String date;
   final String user;
   final double weightG;
-  final String weightFormatted;
+  final String weight;
   final int count;
-  final double proposedMl;
+  final String slr;
+  final String poly;
+  final String rbf;
+  final String primary;
   final double slrMl;
   final double polyMl;
-  final double svrMl;
-  final double bottles330;
-  final double bottles500;
-  final double bottles1000;
+  final double rbfMl;
+  final double primaryMl;
 
-  PredictionLogItem({
+  const PredictionLog({
     required this.id,
     required this.date,
     required this.user,
     required this.weightG,
-    required this.weightFormatted,
+    required this.weight,
     required this.count,
-    required this.proposedMl,
+    required this.slr,
+    required this.poly,
+    required this.rbf,
+    required this.primary,
     required this.slrMl,
     required this.polyMl,
-    required this.svrMl,
-    required this.bottles330,
-    required this.bottles500,
-    required this.bottles1000,
+    required this.rbfMl,
+    required this.primaryMl,
   });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'date': date,
-    'user': user,
-    'weightG': weightG,
-    'weightFormatted': weightFormatted,
-    'count': count,
-    'proposedMl': proposedMl,
-    'slrMl': slrMl,
-    'polyMl': polyMl,
-    'svrMl': svrMl,
-    'bottles330': bottles330,
-    'bottles500': bottles500,
-    'bottles1000': bottles1000,
-  };
+        'id': id,
+        'date': date,
+        'user': user,
+        'weightG': weightG,
+        'weight': weight,
+        'count': count,
+        'slr': slr,
+        'poly': poly,
+        'rbf': rbf,
+        'primary': primary,
+        'slrMl': slrMl,
+        'polyMl': polyMl,
+        'rbfMl': rbfMl,
+        'primaryMl': primaryMl,
+      };
 
-  factory PredictionLogItem.fromJson(Map<String, dynamic> json) => PredictionLogItem(
-    id: json['id'] as String,
-    date: json['date'] as String,
-    user: json['user'] as String,
-    weightG: (json['weightG'] as num).toDouble(),
-    weightFormatted: json['weightFormatted'] as String,
-    count: json['count'] as int,
-    proposedMl: (json['proposedMl'] as num).toDouble(),
-    slrMl: (json['slrMl'] as num).toDouble(),
-    polyMl: (json['polyMl'] as num).toDouble(),
-    svrMl: (json['svrMl'] as num).toDouble(),
-    bottles330: (json['bottles330'] as num?)?.toDouble() ?? (json['proposedMl'] as num).toDouble() / 330.0,
-    bottles500: (json['bottles500'] as num?)?.toDouble() ?? (json['proposedMl'] as num).toDouble() / 500.0,
-    bottles1000: (json['bottles1000'] as num?)?.toDouble() ?? (json['proposedMl'] as num).toDouble() / 1000.0,
-  );
+  factory PredictionLog.fromJson(Map<String, dynamic> json) {
+    final slrVal = (json['slrMl'] as num?)?.toDouble() ?? 0.0;
+    final polyVal = (json['polyMl'] as num?)?.toDouble() ?? 0.0;
+    final rbfVal = (json['rbfMl'] as num?)?.toDouble() ?? 0.0;
+    final primaryVal = (json['primaryMl'] as num?)?.toDouble() ?? 0.0;
+
+    return PredictionLog(
+      id: (json['id'] ?? '').toString(),
+      date: (json['date'] ?? '').toString(),
+      user: (json['user'] ?? '').toString(),
+      weightG: (json['weightG'] as num?)?.toDouble() ?? 0.0,
+      weight: (json['weight'] ?? '').toString(),
+      count: (json['count'] as num?)?.toInt() ?? 0,
+      slr: (json['slr'] ?? '${slrVal.toStringAsFixed(2)} ml').toString(),
+      poly: (json['poly'] ??
+              (polyVal > 0 ? '${polyVal.toStringAsFixed(2)} ml' : '—'))
+          .toString(),
+      rbf: (json['rbf'] ??
+              (rbfVal > 0 ? '${rbfVal.toStringAsFixed(2)} ml' : '—'))
+          .toString(),
+      primary: (json['primary'] ??
+              json['cbPoly'] ??
+              (primaryVal > 0 ? '${primaryVal.toStringAsFixed(2)} ml' : '—'))
+          .toString(),
+      slrMl: slrVal,
+      polyMl: polyVal,
+      rbfMl: rbfVal,
+      primaryMl: primaryVal,
+    );
+  }
+}
+
+class ModelBenchmark {
+  final String name;
+  final String shortName;
+  final double r2Percent;
+  final double maeMl;
+  final double rmseMl;
+  final double mapePercent;
+  final String formula;
+  final bool isBest;
+  final double? alpha;
+
+  const ModelBenchmark({
+    required this.name,
+    required this.shortName,
+    required this.r2Percent,
+    required this.maeMl,
+    required this.rmseMl,
+    required this.mapePercent,
+    required this.formula,
+    required this.isBest,
+    this.alpha,
+  });
 }

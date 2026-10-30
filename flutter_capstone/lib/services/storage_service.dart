@@ -1,169 +1,220 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/prediction_result.dart';
+import 'prediction_service.dart';
 
 class StorageService {
-  static const String _historyKey = 'calamansi_prediction_logs_v2';
-  static const String _usersKey = 'calamansi_user_accounts_v2';
-  static const String _activeUserKey = 'calamansi_active_user_v2';
+  StorageService._();
 
-  // Initial seed user accounts
-  static final List<UserAccount> _defaultUsers = [
-    UserAccount(
-      id: 'usr_1',
-      name: 'Farmer Juan',
-      username: 'farmer_juan',
-      role: 'user',
-      organization: 'Leyte Calamansi Growers Cooperative',
-      isActive: true,
-      dateCreated: '2026-01-15',
-    ),
-    UserAccount(
-      id: 'usr_2',
-      name: 'Dr. Santos',
-      username: 'admin_santos',
+  static const String _usersKey = 'calamansi_app_users_v2';
+  static const String _logsKey = 'calamansi_prediction_logs_v2';
+  static const String _sessionKey = 'calamansi_active_user_v2';
+
+  static const List<AppUser> initialUsers = [
+    AppUser(
+      id: 'user-1',
+      username: 'admin',
+      password: 'admin123',
       role: 'admin',
-      organization: 'Leyte Normal University Thesis Panel',
-      isActive: true,
-      dateCreated: '2026-01-10',
+      status: 'Active',
+      joined: '2026-09-01',
     ),
-    UserAccount(
-      id: 'usr_3',
-      name: 'Maria Elena',
-      username: 'maria_grower',
+    AppUser(
+      id: 'user-2',
+      username: 'farmer_juan',
+      password: 'user123',
       role: 'user',
-      organization: 'Barangay San Jose Farm Cluster',
-      isActive: true,
-      dateCreated: '2026-02-01',
+      status: 'Active',
+      joined: '2026-09-02',
+    ),
+    AppUser(
+      id: 'user-3',
+      username: 'tacloban_vendor',
+      password: 'user123',
+      role: 'user',
+      status: 'Active',
+      joined: '2026-09-03',
     ),
   ];
 
-  // Active User State
-  static Future<UserAccount> getActiveUser() async {
+  static List<PredictionLog> _buildInitialLogs() {
+    final c5000 = PredictionService.runCalculationEngine(5000);
+    final c10000 = PredictionService.runCalculationEngine(10000);
+    final c1000 = PredictionService.runCalculationEngine(1000);
+
+    return [
+      PredictionLog(
+        id: 'log-101',
+        date: '2026-10-24 14:32',
+        user: 'farmer_juan',
+        weightG: 5000,
+        weight: '5.00 kg (5000g)',
+        count: c5000.count,
+        slr: '${c5000.slrTotalMl.toStringAsFixed(2)} ml',
+        poly: '${c5000.polyTotalMl.toStringAsFixed(2)} ml',
+        rbf: '${c5000.rbfTotalMl.toStringAsFixed(2)} ml',
+        primary: '${c5000.primaryTotalMl.toStringAsFixed(2)} ml',
+        slrMl: c5000.slrTotalMl,
+        polyMl: c5000.polyTotalMl,
+        rbfMl: c5000.rbfTotalMl,
+        primaryMl: c5000.primaryTotalMl,
+      ),
+      PredictionLog(
+        id: 'log-102',
+        date: '2026-10-23 09:15',
+        user: 'tacloban_vendor',
+        weightG: 10000,
+        weight: '10.00 kg (10000g)',
+        count: c10000.count,
+        slr: '${c10000.slrTotalMl.toStringAsFixed(2)} ml',
+        poly: '${c10000.polyTotalMl.toStringAsFixed(2)} ml',
+        rbf: '${c10000.rbfTotalMl.toStringAsFixed(2)} ml',
+        primary: '${c10000.primaryTotalMl.toStringAsFixed(2)} ml',
+        slrMl: c10000.slrTotalMl,
+        polyMl: c10000.polyTotalMl,
+        rbfMl: c10000.rbfTotalMl,
+        primaryMl: c10000.primaryTotalMl,
+      ),
+      PredictionLog(
+        id: 'log-103',
+        date: '2026-10-22 16:40',
+        user: 'farmer_juan',
+        weightG: 1000,
+        weight: '1.00 kg (1000g)',
+        count: c1000.count,
+        slr: '${c1000.slrTotalMl.toStringAsFixed(2)} ml',
+        poly: '${c1000.polyTotalMl.toStringAsFixed(2)} ml',
+        rbf: '${c1000.rbfTotalMl.toStringAsFixed(2)} ml',
+        primary: '${c1000.primaryTotalMl.toStringAsFixed(2)} ml',
+        slrMl: c1000.slrTotalMl,
+        polyMl: c1000.polyTotalMl,
+        rbfMl: c1000.rbfTotalMl,
+        primaryMl: c1000.primaryTotalMl,
+      ),
+    ];
+  }
+
+  static Future<List<AppUser>> getUsers() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_usersKey);
+      if (raw == null || raw.isEmpty) {
+        await saveUsers(initialUsers);
+        return List<AppUser>.from(initialUsers);
+      }
+      final List<dynamic> decoded = jsonDecode(raw) as List<dynamic>;
+      return decoded
+          .map((e) => AppUser.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return List<AppUser>.from(initialUsers);
+    }
+  }
+
+  static Future<void> saveUsers(List<AppUser> users) async {
     final prefs = await SharedPreferences.getInstance();
-    final activeId = prefs.getString(_activeUserKey) ?? 'usr_1';
-    final users = await getUsers();
-    return users.firstWhere(
-      (u) => u.id == activeId,
-      orElse: () => users.first,
+    await prefs.setString(
+      _usersKey,
+      jsonEncode(users.map((u) => u.toJson()).toList()),
     );
   }
 
-  static Future<void> setActiveUser(String userId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_activeUserKey, userId);
-  }
-
-  // User Accounts Management
-  static Future<List<UserAccount>> getUsers() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_usersKey);
-    if (raw == null || raw.isEmpty) {
-      // Seed default users
-      await saveUsers(_defaultUsers);
-      return List.from(_defaultUsers);
-    }
+  static Future<List<PredictionLog>> getLogs() async {
     try {
-      final List<dynamic> list = jsonDecode(raw);
-      return list.map((item) => UserAccount.fromJson(item as Map<String, dynamic>)).toList();
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_logsKey);
+      if (raw == null || raw.isEmpty) {
+        final seeded = _buildInitialLogs();
+        await saveLogs(seeded);
+        return seeded;
+      }
+      final List<dynamic> decoded = jsonDecode(raw) as List<dynamic>;
+      return decoded
+          .map((e) => PredictionLog.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (_) {
-      return List.from(_defaultUsers);
+      return _buildInitialLogs();
     }
   }
 
-  static Future<void> saveUsers(List<UserAccount> users) async {
+  static Future<void> saveLogs(List<PredictionLog> logs) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = jsonEncode(users.map((u) => u.toJson()).toList());
-    await prefs.setString(_usersKey, raw);
+    await prefs.setString(
+      _logsKey,
+      jsonEncode(logs.map((l) => l.toJson()).toList()),
+    );
   }
 
-  static Future<void> toggleUserStatus(String userId) async {
-    final users = await getUsers();
-    final user = users.firstWhere((u) => u.id == userId);
-    user.isActive = !user.isActive;
-    await saveUsers(users);
-  }
-
-  static Future<void> addUser(UserAccount newUser) async {
-    final users = await getUsers();
-    users.add(newUser);
-    await saveUsers(users);
-  }
-
-  // History Logs
-  static Future<List<PredictionLogItem>> getHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_historyKey);
-    if (raw == null || raw.isEmpty) {
-      // Provide some initial verified thesis sample logs
-      return [
-        PredictionLogItem(
-          id: 'log_thesis_01',
-          date: '2026-10-25 14:30',
-          user: 'Farmer Juan',
-          weightG: 10000.0,
-          weightFormatted: '10.00 kg',
-          count: 788,
-          proposedMl: 3412.5,
-          slrMl: 3340.2,
-          polyMl: 3180.0,
-          svrMl: 3315.4,
-          bottles330: 10.34,
-          bottles500: 6.82,
-          bottles1000: 3.41,
-        ),
-        PredictionLogItem(
-          id: 'log_thesis_02',
-          date: '2026-10-26 09:15',
-          user: 'Dr. Santos',
-          weightG: 5000.0,
-          weightFormatted: '5.00 kg',
-          count: 394,
-          proposedMl: 1706.2,
-          slrMl: 1670.1,
-          polyMl: 1590.0,
-          svrMl: 1657.7,
-          bottles330: 5.17,
-          bottles500: 3.41,
-          bottles1000: 1.71,
-        ),
-      ];
+  static Future<List<PredictionLog>> addLog(PredictionLog log) async {
+    final logs = await getLogs();
+    logs.insert(0, log);
+    if (logs.length > 200) {
+      logs.removeRange(200, logs.length);
     }
+    await saveLogs(logs);
+    return logs;
+  }
+
+  static Future<void> clearLogs() async {
+    await saveLogs(<PredictionLog>[]);
+  }
+
+  static Future<AppUser?> getSavedSession() async {
     try {
-      final List<dynamic> list = jsonDecode(raw);
-      return list.map((item) => PredictionLogItem.fromJson(item as Map<String, dynamic>)).toList();
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_sessionKey);
+      if (raw == null || raw.isEmpty) return null;
+      return AppUser.fromJson(jsonDecode(raw) as Map<String, dynamic>);
     } catch (_) {
-      return [];
+      return null;
     }
   }
 
-  static Future<void> addHistoryItem(PredictionLogItem item) async {
-    final current = await getHistory();
-    current.insert(0, item);
+  static Future<void> setSavedSession(AppUser? user) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_historyKey, jsonEncode(current.map((e) => e.toJson()).toList()));
-  }
-
-  static Future<void> deleteHistoryItem(String id) async {
-    final current = await getHistory();
-    current.removeWhere((e) => e.id == id);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_historyKey, jsonEncode(current.map((e) => e.toJson()).toList()));
-  }
-
-  static Future<void> clearHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_historyKey);
-  }
-
-  // CSV Export Generator
-  static Future<String> generateCsvExport() async {
-    final logs = await getHistory();
-    final buffer = StringBuffer();
-    buffer.writeln('ID,Timestamp,User,Total Weight (g),Fruit Count,Proposed Yield (mL),SLR Yield (mL),Poly d=2 Yield (mL),SVR Yield (mL),330mL Bottles,500mL Bottles,1L Bottles');
-    for (final l in logs) {
-      buffer.writeln('${l.id},"${l.date}","${l.user}",${l.weightG},${l.count},${l.proposedMl.toStringAsFixed(2)},${l.slrMl.toStringAsFixed(2)},${l.polyMl.toStringAsFixed(2)},${l.svrMl.toStringAsFixed(2)},${l.bottles330.toStringAsFixed(2)},${l.bottles500.toStringAsFixed(2)},${l.bottles1000.toStringAsFixed(2)}');
+    if (user == null) {
+      await prefs.remove(_sessionKey);
+    } else {
+      await prefs.setString(_sessionKey, jsonEncode(user.toJson()));
     }
-    return buffer.toString();
+  }
+
+  static String buildLogsCsv(List<PredictionLog> logs) {
+    const headers = [
+      'Log ID',
+      'Date & Time',
+      'User',
+      'Batch Weight',
+      'Est. Calamansi Count',
+      'Simple Linear (mL)',
+      'Polynomial Degree 2 (mL)',
+      'RBF SVR (mL)',
+      'Poly+ Ridge (mL)',
+    ];
+
+    String sanitizeCell(Object? val) {
+      String str = (val ?? '').toString();
+      if (RegExp(r'^[=+\-@\t\r]').hasMatch(str)) {
+        str = "'$str";
+      }
+      final escaped = str.replaceAll('"', '""');
+      return '"$escaped"';
+    }
+
+    final lines = <String>[
+      headers.map(sanitizeCell).join(','),
+      ...logs.map((l) => [
+            l.id,
+            l.date,
+            l.user,
+            l.weight,
+            l.count,
+            l.slr,
+            l.poly,
+            l.rbf,
+            l.primary,
+          ].map(sanitizeCell).join(',')),
+    ];
+    return lines.join('\n');
   }
 }

@@ -1,0 +1,30 @@
+workflows:
+  ios-ipa-and-android-apk:
+    name: Build iOS IPA (Unsigned) & Android APK
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    working_directory: flutter_capstone
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Generate missing iOS and Android platform runners
+        script: |
+          flutter create --platforms=ios,android --org ph.edu.lnu --project-name calamansi_yield_capstone .
+      - name: Install Flutter dependencies
+        script: |
+          flutter pub get
+      - name: Build Unsigned iOS IPA (for Sideloadly / AltStore)
+        script: |
+          flutter build ios --release --no-codesign
+          rm -rf Payload Calamansi_Yield_Predictor.ipa
+          mkdir -p Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -r -y Calamansi_Yield_Predictor.ipa Payload
+      - name: Build Android Release APK
+        script: |
+          flutter build apk --release
+    artifacts:
+      - flutter_capstone/Calamansi_Yield_Predictor.ipa
+      - flutter_capstone/build/app/outputs/flutter-apk/app-release.apk

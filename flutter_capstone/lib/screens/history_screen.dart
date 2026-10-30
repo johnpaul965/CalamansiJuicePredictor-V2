@@ -2,336 +2,624 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/prediction_result.dart';
 import '../services/storage_service.dart';
+import '../theme/app_colors.dart';
 
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({Key? key}) : super(key: key);
+  final AppUser currentUser;
+  final List<PredictionLog> logs;
+  final VoidCallback onClearLogs;
+  final ValueChanged<String>? onShowToast;
+
+  const HistoryScreen({
+    super.key,
+    required this.currentUser,
+    required this.logs,
+    required this.onClearLogs,
+    this.onShowToast,
+  });
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  List<PredictionLogItem> _logs = [];
-  bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
-  void initState() {
-    super.initState();
-    _loadHistory();
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
-  Future<void> _loadHistory() async {
-    setState(() => _isLoading = true);
-    final list = await StorageService.getHistory();
-    setState(() {
-      _logs = list;
-      _isLoading = false;
-    });
-  }
+  Future<void> _handleExportCsv(List<PredictionLog> targetLogs) async {
+    final csv = StorageService.buildLogsCsv(targetLogs);
+    await Clipboard.setData(ClipboardData(text: csv));
+    if (!mounted) return;
 
-  Future<void> _deleteItem(String id) async {
-    await StorageService.deleteHistoryItem(id);
-    _loadHistory();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Log deleted successfully'),
-          backgroundColor: Color(0xFF15803D),
-          duration: Duration(seconds: 1),
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.download_done_rounded, color: AppColors.emerald700),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'CSV Export Ready (Copied)',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.slate900,
+                ),
+              ),
+            ),
+          ],
         ),
-      );
-    }
+        content: SizedBox(
+          width: 480,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'CSV content has been copied to your clipboard and can be pasted directly into Excel or Google Sheets:',
+                style: TextStyle(fontSize: 12.5, color: AppColors.slate600),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                constraints: const BoxConstraints(maxHeight: 200),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.slate50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.slate200),
+                ),
+                child: SingleChildScrollView(
+                  child: SelectableText(
+                    csv,
+                    style: const TextStyle(
+                      fontFamily: AppColors.monoFont,
+                      fontSize: 11,
+                      color: AppColors.slate800,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.emerald700,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Done',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  Future<void> _confirmClearAll() async {
+  Future<void> _confirmClearHistory() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Clear All History?'),
-        content: const Text('This will erase all recorded harvest batch logs. This action cannot be undone.'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: AppColors.red50,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.red600,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Clear Prediction History?',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.slate900,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Are you sure you want to clear your prediction history records? This cannot be undone.',
+          style: TextStyle(fontSize: 13.5, color: AppColors.slate600),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            style: TextButton.styleFrom(
+              backgroundColor: AppColors.slate100,
+              foregroundColor: AppColors.slate700,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Clear All', style: TextStyle(color: Colors.white)),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.red600,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Clear All Records',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),
     );
 
     if (confirmed == true) {
-      await StorageService.clearHistory();
-      _loadHistory();
+      widget.onClearLogs();
+      widget.onShowToast?.call('Prediction history cleared.');
     }
-  }
-
-  Future<void> _exportCsv() async {
-    final csv = await StorageService.generateCsvExport();
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Export Harvest Data (CSV)'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Data formatted for Excel / SPSS / Google Sheets:',
-                style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                height: 160,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFCBD5E1)),
-                ),
-                child: SingleChildScrollView(
-                  child: Text(
-                    csv,
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
-          ),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.copy, size: 16, color: Colors.white),
-            label: const Text('Copy to Clipboard', style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF15803D)),
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: csv));
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('CSV copied to clipboard! Paste into Excel or Google Sheets.'),
-                  backgroundColor: Color(0xFF15803D),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final totalMl = _logs.fold<double>(0, (sum, item) => sum + item.proposedMl);
-    final totalFruits = _logs.fold<int>(0, (sum, item) => sum + item.count);
+    final userLogs = widget.logs
+        .where((l) =>
+            widget.currentUser.role == 'admin' ||
+            l.user == widget.currentUser.username)
+        .toList();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF15803D),
-        elevation: 0,
-        title: const Text(
-          'Batch Harvest History',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.file_download_outlined, color: Colors.white),
-            tooltip: 'Export CSV',
-            onPressed: _logs.isEmpty ? null : _exportCsv,
-          ),
-          if (_logs.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep_outlined, color: Colors.white),
-              tooltip: 'Clear All',
-              onPressed: _confirmClearAll,
-            ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF15803D)))
-          : Column(
-              children: [
-                // Summary Stats Bar
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  color: Colors.white,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    final q = _searchQuery.trim().toLowerCase();
+    final filteredLogs = userLogs.where((l) {
+      if (q.isEmpty) return true;
+      return l.weight.toLowerCase().contains(q) ||
+          l.date.toLowerCase().contains(q) ||
+          l.primary.toLowerCase().contains(q) ||
+          l.count.toString().contains(q) ||
+          l.user.toLowerCase().contains(q);
+    }).toList();
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 896),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Top Controls
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.slate200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
+                    runSpacing: 12,
                     children: [
-                      _buildSummaryItem('Batches', '${_logs.length}'),
-                      _buildSummaryItem('Total Juice', '${(totalMl / 1000.0).toStringAsFixed(2)} L'),
-                      _buildSummaryItem('Total Fruit', '$totalFruits'),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-
-                Expanded(
-                  child: _logs.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.history, size: 48, color: Color(0xFFCBD5E1)),
-                              SizedBox(height: 12),
-                              Text(
-                                'No harvest predictions logged yet.',
-                                style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.schedule,
+                                size: 20,
+                                color: AppColors.emerald700,
                               ),
-                              SizedBox(height: 4),
+                              SizedBox(width: 8),
                               Text(
-                                'Predictions made in the Predictor tab will appear here.',
-                                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                                'Harvest Prediction History',
+                                style: TextStyle(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.slate900,
+                                  letterSpacing: -0.3,
+                                ),
                               ),
                             ],
                           ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _logs.length,
-                          itemBuilder: (context, index) {
-                            final item = _logs[index];
-                            return _buildLogCard(item);
-                          },
+                          SizedBox(height: 4),
+                          Text(
+                            'Review and audit logged calamansi batch calculations and juice yield outputs',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.slate500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (userLogs.isNotEmpty)
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: () => _handleExportCsv(userLogs),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: AppColors.slate700,
+                                side: const BorderSide(
+                                  color: AppColors.slate200,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.download_outlined,
+                                size: 15,
+                                color: AppColors.slate500,
+                              ),
+                              label: const Text(
+                                'Export CSV',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: _confirmClearHistory,
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: AppColors.red700,
+                                side: const BorderSide(color: AppColors.red200),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                size: 15,
+                                color: AppColors.red700,
+                              ),
+                              label: const Text(
+                                'Clear History',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                ),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildSummaryItem(String label, String value) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'monospace',
-            color: Color(0xFF15803D),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLogCard(PredictionLogItem item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF15803D).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      item.weightFormatted,
+                    ],
+                  ),
+                  if (userLogs.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (v) => setState(() => _searchQuery = v),
                       style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF15803D),
+                        fontSize: 13.5,
+                        color: AppColors.slate900,
+                      ),
+                      decoration: InputDecoration(
+                        hintText:
+                            'Search by weight, calamansi count, or date...',
+                        hintStyle: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.slate400,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          size: 18,
+                          color: AppColors.slate400,
+                        ),
+                        filled: true,
+                        fillColor: AppColors.slate50,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: AppColors.slate200),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.emerald600,
+                            width: 2,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '~${item.count} fruits',
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                  ),
+                  ],
                 ],
               ),
-              IconButton(
-                icon: const Icon(Icons.close, size: 16, color: Color(0xFF94A3B8)),
-                onPressed: () => _deleteItem(item.id),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Proposed Yield', style: TextStyle(fontSize: 10, color: Color(0xFF64748B))),
-                  Text(
-                    '${item.proposedMl.toStringAsFixed(1)} mL',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const Text('Bottles (330 / 500 / 1L)', style: TextStyle(fontSize: 10, color: Color(0xFF64748B))),
-                  Text(
-                    '${item.bottles330.toStringAsFixed(1)} / ${item.bottles500.toStringAsFixed(1)} / ${item.bottles1000.toStringAsFixed(1)}',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: Color(0xFF334155)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(6),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Operator: ${item.user}',
-                  style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+            const SizedBox(height: 18),
+
+            // History Items List
+            if (filteredLogs.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(42),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.slate200),
                 ),
-                Text(
-                  item.date,
-                  style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: AppColors.slate100,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.schedule,
+                        size: 28,
+                        color: AppColors.slate400,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      _searchQuery.isNotEmpty
+                          ? 'No matching predictions found'
+                          : 'No predictions yet',
+                      style: const TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.slate800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _searchQuery.isNotEmpty
+                          ? 'Try searching with a different batch weight or date keyword.'
+                          : 'Run a calculation from the Yield Estimator tab to see your extraction records logged here.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: AppColors.slate500,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              )
+            else
+              ...filteredLogs.map((item) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.slate200),
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isWide = constraints.maxWidth >= 560;
+                        final leftSide = Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: AppColors.emerald100,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                '🍋',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    children: [
+                                      Text(
+                                        item.weight,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.slate900,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.emerald100,
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.workspace_premium,
+                                              size: 11,
+                                              color: AppColors.emerald800,
+                                            ),
+                                            SizedBox(width: 3),
+                                            Text(
+                                              'Poly+ Ridge',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w800,
+                                                color: AppColors.emerald800,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Text(
+                                        '~${item.count} calamansi',
+                                        style: const TextStyle(
+                                          fontFamily: AppColors.monoFont,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.emerald700,
+                                        ),
+                                      ),
+                                      const Text(
+                                        '•',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.slate400,
+                                        ),
+                                      ),
+                                      Text(
+                                        item.date,
+                                        style: const TextStyle(
+                                          fontFamily: AppColors.monoFont,
+                                          fontSize: 11,
+                                          color: AppColors.slate400,
+                                        ),
+                                      ),
+                                      if (widget.currentUser.role ==
+                                          'admin') ...[
+                                        const Text(
+                                          '•',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.slate400,
+                                          ),
+                                        ),
+                                        Text(
+                                          'User: ${item.user}',
+                                          style: const TextStyle(
+                                            fontSize: 11.5,
+                                            color: AppColors.slate400,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+
+                        final rightSide = Column(
+                          crossAxisAlignment: isWide
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.primary,
+                              style: const TextStyle(
+                                fontFamily: AppColors.monoFont,
+                                fontSize: 19,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.emerald700,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'SLR: ${item.slr} · Poly (d=2): ${item.poly} · RBF SVR: ${item.rbf}',
+                              style: const TextStyle(
+                                fontFamily: AppColors.monoFont,
+                                fontSize: 11,
+                                color: AppColors.slate400,
+                              ),
+                            ),
+                          ],
+                        );
+
+                        if (isWide) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(child: leftSide),
+                              const SizedBox(width: 16),
+                              rightSide,
+                            ],
+                          );
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            leftSide,
+                            const SizedBox(height: 12),
+                            const Divider(
+                              color: AppColors.slate100,
+                              height: 1,
+                            ),
+                            const SizedBox(height: 10),
+                            rightSide,
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                );
+              }),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
