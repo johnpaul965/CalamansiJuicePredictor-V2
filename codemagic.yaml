@@ -13,9 +13,21 @@ workflows:
         script: |
           rm -rf .dart_tool .flutter-plugins .flutter-plugins-dependencies build
           flutter create --platforms=ios,android --org ph.edu.lnu --project-name calamansi_yield_capstone .
-      - name: Install Flutter dependencies
+          python3 -c '
+          for path, old, new in [
+              ("android/app/src/main/AndroidManifest.xml", "android:label=\"calamansi_yield_capstone\"", "android:label=\"Calamansi Yield\""),
+              ("ios/Runner/Info.plist", "<string>Calamansi Yield Capstone</string>", "<string>Calamansi Yield</string>"),
+              ("ios/Runner/Info.plist", "<string>calamansi_yield_capstone</string>", "<string>Calamansi Yield</string>"),
+          ]:
+              with open(path, "r", encoding="utf-8") as f:
+                  txt = f.read()
+              with open(path, "w", encoding="utf-8") as f:
+                  f.write(txt.replace(old, new))
+          '
+      - name: Install dependencies and apply custom app launcher icon
         script: |
           flutter pub get
+          dart run flutter_launcher_icons
       - name: Build Slim Unsigned iOS IPA (for Sideloadly / AltStore)
         script: |
           flutter build ios --release --no-codesign --obfuscate --split-debug-info=build/ios-debug-info --tree-shake-icons
