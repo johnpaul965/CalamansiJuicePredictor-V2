@@ -389,11 +389,11 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
                       <th className="py-2.5 px-3">Date & Time</th>
                       <th className="py-2.5 px-3">User</th>
                       <th className="py-2.5 px-3">Batch Weight</th>
-                      <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
+                      <th className="py-2.5 px-3 font-mono">Est. Calamansi</th>
                       <th className="py-2.5 px-3 font-mono">Simple Linear</th>
                       <th className="py-2.5 px-3 font-mono">Poly (Degree 2)</th>
                       <th className="py-2.5 px-3 font-mono">RBF SVR</th>
-                      <th className="py-2.5 px-3 font-mono text-emerald-700">Poly+ Ridge (Champion)</th>
+                      <th className="py-2.5 px-3 font-mono text-emerald-700">Poly+ Ridge</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -412,7 +412,7 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
                           </td>
                           <td className="py-3 px-3 font-semibold text-slate-900">{log.weight}</td>
                           <td className="py-3 px-3 font-mono text-slate-700">
-                            ~{log.count} fruits
+                            ~{log.count} calamansi
                           </td>
                           <td className="py-3 px-3 font-mono text-slate-600">{log.slr}</td>
                           <td className="py-3 px-3 font-mono text-slate-600">

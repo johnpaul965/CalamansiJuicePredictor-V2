@@ -110,7 +110,7 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
       <div className="bg-emerald-50/90 border border-emerald-200/90 rounded-2xl p-5 text-slate-800">
         <div className="flex items-center gap-2 mb-2 font-black text-xs uppercase tracking-wider text-emerald-900">
           <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-          <span>DOST-ITDI Official Formulation Baseline:</span>
+          <span>DOST-ITDI Standard Formulation:</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs sm:text-sm">
           <div className="bg-white/90 p-3.5 rounded-xl border border-emerald-200">
@@ -162,7 +162,7 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                By Fruit (kg)
+                By Calamansi (kg)
               </button>
             </div>
           </div>
@@ -193,7 +193,7 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
           ) : (
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex justify-between">
-                <span>Harvested Fruit Weight (kg)</span>
+                <span>Harvested Calamansi Weight (kg)</span>
                 <span className="text-emerald-700 font-bold">
                   ~{(fruitWeightKg * 0.412).toFixed(2)} L juice est.
                 </span>
@@ -208,7 +208,7 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
                   className="w-full text-lg font-mono font-bold px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:outline-none focus:border-teal-600 transition"
                 />
                 <span className="absolute right-3.5 top-3 text-xs font-mono font-bold text-slate-400">
-                  kg raw fruit
+                  kg raw calamansi
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">

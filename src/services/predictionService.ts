@@ -19,12 +19,13 @@ export const HARVEST_BASELINE = {
 function toBenchmark(
   model: (typeof trainedMetrics.benchmarks)[keyof typeof trainedMetrics.benchmarks],
   shortName: string,
+  inputTerms: string,
   badge: string
 ): ModelBenchmark {
   return {
     name: model.name,
     shortName,
-    role: model.role,
+    role: inputTerms,
     r2Percent: model.r2_percent,
     maeMl: model.mae,
     rmseMl: model.rmse,
@@ -40,22 +41,26 @@ export const THESIS_MODELS = {
   slr: toBenchmark(
     trainedMetrics.benchmarks.slr,
     'Simple Linear Regression (SLR)',
-    'Linear Baseline'
+    'W',
+    'W'
   ),
   poly: toBenchmark(
     trainedMetrics.benchmarks.poly,
     'Polynomial Regression (Degree 2)',
-    'Polynomial (Degree 2) Baseline'
+    'W, W²',
+    'W, W²'
   ),
   rbf: toBenchmark(
     trainedMetrics.benchmarks.svr,
     'Support Vector Regression (RBF Kernel)',
-    'RBF Kernel'
+    'W (RBF Kernel)',
+    'W (RBF Kernel)'
   ),
   primary: toBenchmark(
     trainedMetrics.benchmarks.primary,
     'Polynomial (d=2) + ln(W) & L2 Ridge',
-    'Selected Final'
+    'W, W², ln(W)',
+    'W, W², ln(W)'
   ),
 };
 

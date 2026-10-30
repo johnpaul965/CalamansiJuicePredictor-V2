@@ -132,7 +132,7 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
           <div className="bg-white/90 p-3.5 rounded-xl border border-amber-200">
             <div className="text-slate-500 text-xs font-semibold">1. Sell Raw to Middleman</div>
             <div className="text-lg font-mono font-bold text-slate-800 mt-0.5">₱350 Gross</div>
-            <div className="text-[11px] text-slate-500 mt-1">10 kg raw fruit × ₱35 / kg farmgate price</div>
+            <div className="text-[11px] text-slate-500 mt-1">10 kg raw calamansi × ₱35 / kg farmgate price</div>
           </div>
           <div className="bg-white/90 p-3.5 rounded-xl border border-amber-200">
             <div className="text-slate-500 text-xs font-semibold">2. Squeeze &amp; Bottle</div>
@@ -217,7 +217,7 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex justify-between">
               <span>Middleman Farmgate Price (₱ / kg)</span>
-              <span className="text-slate-400 font-normal">Raw fruit rate</span>
+              <span className="text-slate-400 font-normal">Raw calamansi rate</span>
             </label>
             <div className="relative">
               <span className="absolute left-3.5 top-2.5 text-slate-400 font-mono font-bold text-base">₱</span>

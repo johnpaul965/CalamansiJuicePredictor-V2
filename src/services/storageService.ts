@@ -317,11 +317,11 @@ export function exportLogsToCsv(logs: PredictionLog[]): void {
     'Date & Time',
     'User',
     'Batch Weight',
-    'Est. Fruit Count',
-    'Simple Linear SLR (ml)',
-    'Quadratic baseline (ml)',
-    'RBF SVR (ml)',
-    'Weight-only primary model (ml)',
+    'Est. Calamansi Count',
+    'Simple Linear (mL)',
+    'Polynomial Degree 2 (mL)',
+    'RBF SVR (mL)',
+    'Poly+ Ridge (mL)',
   ];
 
   // Sanitize cell values against spreadsheet formula execution

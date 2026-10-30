@@ -107,8 +107,8 @@ export const PredictTab: React.FC<PredictTabProps> = ({
           { label: '50 kg', val: 50 },
         ]
       : [
-          { label: '10 g (1 fruit)', val: 10 },
-          { label: '15 g (1 fruit)', val: 15 },
+          { label: '10 g (1 sample)', val: 10 },
+          { label: '15 g (1 sample)', val: 15 },
           { label: '500 g', val: 500 },
           { label: '1000 g', val: 1000 },
           { label: '5000 g', val: 5000 },
@@ -131,7 +131,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
               </span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Enter total harvested batch weight. Pure juice projection is calculated automatically without manual fruit sorting.
+              Enter total harvested batch weight. Pure juice projection is calculated automatically without manual size sorting.
             </p>
           </div>
 
@@ -238,13 +238,13 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 <span>Forecast Summary</span>
                 <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                   {result.isSingleFruit
-                    ? `Single-Fruit Formula (W = ${result.repWeight}g)`
-                    : `Batch Scaling (W̄ = ${result.repWeight.toFixed(2)}g/fruit)`}
+                    ? `Single-Sample Formula (W = ${result.repWeight}g)`
+                    : `Batch Scaling (W̄ = ${result.repWeight.toFixed(2)}g/sample)`}
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                 {result.isSingleFruit
-                  ? `Direct per-fruit regression output evaluated at W = ${result.repWeight} g:`
+                  ? `Direct per-sample regression output evaluated at W = ${result.repWeight} g:`
                   : 'Calibrated extraction metrics based on empirical calamansi density:'}
               </p>
             </div>
@@ -272,7 +272,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Compare with baseline
+                  Compare All 4 Models
                 </button>
               </div>
             </div>
@@ -299,7 +299,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                   <div className="bg-emerald-950/50 p-3 rounded-xl border border-emerald-700/50">
                     <div className="text-[11px] text-emerald-300">Estimated Calamansi</div>
                     <div className="text-lg font-bold font-mono text-white mt-0.5">
-                      {result.isSingleFruit ? '1 fruit' : `~${result.count} fruits`}
+                      {result.isSingleFruit ? '1 calamansi' : `~${result.count} calamansi`}
                     </div>
                   </div>
                   <div className="bg-emerald-950/50 p-3 rounded-xl border border-emerald-700/50">
@@ -324,32 +324,24 @@ export const PredictTab: React.FC<PredictTabProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {[
                 {
-                  label: 'Untuned reference',
-                  badge: 'Linear weight-only baseline',
                   title: THESIS_MODELS.slr.name,
                   totalMl: result.slrTotalMl,
                   meta: THESIS_MODELS.slr,
                   cardClass: 'bg-slate-50 border-slate-200',
                 },
                 {
-                  label: 'Untuned reference',
-                  badge: 'Polynomial (Degree 2) baseline',
                   title: THESIS_MODELS.poly.name,
                   totalMl: result.polyTotalMl,
                   meta: THESIS_MODELS.poly,
                   cardClass: 'bg-slate-50 border-slate-200',
                 },
                 {
-                  label: 'Untuned reference',
-                  badge: 'Untuned RBF epsilon-SVR',
                   title: THESIS_MODELS.rbf.name,
                   totalMl: result.rbfTotalMl,
                   meta: THESIS_MODELS.rbf,
                   cardClass: 'bg-slate-50 border-slate-200',
                 },
                 {
-                  label: 'Primary model',
-                  badge: 'Weight-only, tuned inside nested CV',
                   title: THESIS_MODELS.primary.name,
                   totalMl: result.primaryTotalMl,
                   meta: THESIS_MODELS.primary,
@@ -361,13 +353,12 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                   className={`rounded-2xl border p-5 flex flex-col justify-between ${model.cardClass}`}
                 >
                   <div>
-                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      {model.label}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <h3 className="font-bold text-slate-900 text-sm">{model.title}</h3>
+                      {model.meta.isChampion && (
+                        <Award className="w-4 h-4 text-emerald-700 shrink-0" />
+                      )}
                     </div>
-                    <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/80 text-slate-700 mt-1">
-                      {model.badge}
-                    </span>
-                    <h3 className="font-bold text-slate-900 text-sm mt-2 mb-3">{model.title}</h3>
                     <div className="text-2xl font-extrabold font-mono text-slate-800 tracking-tight">
                       {model.totalMl.toFixed(2)} mL
                     </div>
@@ -449,7 +440,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                   Money &amp; Profit Calculator (Farmgate vs. Bottled)
                 </h4>
                 <p className="text-xs text-slate-600 mt-1">
-                  Compare selling this {unit === 'kg' ? `${weightValue} kg` : `${(parseFloat(weightValue) / 1000).toFixed(1)} kg`} raw fruit to a middleman (₱350) vs. squeezing &amp; bottling (₱650) for +₱220 more profit.
+                  Compare selling this {unit === 'kg' ? `${weightValue} kg` : `${(parseFloat(weightValue) / 1000).toFixed(1)} kg`} raw calamansi to a middleman (₱350) vs. squeezing &amp; bottling (₱650) for +₱220 more profit.
                 </p>
               </div>
               {onNavigateToProfit && (
@@ -529,11 +520,11 @@ export const PredictTab: React.FC<PredictTabProps> = ({
               <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
                 <th className="py-2.5 px-3">Date & Time</th>
                 <th className="py-2.5 px-3">Batch Weight</th>
-                <th className="py-2.5 px-3 font-mono">Est. Fruits</th>
+                <th className="py-2.5 px-3 font-mono">Est. Calamansi</th>
                 <th className="py-2.5 px-3 font-mono">Simple Linear</th>
                 <th className="py-2.5 px-3 font-mono">Poly (Degree 2)</th>
                 <th className="py-2.5 px-3 font-mono">RBF SVR</th>
-                <th className="py-2.5 px-3 font-mono text-emerald-700">Poly+ Ridge (Champion)</th>
+                <th className="py-2.5 px-3 font-mono text-emerald-700">Poly+ Ridge</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

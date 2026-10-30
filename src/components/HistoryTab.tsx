@@ -80,7 +80,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
             <Search className="absolute left-3 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by weight, fruit count, or date..."
+              placeholder="Search by weight, calamansi count, or date..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition"
@@ -121,13 +121,13 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                       {item.weight}
                     </span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      <Award className="w-2.5 h-2.5" /> Weight-only primary model
+                      <Award className="w-2.5 h-2.5" /> Poly+ Ridge
                     </span>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 mt-1">
                     <span className="text-emerald-700 font-medium font-mono">
-                      ~{item.count} calamansi fruits
+                      ~{item.count} calamansi
                     </span>
                     <span>•</span>
                     <span className="font-mono text-[11px] text-slate-400">{item.date}</span>
