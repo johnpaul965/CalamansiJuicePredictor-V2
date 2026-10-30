@@ -25,6 +25,8 @@ workflows:
       - name: Build Android Release APK
         script: |
           flutter build apk --release
+          cp build/app/outputs/flutter-apk/app-release.apk Calamansi_Yield_Predictor.apk
+          ls -lh Calamansi_Yield_Predictor.ipa Calamansi_Yield_Predictor.apk
     artifacts:
-      - flutter_capstone/Calamansi_Yield_Predictor.ipa
-      - flutter_capstone/build/app/outputs/flutter-apk/app-release.apk
+      - Calamansi_Yield_Predictor.ipa
+      - Calamansi_Yield_Predictor.apk
