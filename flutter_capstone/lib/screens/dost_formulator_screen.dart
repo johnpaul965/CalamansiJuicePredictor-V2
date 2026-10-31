@@ -6,13 +6,11 @@ import '../theme/app_colors.dart';
 class DostFormulatorScreen extends StatefulWidget {
   final double initialJuiceMl;
   final double initialWeightKg;
-  final void Function(double weightKg, int bottles)? onNavigateToProfit;
 
   const DostFormulatorScreen({
     super.key,
     this.initialJuiceMl = 1000.0,
     this.initialWeightKg = 10.0,
-    this.onNavigateToProfit,
   });
 
   @override
@@ -25,11 +23,9 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
   late double _calamansiWeightKg;
   double _sugarRatioKgPerLiter = 1.5;
   int _bottleSizeMl = 350;
-  double _sugarPricePerKg = 80.0;
 
   late final TextEditingController _juiceCtrl;
   late final TextEditingController _weightCtrl;
-  late final TextEditingController _sugarPriceCtrl;
 
   @override
   void initState() {
@@ -41,7 +37,6 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
     _juiceCtrl =
         TextEditingController(text: _pureJuiceLiters.toStringAsFixed(2));
     _weightCtrl = TextEditingController(text: _fmtNum(_calamansiWeightKg));
-    _sugarPriceCtrl = TextEditingController(text: '80');
   }
 
   @override
@@ -63,7 +58,6 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
   void dispose() {
     _juiceCtrl.dispose();
     _weightCtrl.dispose();
-    _sugarPriceCtrl.dispose();
     super.dispose();
   }
 
@@ -737,44 +731,6 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
               );
             }).toList(),
           ),
-          const SizedBox(height: 18),
-
-          // Sugar Price
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  'WHITE REFINED SUGAR PRICE',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.slate600,
-                  ),
-                ),
-              ),
-              SizedBox(width: 8),
-              Text(
-                'Market rate',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.slate500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          _tealInput(
-            controller: _sugarPriceCtrl,
-            prefix: '₱',
-            suffix: '/ kg',
-            onChanged: (v) {
-              final parsed = double.tryParse(v);
-              setState(() {
-                _sugarPricePerKg = math.max(1.0, parsed ?? 1.0);
-              });
-            },
-          ),
         ],
       ),
     );
@@ -1056,10 +1012,10 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '$totalSugarKg kg (@ ₱${_fmtNum(_sugarPricePerKg)}/kg)',
+                                '$totalSugarKg kg',
                                 style: const TextStyle(
                                   fontFamily: AppColors.monoFont,
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w900,
                                   color: AppColors.amber900,
                                 ),
@@ -1221,47 +1177,6 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                   ],
                 ),
               ),
-
-              if (widget.onNavigateToProfit != null) ...[
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    final effectiveKg = _inputMode == 'calamansi'
-                        ? _calamansiWeightKg
-                        : _round2(effectiveJuiceLiters / 0.412);
-                    widget.onNavigateToProfit!(effectiveKg, bottlesYielded);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.emerald700,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          '💰 Calculate Farmgate vs Bottling Profit for these $bottlesYielded Bottles',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Icon(Icons.arrow_forward, size: 16),
-                    ],
-                  ),
-                ),
-              ],
             ],
           ),
         ),

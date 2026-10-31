@@ -1,30 +1,21 @@
 import React, { useState } from 'react';
 import {
   FlaskConical,
-  Sparkles,
   CheckCircle2,
-  HelpCircle,
   Thermometer,
-  PackageCheck,
   Droplet,
   Coffee,
-  ArrowRight,
-  Flame,
-  ShieldCheck,
   Scale,
-  RotateCcw,
 } from 'lucide-react';
 
 interface DostSugarFormulatorProps {
   initialJuiceMl?: number;
   initialWeightKg?: number;
-  onNavigateToProfit?: (weightKg: number, bottles: number) => void;
 }
 
 export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
   initialJuiceMl = 1000,
   initialWeightKg,
-  onNavigateToProfit,
 }) => {
   // Mode: Enter Pure Juice Volume OR Enter Calamansi Fruit Weight
   const [inputMode, setInputMode] = useState<'juice' | 'fruit'>('juice');
@@ -36,7 +27,6 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
   // Formulation ratio: DOST standard is 1.5 kg sugar per 1.0 L pure juice
   const [sugarRatioKgPerLiter, setSugarRatioKgPerLiter] = useState<number>(1.5);
   const [bottleSizeMl, setBottleSizeMl] = useState<number>(350); // 350 mL retail bottle
-  const [sugarPricePerKg, setSugarPricePerKg] = useState<number>(80); // ₱80/kg cane sugar
 
   // If in fruit mode, compute pure juice via calibrated ~41.2% yield
   const effectiveJuiceLiters =
@@ -50,7 +40,6 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
 
   // Sugar required
   const totalSugarKg = +(effectiveJuiceLiters * sugarRatioKgPerLiter).toFixed(2);
-  const totalSugarCost = +(totalSugarKg * sugarPricePerKg).toFixed(2);
 
   // Bottles yielded
   const bottlesYielded = Math.max(1, Math.round(finishedConcentrateMl / bottleSizeMl));
@@ -270,28 +259,6 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
               ))}
             </div>
           </div>
-
-          {/* Sugar Price */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex justify-between">
-              <span>White Refined Sugar Price</span>
-              <span className="text-slate-400 font-normal">Market rate</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-2.5 text-slate-400 font-mono font-bold text-base">₱</span>
-              <input
-                type="number"
-                min="10"
-                step="1"
-                value={sugarPricePerKg}
-                onChange={(e) => setSugarPricePerKg(Math.max(1, parseFloat(e.target.value) || 0))}
-                className="w-full text-base font-mono font-bold pl-8 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:outline-none focus:border-teal-600 transition"
-              />
-              <span className="absolute right-3.5 top-2.5 text-xs font-mono font-bold text-slate-400">
-                / kg
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Right Output: Batch Recipe & Commercial Yields (7 Cols) */}
@@ -329,7 +296,7 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
                 <div>
                   <div className="text-slate-500 font-medium">Refined Sugar Needed:</div>
                   <div className="text-lg font-mono font-black text-amber-900 mt-0.5">
-                    {totalSugarKg} kg <span className="text-xs text-amber-700 font-normal">(@ ₱{sugarPricePerKg}/kg)</span>
+                    {totalSugarKg} kg
                   </div>
                 </div>
                 <Scale className="w-6 h-6 text-amber-600 shrink-0" />
@@ -356,20 +323,6 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* Link to Profit Calculator */}
-            {onNavigateToProfit && (
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => onNavigateToProfit(fruitWeightKg, bottlesYielded)}
-                  className="w-full py-3 px-4 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-bold rounded-xl text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>💰 Calculate Farmgate vs Bottling Profit for these {bottlesYielded} Bottles</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
           </div>
 
           {/* DOST 5-Step Pasteurization Standard Protocol */}

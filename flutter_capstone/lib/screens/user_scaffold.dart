@@ -4,7 +4,6 @@ import '../theme/app_colors.dart';
 import 'dost_formulator_screen.dart';
 import 'history_screen.dart';
 import 'predict_screen.dart';
-import 'profit_calculator_screen.dart';
 
 class UserScaffold extends StatefulWidget {
   final AppUser currentUser;
@@ -29,7 +28,7 @@ class UserScaffold extends StatefulWidget {
 }
 
 class _UserScaffoldState extends State<UserScaffold> {
-  String _activeTab = 'predict'; // 'predict' | 'profit' | 'dost-recipe' | 'history'
+  String _activeTab = 'predict'; // 'predict' | 'dost-recipe' | 'history'
   double _sharedWeightKg = 10.0;
   double _sharedJuiceMl = 4120.0;
 
@@ -223,16 +222,6 @@ class _UserScaffoldState extends State<UserScaffold> {
                         ),
                         const SizedBox(width: 4),
                         _navTab(
-                          id: 'profit',
-                          icon: Icons.monetization_on_outlined,
-                          activeIconColor: AppColors.emerald600,
-                          label: 'Profit Calculator',
-                          tagText: isCompact ? null : 'Farmgate vs Bottled',
-                          tagBg: AppColors.emerald100,
-                          tagColor: AppColors.emerald800,
-                        ),
-                        const SizedBox(width: 4),
-                        _navTab(
                           id: 'dost-recipe',
                           icon: Icons.science_outlined,
                           activeIconColor: AppColors.teal600,
@@ -343,27 +332,10 @@ class _UserScaffoldState extends State<UserScaffold> {
 
   Widget _buildActiveUserTab() {
     switch (_activeTab) {
-      case 'profit':
-        return ProfitCalculatorScreen(
-          initialWeightKg: _sharedWeightKg,
-          initialJuiceMl: _sharedJuiceMl,
-          onNavigateToDost: (juiceMl) {
-            setState(() {
-              _sharedJuiceMl = juiceMl;
-              _activeTab = 'dost-recipe';
-            });
-          },
-        );
       case 'dost-recipe':
         return DostFormulatorScreen(
           initialJuiceMl: _sharedJuiceMl,
           initialWeightKg: _sharedWeightKg,
-          onNavigateToProfit: (weightKg, _) {
-            setState(() {
-              _sharedWeightKg = weightKg;
-              _activeTab = 'profit';
-            });
-          },
         );
       case 'history':
         return HistoryScreen(
@@ -378,13 +350,6 @@ class _UserScaffoldState extends State<UserScaffold> {
           currentUser: widget.currentUser,
           logs: widget.logs,
           onRefreshLogs: widget.onRefreshLogs,
-          onNavigateToProfit: (weightKg, juiceMl) {
-            setState(() {
-              _sharedWeightKg = weightKg;
-              _sharedJuiceMl = juiceMl;
-              _activeTab = 'profit';
-            });
-          },
           onNavigateToDost: (juiceMl, weightKg) {
             setState(() {
               _sharedJuiceMl = juiceMl;

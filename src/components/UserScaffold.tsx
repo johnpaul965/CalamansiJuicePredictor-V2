@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Zap, Clock, LogOut, Coins, FlaskConical } from 'lucide-react';
+import { Zap, Clock, LogOut, FlaskConical } from 'lucide-react';
 import { AppUser, PredictionLog } from '../types';
 import { PredictTab } from './PredictTab';
 import { HistoryTab } from './HistoryTab';
-import { ProfitCalculator } from './ProfitCalculator';
 import { DostSugarFormulator } from './DostSugarFormulator';
 
 interface UserScaffoldProps {
@@ -21,22 +20,11 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
   onClearLogs,
   onSignOut,
 }) => {
-  const [activeTab, setActiveTab] = useState<'predict' | 'profit' | 'dost-recipe' | 'history'>('predict');
+  const [activeTab, setActiveTab] = useState<'predict' | 'dost-recipe' | 'history'>('predict');
 
-  // Shared state between Yield Estimator, Profit Calculator, and DOST Formulator
+  // Shared state between Yield Estimator and DOST Formulator
   const [sharedWeightKg, setSharedWeightKg] = useState<number>(10);
   const [sharedJuiceMl, setSharedJuiceMl] = useState<number>(4120);
-
-  const handleNavigateToProfit = (weightKg?: number, bottles?: number) => {
-    if (weightKg !== undefined) setSharedWeightKg(weightKg);
-    setActiveTab('profit');
-  };
-
-  const handleNavigateToDost = (juiceMl?: number, weightKg?: number) => {
-    if (juiceMl !== undefined) setSharedJuiceMl(juiceMl);
-    if (weightKg !== undefined) setSharedWeightKg(weightKg);
-    setActiveTab('dost-recipe');
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -98,22 +86,6 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
 
           <button
             type="button"
-            onClick={() => setActiveTab('profit')}
-            className={`py-3.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 'profit'
-                ? 'border-emerald-700 text-emerald-800'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <Coins className={`w-4 h-4 ${activeTab === 'profit' ? 'text-emerald-600' : ''}`} />
-            <span>Money &amp; Profit Calculator</span>
-            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-extrabold hidden sm:inline">
-              Farmgate vs Bottled
-            </span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setActiveTab('dost-recipe')}
             className={`py-3.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
               activeTab === 'dost-recipe'
@@ -150,24 +122,9 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             currentUser={currentUser}
             logs={logs}
             onRefreshLogs={onRefreshLogs}
-            onNavigateToProfit={(weightKg, juiceMl) => {
-              if (weightKg !== undefined) setSharedWeightKg(weightKg);
-              if (juiceMl !== undefined) setSharedJuiceMl(juiceMl);
-              setActiveTab('profit');
-            }}
             onNavigateToDost={(juiceMl, weightKg) => {
               if (juiceMl !== undefined) setSharedJuiceMl(juiceMl);
               if (weightKg !== undefined) setSharedWeightKg(weightKg);
-              setActiveTab('dost-recipe');
-            }}
-          />
-        )}
-        {activeTab === 'profit' && (
-          <ProfitCalculator
-            initialWeightKg={sharedWeightKg}
-            initialJuiceMl={sharedJuiceMl}
-            onNavigateToDost={(juiceMl) => {
-              setSharedJuiceMl(juiceMl);
               setActiveTab('dost-recipe');
             }}
           />
@@ -176,10 +133,6 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
           <DostSugarFormulator
             initialJuiceMl={sharedJuiceMl}
             initialWeightKg={sharedWeightKg}
-            onNavigateToProfit={(weightKg, bottles) => {
-              setSharedWeightKg(weightKg);
-              setActiveTab('profit');
-            }}
           />
         )}
         {activeTab === 'history' && (

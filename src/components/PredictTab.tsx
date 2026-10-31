@@ -5,7 +5,6 @@ import {
   Award,
   PackageCheck,
   AlertCircle,
-  Coins,
   FlaskConical,
 } from 'lucide-react';
 import { AppUser, PredictionLog, PredictionResult } from '../types';
@@ -19,7 +18,6 @@ interface PredictTabProps {
   currentUser: AppUser;
   logs: PredictionLog[];
   onRefreshLogs: () => void;
-  onNavigateToProfit?: (weightKg?: number, juiceMl?: number) => void;
   onNavigateToDost?: (juiceMl?: number, weightKg?: number) => void;
 }
 
@@ -27,7 +25,6 @@ export const PredictTab: React.FC<PredictTabProps> = ({
   currentUser,
   logs,
   onRefreshLogs,
-  onNavigateToProfit,
   onNavigateToDost,
 }) => {
   const [unit, setUnit] = useState<'kg' | 'g'>('kg');
@@ -424,43 +421,11 @@ export const PredictTab: React.FC<PredictTabProps> = ({
             </div>
           </div>
 
-          {/* Farmgate Profit & DOST Formulator Action Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-4.5 flex flex-col justify-between space-y-3">
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-full">
-                    Farmgate vs. Bottled
-                  </span>
-                  <span className="text-xs font-mono font-bold text-emerald-700">
-                    +60% Net Profit
-                  </span>
-                </div>
-                <h4 className="font-extrabold text-slate-900 text-sm mt-2">
-                  Money &amp; Profit Calculator (Farmgate vs. Bottled)
-                </h4>
-                <p className="text-xs text-slate-600 mt-1">
-                  Compare selling this {unit === 'kg' ? `${weightValue} kg` : `${(parseFloat(weightValue) / 1000).toFixed(1)} kg`} raw calamansi to a middleman (₱350) vs. squeezing &amp; bottling (₱650) for +₱220 more profit.
-                </p>
-              </div>
-              {onNavigateToProfit && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const kg = unit === 'kg' ? parseFloat(weightValue) || 10 : (parseFloat(weightValue) || 10000) / 1000;
-                    onNavigateToProfit(kg, result.primaryTotalMl);
-                  }}
-                  className="w-full py-2.5 px-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                >
-                  <Coins className="w-4 h-4 text-amber-300" />
-                  <span>Calculate Profit for this Batch &rarr;</span>
-                </button>
-              )}
-            </div>
-
-            <div className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-4.5 flex flex-col justify-between space-y-3">
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-2">
+          {/* DOST Sugar Recipe Formulator Action Card */}
+          <div className="pt-2">
+            <div className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 bg-teal-100/90 px-2 py-0.5 rounded-full">
                     DOST-ITDI Concentrate
                   </span>
@@ -468,10 +433,10 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                     1 L : 1.5 kg Sugar
                   </span>
                 </div>
-                <h4 className="font-extrabold text-slate-900 text-sm mt-2">
+                <h4 className="font-extrabold text-slate-900 text-sm">
                   DOST Sugar Recipe Formulator (Concentrate)
                 </h4>
-                <p className="text-xs text-slate-600 mt-1">
+                <p className="text-xs text-slate-600">
                   Calamansi is too sour to drink pure. Formulate the exact sugar ratio to yield sweet concentrate with DOST-standard pasteurization.
                 </p>
               </div>
@@ -482,7 +447,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                     const kg = unit === 'kg' ? parseFloat(weightValue) || 10 : (parseFloat(weightValue) || 10000) / 1000;
                     onNavigateToDost(result.primaryTotalMl, kg);
                   }}
-                  className="w-full py-2.5 px-3.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  className="py-2.5 px-4 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs shrink-0"
                 >
                   <FlaskConical className="w-4 h-4 text-cyan-200" />
                   <span>Formulate DOST Sugar Recipe &rarr;</span>
