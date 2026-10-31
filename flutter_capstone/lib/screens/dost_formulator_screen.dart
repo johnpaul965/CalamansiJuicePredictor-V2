@@ -87,6 +87,7 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
     final effectiveJuiceLiters = _inputMode == 'calamansi'
         ? _calamansiWeightKg * 0.412
         : _pureJuiceLiters;
@@ -111,7 +112,7 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
           children: [
             // 1. HERO BANNER
             Container(
-              padding: const EdgeInsets.all(26),
+              padding: EdgeInsets.all(isCompact ? 20 : 26),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [
@@ -141,13 +142,13 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 11,
-                            vertical: 4,
+                            vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.teal500.withOpacity(0.2),
+                            color: AppColors.teal500.withOpacity(0.22),
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: AppColors.teal300.withOpacity(0.4),
+                              color: AppColors.teal300.withOpacity(0.45),
                             ),
                           ),
                           child: const Row(
@@ -159,97 +160,90 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                                 color: AppColors.amber300,
                               ),
                               SizedBox(width: 6),
-                              Text(
-                                'DOST-ITDI FOOD PROCESSING FORMULATION',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.teal300,
-                                  letterSpacing: 0.5,
+                              Flexible(
+                                child: Text(
+                                  'DOST-ITDI CONCENTRATE FORMULATION',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.teal200,
+                                    letterSpacing: 0.4,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 10),
-                        const Text(
+                        Text(
                           'DOST Sugar Recipe Formulator (Juice Concentrate)',
                           style: TextStyle(
-                            fontSize: 23,
+                            fontSize: isCompact ? 20 : 23,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
                             letterSpacing: -0.4,
+                            height: 1.22,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        RichText(
-                          text: const TextSpan(
-                            style: TextStyle(
-                              fontSize: 13.5,
-                              color: AppColors.teal100,
-                              height: 1.45,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "Answers the Panel's Practical Question: ",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.amber300,
-                                ),
-                              ),
-                              TextSpan(
-                                text:
-                                    '"What does the farmer actually do with the pure juice after extracting it?"',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          "Raw calamansi juice is naturally high in citric acid (5%–6%) with an aggressive pH of ~2.2. Drinking it pure is too sour and causes throat irritation. By compounding with DOST's 1:1.5 standard sugar ratio, the juice forms a 50°–55° Brix concentrate that naturally preserves for 6–12 months without chemical preservatives!",
+                        const Text(
+                          "Raw calamansi juice is naturally high in citric acid (5%–6%) with a low pH of ~2.2, making it too sour to drink pure. Compounding with DOST-ITDI's 1:1.5 standard sugar ratio yields a 50°–55° Brix concentrate that naturally preserves for 6–12 months without chemical preservatives.",
                           style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.teal200.withOpacity(0.85),
-                            height: 1.4,
+                            fontSize: 13,
+                            color: AppColors.teal100,
+                            height: 1.48,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: _handleLoadDostStandard,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.amber400,
-                          foregroundColor: AppColors.slate950,
-                          elevation: 1,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 13,
+                  SizedBox(
+                    width: isCompact ? double.infinity : null,
+                    child: Column(
+                      crossAxisAlignment: isCompact
+                          ? CrossAxisAlignment.stretch
+                          : CrossAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _handleLoadDostStandard,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.amber400,
+                            foregroundColor: AppColors.slate950,
+                            elevation: 1,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 13,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          icon: const Icon(
+                            Icons.science_outlined,
+                            size: 16,
+                            color: AppColors.slate950,
+                          ),
+                          label: const Text(
+                            'Load DOST Standard (1 L)',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ),
-                        child: const Text(
-                          '⭐ Load DOST Standard (1 L)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
+                        const SizedBox(height: 6),
+                        Text(
+                          '1 Liter Pure Juice ➔ 1.5 kg Sugar ➔ ~2 Liters',
+                          textAlign:
+                              isCompact ? TextAlign.center : TextAlign.start,
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.teal200,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        '1 Liter Pure Juice ➔ 1.5 kg Sugar ➔ ~2 Liters',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.teal300,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -258,7 +252,7 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
 
             // 2. DOST STANDARD FORMULATION CALLOUT
             Container(
-              padding: const EdgeInsets.all(18),
+              padding: EdgeInsets.all(isCompact ? 16 : 18),
               decoration: BoxDecoration(
                 color: AppColors.emerald50,
                 borderRadius: BorderRadius.circular(16),
@@ -275,13 +269,15 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                         color: AppColors.emerald700,
                       ),
                       SizedBox(width: 6),
-                      Text(
-                        'DOST-ITDI STANDARD FORMULATION:',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.emerald900,
-                          letterSpacing: 0.5,
+                      Flexible(
+                        child: Text(
+                          'DOST-ITDI STANDARD FORMULATION:',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.emerald900,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
                     ],
@@ -474,8 +470,9 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
       {'label': '500 mL', 'ml': 500, 'desc': 'Family Size'},
     ];
 
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
     return Container(
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(isCompact ? 18 : 22),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -499,12 +496,14 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                     color: AppColors.teal700,
                   ),
                   SizedBox(width: 8),
-                  Text(
-                    'Batch Formulation Inputs',
-                    style: TextStyle(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.slate900,
+                  Flexible(
+                    child: Text(
+                      'Batch Formulation Inputs',
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.slate900,
+                      ),
                     ),
                   ),
                 ],
@@ -533,19 +532,22 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'EXTRACTED PURE JUICE VOLUME',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.slate600,
+                const Flexible(
+                  child: Text(
+                    'EXTRACTED PURE JUICE VOLUME',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.slate600,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   '${NumberFormat('#,##0').format(_pureJuiceLiters * 1000)} mL',
                   style: const TextStyle(
                     fontSize: 11,
-                    color: AppColors.slate400,
+                    color: AppColors.slate500,
                   ),
                 ),
               ],
@@ -565,14 +567,17 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'HARVESTED CALAMANSI WEIGHT (KG)',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.slate600,
+                const Flexible(
+                  child: Text(
+                    'HARVESTED CALAMANSI WEIGHT (KG)',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.slate600,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   '~${(_calamansiWeightKg * 0.412).toStringAsFixed(2)} L juice est.',
                   style: const TextStyle(
@@ -597,7 +602,7 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
             const SizedBox(height: 4),
             const Text(
               'Calculated using calibrated 41.2% juice extraction density.',
-              style: TextStyle(fontSize: 11, color: AppColors.slate400),
+              style: TextStyle(fontSize: 11, color: AppColors.slate500),
             ),
           ],
           const SizedBox(height: 18),
@@ -639,21 +644,24 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: selected
-                                ? AppColors.teal950
-                                : AppColors.slate700,
+                        Flexible(
+                          child: Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: selected
+                                  ? AppColors.teal950
+                                  : AppColors.slate700,
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           note,
                           style: const TextStyle(
                             fontSize: 11,
-                            color: AppColors.slate400,
+                            color: AppColors.slate500,
                           ),
                         ),
                       ],
@@ -718,7 +726,7 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                               fontSize: 10,
                               color: selected
                                   ? AppColors.teal200
-                                  : AppColors.slate400,
+                                  : AppColors.slate500,
                             ),
                           ),
                         ],
@@ -735,19 +743,22 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'WHITE REFINED SUGAR PRICE',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.slate600,
+              Flexible(
+                child: Text(
+                  'WHITE REFINED SUGAR PRICE',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.slate600,
+                  ),
                 ),
               ),
+              SizedBox(width: 8),
               Text(
                 'Market rate',
                 style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.slate400,
+                  color: AppColors.slate500,
                 ),
               ),
             ],
@@ -882,12 +893,13 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
       },
     ];
 
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Main Recipe Card
         Container(
-          padding: const EdgeInsets.all(22),
+          padding: EdgeInsets.all(isCompact ? 18 : 22),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -986,28 +998,30 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Pure Calamansi Juice:',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.slate500,
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Pure Calamansi Juice:',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.slate500,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${effectiveJuiceLiters.toStringAsFixed(2)} Liters',
-                              style: const TextStyle(
-                                fontFamily: AppColors.monoFont,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.teal900,
+                              const SizedBox(height: 4),
+                              Text(
+                                '${effectiveJuiceLiters.toStringAsFixed(2)} Liters',
+                                style: const TextStyle(
+                                  fontFamily: AppColors.monoFont,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.teal900,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         const Icon(
                           Icons.water_drop_outlined,
@@ -1101,12 +1115,14 @@ class _DostFormulatorScreenState extends State<DostFormulatorScreen> {
                           color: AppColors.emerald700,
                         ),
                         SizedBox(width: 6),
-                        Text(
-                          'Customer Dilution & Serving Guide:',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.slate800,
+                        Flexible(
+                          child: Text(
+                            'Customer Dilution & Serving Guide:',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.slate800,
+                            ),
                           ),
                         ),
                       ],

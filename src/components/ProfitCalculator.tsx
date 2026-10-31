@@ -68,8 +68,8 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
   const netGain = +(bottledNetProfit - rawProfit).toFixed(2);
   const percentageGain = rawProfit > 0 ? +((netGain / rawProfit) * 100).toFixed(1) : 0;
 
-  // Load the panel's exact defense example
-  const handleLoadPanelExample = () => {
+  // Load standard 10 kg sample batch comparison
+  const handleLoadSampleBatch = () => {
     setBatchWeightKg(10);
     setFarmgatePricePerKg(35);
     setIsManualBottleCount(true);
@@ -77,56 +77,48 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
     setSellingPricePerBottle(65);
     setBottleCost(5); // 10 bottles * ₱5 = ₱50 packaging
     setSugarPricePerKg(20); // 1.5 kg * ₱20 = ₱30 sugar -> Total Cost = ₱80
-    // Gross: 10 * ₱65 = ₱650
-    // Cost: ₱80
-    // Net: ₱570
-    // Raw: 10 * ₱35 = ₱350
-    // Uplift: ₱570 - ₱350 = +₱220 (+62.9% / ~60%)
   };
 
   return (
     <div className="space-y-6 pb-12 max-w-5xl mx-auto">
-      {/* 1. WHY THIS WINS THE PANEL BANNER */}
-      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-sm border border-emerald-700/50 relative overflow-hidden">
+      {/* 1. PROFITABILITY HERO BANNER */}
+      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-700/50 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Thesis Defense High-Impact Feature</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[11px] font-extrabold uppercase tracking-wider">
+              <TrendingUp className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <span>Post-Harvest Profitability Analysis</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
               Money &amp; Profit Calculator (Farmgate vs. Bottled)
             </h2>
-            <p className="text-emerald-100/90 text-xs sm:text-sm leading-relaxed">
-              <strong className="text-amber-300">Answers the Panel&apos;s #1 Question:</strong>{' '}
-              <em>&ldquo;How does predicting calamansi yield actually help the farmer earn more money?&rdquo;</em>
-            </p>
-            <p className="text-emerald-200/75 text-xs">
-              Raw calamansi suffers severe seasonal middleman price slashing (down to ₱30–₱35/kg) and decays in 3–5 days.
-              Processing into sealed bottled concentrate turns fresh harvest into an ambient 6-month shelf-life product with high profit margins.
+            <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed">
+              Raw calamansi suffers seasonal middleman price drops (down to ₱30–₱35/kg) and decays within 3–5 days.
+              Processing fresh harvest into sealed bottled concentrate creates an ambient 6-month shelf-life product with higher farmer profit margins.
             </p>
           </div>
 
           <div className="shrink-0 flex flex-col gap-2">
             <button
               type="button"
-              onClick={handleLoadPanelExample}
+              onClick={handleLoadSampleBatch}
               className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>⭐ Load Panel Example (10 kg)</span>
+              <Coins className="w-4 h-4 text-slate-950 shrink-0" />
+              <span>Load Sample Batch (10 kg)</span>
             </button>
-            <span className="text-[11px] text-emerald-300 text-center">
+            <span className="text-[11px] text-emerald-200 font-medium text-center">
               10 kg raw @ ₱350 vs. 10 bottles @ ₱650
             </span>
           </div>
         </div>
       </div>
 
-      {/* 2. THE SIMPLE EXAMPLE CARD (EXACT DEFENSE SPECS) */}
+      {/* 2. SAMPLE 10 KG BATCH BREAKDOWN */}
       <div className="bg-amber-50/90 border border-amber-200/90 rounded-2xl p-5 text-slate-800">
         <div className="flex items-center gap-2 mb-2 font-black text-xs uppercase tracking-wider text-amber-900">
-          <CheckCircle2 className="w-4 h-4 text-amber-600" />
-          <span>Panel Quick Example Breakdown:</span>
+          <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>Sample 10 kg Batch Breakdown:</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs sm:text-sm">
           <div className="bg-white/90 p-3.5 rounded-xl border border-amber-200">
@@ -150,10 +142,10 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
       {/* 3. INTERACTIVE CALCULATOR INPUTS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Form: Parameters (5 Cols) */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
             <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-              <Coins className="w-4 h-4 text-emerald-700" />
+              <Coins className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>Harvest &amp; Market Parameters</span>
             </h3>
             <span className="text-[11px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">
@@ -169,7 +161,7 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
             <div className="flex flex-wrap gap-1.5">
               {[
                 { label: '5 kg', kg: 5, b: 5 },
-                { label: '10 kg (Thesis)', kg: 10, b: 10 },
+                { label: '10 kg', kg: 10, b: 10 },
                 { label: '25 kg (Half-Sack)', kg: 25, b: 25 },
                 { label: '50 kg (Full Sack)', kg: 50, b: 50 },
               ].map((p) => (
@@ -438,12 +430,12 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
                 <span>Value-Addition Cost Breakdown:</span>
                 <span className="font-mono text-slate-700">Total: ₱{totalProductionCost}</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <div className="flex justify-between bg-white p-2 rounded-lg border border-slate-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                <div className="flex justify-between gap-2 bg-white p-2 rounded-lg border border-slate-200">
                   <span>Bottles ({effectiveBottles} @ ₱{bottleCost}):</span>
                   <span className="font-mono font-bold text-slate-800">₱{totalPackagingCost}</span>
                 </div>
-                <div className="flex justify-between bg-white p-2 rounded-lg border border-slate-200">
+                <div className="flex justify-between gap-2 bg-white p-2 rounded-lg border border-slate-200">
                   <span>Sugar ({sugarRequiredKg} kg @ ₱{sugarPricePerKg}):</span>
                   <span className="font-mono font-bold text-slate-800">₱{totalSugarCost}</span>
                 </div>

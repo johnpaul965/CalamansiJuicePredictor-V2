@@ -156,6 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.sizeOf(context).width < 380;
     return Scaffold(
       backgroundColor: AppColors.slate50,
       body: SafeArea(
@@ -165,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 448),
               child: Container(
-                padding: const EdgeInsets.all(28),
+                padding: EdgeInsets.all(isCompact ? 20 : 28),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -201,14 +202,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 12),
 
                     // Headings
-                    const Text(
-                      'Calamansi Yield Predictor',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.slate900,
-                        letterSpacing: -0.4,
+                    const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Calamansi Yield Predictor',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.slate900,
+                          letterSpacing: -0.4,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -473,14 +477,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Expanded(
                           child: Divider(color: AppColors.slate200, height: 1),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
                             'DEMO ACCOUNTS',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.slate400,
+                              color: AppColors.slate500,
                               letterSpacing: 0.8,
                             ),
                           ),
@@ -506,6 +510,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
                                     Icons.eco_outlined,
@@ -523,22 +528,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ],
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: AppColors.slate200),
-                                ),
-                                child: const Text(
-                                  'farmer_juan / user123',
-                                  style: TextStyle(
-                                    fontFamily: AppColors.monoFont,
-                                    fontSize: 11,
-                                    color: AppColors.slate800,
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border:
+                                        Border.all(color: AppColors.slate200),
+                                  ),
+                                  child: const Text(
+                                    'farmer_juan / user123',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: AppColors.monoFont,
+                                      fontSize: 11,
+                                      color: AppColors.slate800,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -549,6 +559,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
                                     Icons.verified_user_outlined,
@@ -566,22 +577,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ],
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: AppColors.slate200),
-                                ),
-                                child: const Text(
-                                  'admin / admin123',
-                                  style: TextStyle(
-                                    fontFamily: AppColors.monoFont,
-                                    fontSize: 11,
-                                    color: AppColors.slate800,
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border:
+                                        Border.all(color: AppColors.slate200),
+                                  ),
+                                  child: const Text(
+                                    'admin / admin123',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: AppColors.monoFont,
+                                      fontSize: 11,
+                                      color: AppColors.slate800,
+                                    ),
                                   ),
                                 ),
                               ),

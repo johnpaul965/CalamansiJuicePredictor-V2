@@ -13,6 +13,7 @@ class ModelComparisonScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const modelsList = ThesisModels.all;
+    final isCompact = MediaQuery.sizeOf(context).width < 520;
 
     return Center(
       child: ConstrainedBox(
@@ -150,7 +151,7 @@ class ModelComparisonScreen extends StatelessWidget {
 
             // Header Hero Banner: Best-Performing Model
             Container(
-              padding: const EdgeInsets.all(28),
+              padding: EdgeInsets.all(isCompact ? 20 : 28),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [
@@ -161,16 +162,16 @@ class ModelComparisonScreen extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: AppColors.emerald700.withOpacity(0.45),
+                  color: AppColors.emerald700.withOpacity(0.5),
                 ),
               ),
               child: Wrap(
                 alignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 20,
-                runSpacing: 20,
+                runSpacing: 18,
                 children: [
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 620),
@@ -179,14 +180,14 @@ class ModelComparisonScreen extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
+                            horizontal: 11,
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.emerald500.withOpacity(0.2),
+                            color: AppColors.emerald500.withOpacity(0.22),
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: AppColors.emerald500.withOpacity(0.35),
+                              color: AppColors.emerald400.withOpacity(0.4),
                             ),
                           ),
                           child: const Row(
@@ -198,13 +199,15 @@ class ModelComparisonScreen extends StatelessWidget {
                                 color: AppColors.amber300,
                               ),
                               SizedBox(width: 6),
-                              Text(
-                                'BEST-PERFORMING MODEL (WEIGHT-GROUPED 5-FOLD CV)',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.emerald300,
-                                  letterSpacing: 0.5,
+                              Flexible(
+                                child: Text(
+                                  'BEST-PERFORMING MODEL • 5-FOLD CV',
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.emerald300,
+                                    letterSpacing: 0.4,
+                                  ),
                                 ),
                               ),
                             ],
@@ -213,35 +216,37 @@ class ModelComparisonScreen extends StatelessWidget {
                         const SizedBox(height: 10),
                         Text(
                           ThesisModels.primary.name,
-                          style: const TextStyle(
-                            fontSize: 26,
+                          style: TextStyle(
+                            fontSize: isCompact ? 22 : 26,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
                             letterSpacing: -0.4,
+                            height: 1.2,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         const Text(
                           'Evaluated using weight-grouped 5-fold cross-validation on ${ResearchMetadata.cleanSamples} verified clean calamansi samples with in-fold outlier cleaning and L2 Ridge regularization.',
                           style: TextStyle(
-                            fontSize: 13.5,
-                            color: AppColors.slate300,
-                            height: 1.45,
+                            fontSize: 13,
+                            color: AppColors.emerald100,
+                            height: 1.48,
                           ),
                         ),
                       ],
                     ),
                   ),
                   Container(
+                    width: isCompact ? double.infinity : null,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.emerald900.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.emerald900.withOpacity(0.65),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: AppColors.emerald500.withOpacity(0.5),
+                        color: AppColors.emerald500.withOpacity(0.55),
                       ),
                     ),
                     child: Column(
@@ -266,12 +271,15 @@ class ModelComparisonScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          'MAE = ${ThesisModels.primary.maeMl.toStringAsFixed(4)} mL • RMSE = ${ThesisModels.primary.rmseMl.toStringAsFixed(4)} mL',
-                          style: const TextStyle(
-                            fontFamily: AppColors.monoFont,
-                            fontSize: 11,
-                            color: AppColors.emerald200,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'MAE = ${ThesisModels.primary.maeMl.toStringAsFixed(4)} mL • RMSE = ${ThesisModels.primary.rmseMl.toStringAsFixed(4)} mL',
+                            style: const TextStyle(
+                              fontFamily: AppColors.monoFont,
+                              fontSize: 11.5,
+                              color: AppColors.emerald100,
+                            ),
                           ),
                         ),
                       ],
@@ -280,11 +288,11 @@ class ModelComparisonScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // 4 Models Comparative Table (Clean 5 columns: Regression Model | R² (%) | MAE | RMSE | MAPE)
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isCompact ? 18 : 24),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -580,7 +588,7 @@ class ModelComparisonScreen extends StatelessWidget {
 
             // Mathematical Regression Equations
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isCompact ? 18 : 24),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),

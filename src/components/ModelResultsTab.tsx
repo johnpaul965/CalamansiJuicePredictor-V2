@@ -37,12 +37,12 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
               <span className="hidden sm:inline">Back to Predictor</span>
             </button>
           )}
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                 Weight-Only Model Evaluation
               </span>
-              <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
                 Clean samples (N = {RESEARCH_METADATA.clean_samples})
               </span>
             </div>
@@ -52,25 +52,25 @@ export const ModelResultsTab: React.FC<ModelResultsTabProps> = ({ onBackToPredic
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+        <div className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 self-start sm:self-auto">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
           <span className="font-semibold">Leyte Normal University</span>
         </div>
       </div>
 
       {/* Header Hero Banner: Best-Performing Model */}
-      <section className="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm border border-emerald-700/40">
+      <section className="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white rounded-2xl p-5 sm:p-8 shadow-sm border border-emerald-700/40">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider mb-2">
-              <Award className="w-3.5 h-3.5 text-amber-300" />
-              <span>Best-Performing Model (Weight-Grouped 5-Fold CV)</span>
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-500/35 text-[11px] font-bold uppercase tracking-wider mb-2">
+              <Award className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <span>Best-Performing Model • 5-Fold CV</span>
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight">
               {THESIS_MODELS.primary.name}
             </h2>
-            <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-              Evaluated using weight-grouped 5-fold cross-validation on <code className="font-mono text-emerald-200">{RESEARCH_METADATA.clean_samples}</code> verified clean calamansi samples with in-fold outlier cleaning and L2 Ridge regularization.
+            <p className="text-emerald-100 text-xs sm:text-sm mt-1.5 max-w-2xl leading-relaxed">
+              Evaluated using weight-grouped 5-fold cross-validation on <code className="font-mono text-amber-200 font-bold">{RESEARCH_METADATA.clean_samples}</code> verified clean calamansi samples with in-fold outlier cleaning and L2 Ridge regularization.
             </p>
           </div>
 

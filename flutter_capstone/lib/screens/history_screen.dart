@@ -207,6 +207,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           l.user.toLowerCase().contains(q);
     }).toList();
 
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 896),
@@ -215,7 +216,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           children: [
             // Top Controls
             Container(
-              padding: const EdgeInsets.all(22),
+              padding: EdgeInsets.all(isCompact ? 18 : 22),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -242,13 +243,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 color: AppColors.emerald700,
                               ),
                               SizedBox(width: 8),
-                              Text(
-                                'Harvest Prediction History',
-                                style: TextStyle(
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.slate900,
-                                  letterSpacing: -0.3,
+                              Flexible(
+                                child: Text(
+                                  'Harvest Prediction History',
+                                  style: TextStyle(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.slate900,
+                                    letterSpacing: -0.3,
+                                  ),
                                 ),
                               ),
                             ],
@@ -535,7 +538,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                         style: const TextStyle(
                                           fontFamily: AppColors.monoFont,
                                           fontSize: 11,
-                                          color: AppColors.slate400,
+                                          color: AppColors.slate500,
                                         ),
                                       ),
                                       if (widget.currentUser.role ==
@@ -551,7 +554,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                           'User: ${item.user}',
                                           style: const TextStyle(
                                             fontSize: 11.5,
-                                            color: AppColors.slate400,
+                                            color: AppColors.slate500,
                                           ),
                                         ),
                                       ],
@@ -583,7 +586,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               style: const TextStyle(
                                 fontFamily: AppColors.monoFont,
                                 fontSize: 11,
-                                color: AppColors.slate400,
+                                color: AppColors.slate500,
                               ),
                             ),
                           ],

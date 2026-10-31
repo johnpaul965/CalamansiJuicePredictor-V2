@@ -143,6 +143,7 @@ class _PredictScreenState extends State<PredictScreen> {
         .take(8)
         .toList();
 
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
     final result = _result;
 
     return Column(
@@ -150,7 +151,7 @@ class _PredictScreenState extends State<PredictScreen> {
       children: [
         // 1. INPUT ESTIMATION CARD
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(isCompact ? 18 : 24),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -341,8 +342,8 @@ class _PredictScreenState extends State<PredictScreen> {
                       'Presets:',
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.slate400,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.slate500,
                       ),
                     ),
                   ),
@@ -446,7 +447,7 @@ class _PredictScreenState extends State<PredictScreen> {
         if (result != null) ...[
           const SizedBox(height: 24),
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isCompact ? 18 : 24),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -490,8 +491,8 @@ class _PredictScreenState extends State<PredictScreen> {
                               ),
                               child: Text(
                                 result.isSingleSample
-                                    ? 'Single-Sample Formula (W = ${result.repWeight.toStringAsFixed(0)}g)'
-                                    : 'Batch Scaling (W̄ = ${result.repWeight.toStringAsFixed(2)}g/sample)',
+                                    ? 'Single-Sample Formula (W = ${result.repWeight.toStringAsFixed(0)} g)'
+                                    : 'Batch Scaling (Mean = ${result.repWeight.toStringAsFixed(2)} g/fruit)',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -563,13 +564,15 @@ class _PredictScreenState extends State<PredictScreen> {
                             color: AppColors.emerald700,
                           ),
                           SizedBox(width: 6),
-                          Text(
-                            'COMMERCIAL BOTTLING & INVENTORY YIELDS',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.slate700,
-                              letterSpacing: 0.5,
+                          Expanded(
+                            child: Text(
+                              'COMMERCIAL BOTTLING & INVENTORY YIELDS',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.slate700,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
                         ],
@@ -650,40 +653,44 @@ class _PredictScreenState extends State<PredictScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.emerald100,
-                                      borderRadius: BorderRadius.circular(999),
-                                    ),
-                                    child: const Text(
-                                      'PANEL #1 QUESTION',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.emerald800,
-                                        letterSpacing: 0.5,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.emerald100,
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: const Text(
+                                          'FARMGATE VS. BOTTLED',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w900,
+                                            color: AppColors.emerald800,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const Text(
-                                    '+60% Net Profit',
-                                    style: TextStyle(
-                                      fontFamily: AppColors.monoFont,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.emerald700,
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      '+60% Net Profit',
+                                      style: TextStyle(
+                                        fontFamily: AppColors.monoFont,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.emerald700,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
                               const SizedBox(height: 10),
                               const Text(
                                 'Money & Profit Calculator (Farmgate vs. Bottled)',
@@ -759,40 +766,44 @@ class _PredictScreenState extends State<PredictScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.teal100,
-                                      borderRadius: BorderRadius.circular(999),
-                                    ),
-                                    child: const Text(
-                                      'PANEL PRACTICAL QUESTION',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.teal800,
-                                        letterSpacing: 0.5,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.teal100,
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: const Text(
+                                          'DOST-ITDI CONCENTRATE',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w900,
+                                            color: AppColors.teal800,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const Text(
-                                    '1 L : 1.5 kg Sugar',
-                                    style: TextStyle(
-                                      fontFamily: AppColors.monoFont,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.teal700,
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      '1 L : 1.5 kg Sugar',
+                                      style: TextStyle(
+                                        fontFamily: AppColors.monoFont,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.teal700,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
                               const SizedBox(height: 10),
                               const Text(
                                 'DOST Sugar Recipe Formulator (Concentrate)',
@@ -879,7 +890,7 @@ class _PredictScreenState extends State<PredictScreen> {
         // 3. RECENT BATCH HARVEST RECORDS
         const SizedBox(height: 24),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(isCompact ? 18 : 24),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -1279,50 +1290,56 @@ class _PredictScreenState extends State<PredictScreen> {
                       color: AppColors.emerald500.withOpacity(0.28),
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.workspace_premium,
-                          size: 14,
-                          color: AppColors.amber300,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          ThesisModels.primary.name.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.emerald200,
-                            letterSpacing: 0.5,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.workspace_premium,
+                            size: 14,
+                            color: AppColors.amber300,
                           ),
+                          const SizedBox(width: 5),
+                          Flexible(
+                            child: Text(
+                              ThesisModels.primary.name.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.emerald200,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${result.primaryTotalMl.toStringAsFixed(2)} mL',
+                        style: const TextStyle(
+                          fontFamily: AppColors.monoFont,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    '${result.primaryTotalMl.toStringAsFixed(2)} mL',
-                    style: const TextStyle(
-                      fontFamily: AppColors.monoFont,
-                      fontSize: 34,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
+                    const SizedBox(height: 4),
+                    Text(
+                      '~${(result.primaryTotalMl / 1000.0).toStringAsFixed(3)} Liters Pure Juice',
+                      style: const TextStyle(
+                        fontFamily: AppColors.monoFont,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.emerald200,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '~${(result.primaryTotalMl / 1000.0).toStringAsFixed(3)} Liters Pure Juice',
-                    style: const TextStyle(
-                      fontFamily: AppColors.monoFont,
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.emerald200,
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
@@ -1631,7 +1648,7 @@ class _PredictScreenState extends State<PredictScreen> {
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 11,
-              color: AppColors.slate400,
+              color: AppColors.slate500,
             ),
           ),
         ],

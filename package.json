@@ -5,11 +5,10 @@
   "type": "module",
   "scripts": {
     "train:model": "node scripts/train_model.mjs",
-    "predev": "npm run train:model",
     "dev": "vite --host 0.0.0.0 --port 3000",
     "prebuild": "npm run train:model",
     "build": "vite build",
-    "lint": "npm run build",
+    "lint": "vite build",
     "test:model": "node --test scripts/modelTraining.test.mjs",
     "preview": "vite preview --host 0.0.0.0 --port 3000"
   },

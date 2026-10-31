@@ -69,25 +69,20 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
 
   return (
     <div className="space-y-6 pb-12 max-w-5xl mx-auto">
-      {/* 1. WHY THIS WINS THE DEFENSE PANEL */}
-      <div className="bg-gradient-to-r from-teal-900 via-emerald-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-sm border border-teal-700/50 relative overflow-hidden">
+      {/* 1. DOST CONCENTRATE FORMULATION HERO */}
+      <div className="bg-gradient-to-r from-teal-900 via-emerald-950 to-slate-900 text-white rounded-3xl p-5 sm:p-7 shadow-sm border border-teal-700/50 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs font-extrabold uppercase tracking-wider">
-              <FlaskConical className="w-3.5 h-3.5 text-amber-300" />
-              <span>DOST-ITDI Food Processing Formulation</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-200 text-[11px] font-extrabold uppercase tracking-wider">
+              <FlaskConical className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <span>DOST-ITDI Concentrate Formulation</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
               DOST Sugar Recipe Formulator (Juice Concentrate)
             </h2>
-            <p className="text-teal-100/90 text-xs sm:text-sm leading-relaxed">
-              <strong className="text-amber-300">Answers the Panel&apos;s Practical Question:</strong>{' '}
-              <em>&ldquo;What does the farmer actually do with the pure juice after extracting it?&rdquo;</em>
-            </p>
-            <p className="text-teal-200/75 text-xs">
-              Raw calamansi juice is naturally high in citric acid (5%–6%) with an aggressive pH of ~2.2.
-              Drinking it pure is too sour and causes throat irritation. By compounding with DOST&apos;s 1:1.5 standard sugar ratio,
-              the juice forms a 50°–55° Brix concentrate that naturally preserves for 6–12 months without chemical preservatives!
+            <p className="text-teal-100 text-xs sm:text-sm leading-relaxed">
+              Raw calamansi juice is naturally high in citric acid (5%–6%) with a low pH of ~2.2, making it too sour to drink pure.
+              Compounding with DOST-ITDI&apos;s 1:1.5 standard sugar ratio yields a 50°–55° Brix concentrate that naturally preserves for 6–12 months without chemical preservatives.
             </p>
           </div>
 
@@ -97,19 +92,20 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
               onClick={handleLoadDostStandard}
               className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>⭐ Load DOST Standard (1 L)</span>
+              <FlaskConical className="w-4 h-4 text-slate-950 shrink-0" />
+              <span>Load DOST Standard (1 L)</span>
             </button>
-            <span className="text-[11px] text-teal-300 text-center">
+            <span className="text-[11px] text-teal-200 font-medium text-center">
               1 Liter Pure Juice ➔ 1.5 kg Sugar ➔ ~2 Liters
             </span>
           </div>
         </div>
       </div>
 
-      {/* 2. THE DOST SIMPLE EXAMPLE CALLOUT */}
+      {/* 2. DOST-ITDI STANDARD FORMULATION CALLOUT */}
       <div className="bg-emerald-50/90 border border-emerald-200/90 rounded-2xl p-5 text-slate-800">
         <div className="flex items-center gap-2 mb-2 font-black text-xs uppercase tracking-wider text-emerald-900">
-          <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+          <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
           <span>DOST-ITDI Standard Formulation:</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs sm:text-sm">
@@ -134,10 +130,10 @@ export const DostSugarFormulator: React.FC<DostSugarFormulatorProps> = ({
       {/* 3. INTERACTIVE FORMULATION CALCULATOR */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Form: Inputs (5 Cols) */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
             <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-              <Scale className="w-4 h-4 text-teal-700" />
+              <Scale className="w-4 h-4 text-teal-700 shrink-0" />
               <span>Batch Formulation Inputs</span>
             </h3>
             {/* Input Mode Toggle */}

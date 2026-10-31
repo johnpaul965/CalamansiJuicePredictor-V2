@@ -42,27 +42,28 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Flutter-style AppBar */}
       <header className="bg-emerald-800 text-white shadow-sm sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-2xl shadow-inner select-none">
+        <div className="max-w-6xl mx-auto px-3.5 sm:px-6 min-h-16 py-2.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl sm:text-2xl shadow-inner select-none shrink-0">
               🍋
             </div>
-            <div>
-              <div className="font-extrabold text-base sm:text-lg leading-tight tracking-tight">
+            <div className="min-w-0">
+              <div className="font-extrabold text-sm sm:text-lg leading-tight tracking-tight truncate">
                 Calamansi Yield Predictor
               </div>
-              <div className="text-[11px] text-emerald-200/90 font-medium">
-                Leyte Normal University • Tacloban City Study
+              <div className="text-[11px] text-emerald-100/90 font-medium truncate">
+                <span className="sm:hidden">Leyte Normal University</span>
+                <span className="hidden sm:inline">Leyte Normal University • Tacloban City Study</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-emerald-900/60 py-1.5 px-3 rounded-full border border-emerald-700/50">
-              <span className="bg-emerald-500 text-emerald-950 font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-emerald-900/60 py-1 px-2.5 sm:py-1.5 sm:px-3 rounded-full border border-emerald-700/50">
+              <span className="bg-emerald-500 text-emerald-950 font-extrabold text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-wider">
                 {currentUser.role}
               </span>
-              <span className="text-xs font-semibold text-white">
+              <span className="text-[11px] sm:text-xs font-semibold text-white max-w-[92px] sm:max-w-none truncate">
                 {currentUser.username}
               </span>
             </div>
@@ -70,7 +71,7 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             <button
               type="button"
               onClick={onSignOut}
-              className="p-2 text-emerald-200 hover:text-white hover:bg-emerald-700/60 rounded-xl transition cursor-pointer"
+              className="p-2 text-emerald-100 hover:text-white hover:bg-emerald-700/60 rounded-xl transition cursor-pointer shrink-0"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

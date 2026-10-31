@@ -124,7 +124,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
       <section className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
           <div>
-            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex flex-wrap items-center gap-2">
               <span>Calamansi Batch Yield Estimator</span>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                 Direct Weight Input
@@ -234,12 +234,12 @@ export const PredictTab: React.FC<PredictTabProps> = ({
         <section className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-7 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div>
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex flex-wrap items-center gap-2">
                 <span>Forecast Summary</span>
                 <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                   {result.isSingleFruit
-                    ? `Single-Sample Formula (W = ${result.repWeight}g)`
-                    : `Batch Scaling (W̄ = ${result.repWeight.toFixed(2)}g/sample)`}
+                    ? `Single-Sample Formula (W = ${result.repWeight} g)`
+                    : `Batch Scaling (Mean = ${result.repWeight.toFixed(2)} g/fruit)`}
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
@@ -311,7 +311,7 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 </div>
               </div>
 
-              <div className="pt-3 flex items-center justify-between text-xs text-emerald-200">
+              <div className="pt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-emerald-200">
                 <span>
                   Grouped 5-fold CV: R² = {THESIS_MODELS.primary.r2Percent.toFixed(2)}% • MAE = {THESIS_MODELS.primary.maeMl.toFixed(4)} mL
                 </span>
@@ -428,9 +428,9 @@ export const PredictTab: React.FC<PredictTabProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-4.5 flex flex-col justify-between space-y-3">
               <div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-full">
-                    Panel #1 Question
+                    Farmgate vs. Bottled
                   </span>
                   <span className="text-xs font-mono font-bold text-emerald-700">
                     +60% Net Profit
@@ -460,9 +460,9 @@ export const PredictTab: React.FC<PredictTabProps> = ({
 
             <div className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-4.5 flex flex-col justify-between space-y-3">
               <div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 bg-teal-100/90 px-2 py-0.5 rounded-full">
-                    Panel Practical Question
+                    DOST-ITDI Concentrate
                   </span>
                   <span className="text-xs font-mono font-bold text-teal-700">
                     1 L : 1.5 kg Sugar

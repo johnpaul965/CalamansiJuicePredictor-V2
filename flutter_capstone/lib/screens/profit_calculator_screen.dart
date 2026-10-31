@@ -85,7 +85,7 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
   double _round2(double v) => double.parse(v.toStringAsFixed(2));
   double _round1(double v) => double.parse(v.toStringAsFixed(1));
 
-  void _handleLoadPanelExample() {
+  void _handleLoadSampleBatch() {
     setState(() {
       _batchWeightKg = 10.0;
       _useLinkedJuice = false;
@@ -107,6 +107,7 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
     final estimatedJuiceLiters =
         (_useLinkedJuice && widget.initialJuiceMl != null &&
                 (_batchWeightKg - widget.initialWeightKg).abs() < 0.001)
@@ -141,7 +142,7 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
           children: [
             // 1. HERO BANNER
             Container(
-              padding: const EdgeInsets.all(26),
+              padding: EdgeInsets.all(isCompact ? 20 : 26),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [
@@ -171,124 +172,117 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 11,
-                            vertical: 4,
+                            vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.emerald500.withOpacity(0.2),
+                            color: AppColors.emerald500.withOpacity(0.22),
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: AppColors.emerald400.withOpacity(0.4),
+                              color: AppColors.emerald400.withOpacity(0.45),
                             ),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                Icons.auto_awesome,
+                                Icons.trending_up,
                                 size: 14,
                                 color: AppColors.amber300,
                               ),
                               SizedBox(width: 6),
-                              Text(
-                                'THESIS DEFENSE HIGH-IMPACT FEATURE',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.emerald300,
-                                  letterSpacing: 0.5,
+                              Flexible(
+                                child: Text(
+                                  'POST-HARVEST PROFITABILITY ANALYSIS',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.emerald200,
+                                    letterSpacing: 0.4,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 10),
-                        const Text(
+                        Text(
                           'Money & Profit Calculator (Farmgate vs. Bottled)',
                           style: TextStyle(
-                            fontSize: 23,
+                            fontSize: isCompact ? 20 : 23,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
                             letterSpacing: -0.4,
+                            height: 1.22,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        RichText(
-                          text: const TextSpan(
-                            style: TextStyle(
-                              fontSize: 13.5,
-                              color: AppColors.emerald100,
-                              height: 1.45,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "Answers the Panel's #1 Question: ",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.amber300,
-                                ),
-                              ),
-                              TextSpan(
-                                text:
-                                    '"How does predicting calamansi yield actually help the farmer earn more money?"',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Raw calamansi suffers severe seasonal middleman price slashing (down to ₱30–₱35/kg) and decays in 3–5 days. Processing into sealed bottled concentrate turns fresh harvest into an ambient 6-month shelf-life product with high profit margins.',
+                        const Text(
+                          'Raw calamansi suffers seasonal middleman price drops (down to ₱30–₱35/kg) and decays within 3–5 days. Processing fresh harvest into sealed bottled concentrate creates an ambient 6-month shelf-life product with higher farmer profit margins.',
                           style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.emerald200.withOpacity(0.85),
-                            height: 1.4,
+                            fontSize: 13,
+                            color: AppColors.emerald100,
+                            height: 1.48,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: _handleLoadPanelExample,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.amber400,
-                          foregroundColor: AppColors.slate950,
-                          elevation: 1,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 13,
+                  SizedBox(
+                    width: isCompact ? double.infinity : null,
+                    child: Column(
+                      crossAxisAlignment: isCompact
+                          ? CrossAxisAlignment.stretch
+                          : CrossAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _handleLoadSampleBatch,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.amber400,
+                            foregroundColor: AppColors.slate950,
+                            elevation: 1,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 13,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          icon: const Icon(
+                            Icons.monetization_on_outlined,
+                            size: 16,
+                            color: AppColors.slate950,
+                          ),
+                          label: const Text(
+                            'Load Sample Batch (10 kg)',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ),
-                        child: const Text(
-                          '⭐ Load Panel Example (10 kg)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
+                        const SizedBox(height: 6),
+                        Text(
+                          '10 kg raw @ ₱350 vs. 10 bottles @ ₱650',
+                          textAlign:
+                              isCompact ? TextAlign.center : TextAlign.start,
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.emerald200,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        '10 kg raw @ ₱350 vs. 10 bottles @ ₱650',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.emerald300,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // 2. PANEL QUICK EXAMPLE BREAKDOWN
+            // 2. SAMPLE 10 KG BATCH BREAKDOWN
             Container(
-              padding: const EdgeInsets.all(18),
+              padding: EdgeInsets.all(isCompact ? 16 : 18),
               decoration: BoxDecoration(
                 color: AppColors.amber50,
                 borderRadius: BorderRadius.circular(16),
@@ -305,13 +299,15 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                         color: AppColors.amber600,
                       ),
                       SizedBox(width: 6),
-                      Text(
-                        'PANEL QUICK EXAMPLE BREAKDOWN:',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.amber900,
-                          letterSpacing: 0.5,
+                      Flexible(
+                        child: Text(
+                          'SAMPLE 10 KG BATCH BREAKDOWN:',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.amber900,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
                     ],
@@ -498,15 +494,16 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
   }
 
   Widget _buildParametersCard(int effectiveBottles) {
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
     const presets = <Map<String, Object>>[
       {'label': '5 kg', 'kg': 5.0, 'b': 5},
-      {'label': '10 kg (Thesis)', 'kg': 10.0, 'b': 10},
+      {'label': '10 kg', 'kg': 10.0, 'b': 10},
       {'label': '25 kg (Half-Sack)', 'kg': 25.0, 'b': 25},
       {'label': '50 kg (Full Sack)', 'kg': 50.0, 'b': 50},
     ];
 
     return Container(
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(isCompact ? 18 : 22),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -515,10 +512,14 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               const Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.monetization_on_outlined,
@@ -526,12 +527,14 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                     color: AppColors.emerald700,
                   ),
                   SizedBox(width: 8),
-                  Text(
-                    'Harvest & Market Parameters',
-                    style: TextStyle(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.slate900,
+                  Flexible(
+                    child: Text(
+                      'Harvest & Market Parameters',
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.slate900,
+                      ),
                     ),
                   ),
                 ],
@@ -619,19 +622,22 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'CALAMANSI BATCH WEIGHT (KG)',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.slate600,
+              const Flexible(
+                child: Text(
+                  'CALAMANSI BATCH WEIGHT (KG)',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.slate600,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '${NumberFormat('#,##0').format(_batchWeightKg * 1000)} grams',
                 style: const TextStyle(
                   fontSize: 11,
-                  color: AppColors.slate400,
+                  color: AppColors.slate500,
                 ),
               ),
             ],
@@ -654,19 +660,22 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'MIDDLEMAN FARMGATE PRICE (₱ / KG)',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.slate600,
+              Flexible(
+                child: Text(
+                  'MIDDLEMAN FARMGATE PRICE (₱ / KG)',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.slate600,
+                  ),
                 ),
               ),
+              SizedBox(width: 8),
               Text(
                 'Raw calamansi rate',
                 style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.slate400,
+                  color: AppColors.slate500,
                 ),
               ),
             ],
@@ -691,14 +700,17 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'BOTTLES PRODUCED',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.slate600,
+              const Flexible(
+                child: Text(
+                  'BOTTLES PRODUCED',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.slate600,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () => setState(
                     () => _isManualBottleCount = !_isManualBottleCount),
@@ -736,14 +748,17 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Standard packaging yield:',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.slate600,
+                  const Flexible(
+                    child: Text(
+                      'Standard packaging yield:',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.slate600,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     '$effectiveBottles bottles',
                     style: const TextStyle(
@@ -911,6 +926,7 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
     required double netGain,
     required double percentageGain,
   }) {
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
     final gainSign = netGain >= 0 ? '+' : '';
     final pctSign = percentageGain >= 0 ? '+' : '';
 
@@ -919,7 +935,7 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
       children: [
         // Main Profit Difference Card
         Container(
-          padding: const EdgeInsets.all(22),
+          padding: EdgeInsets.all(isCompact ? 18 : 22),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -1270,14 +1286,17 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Value-Addition Cost Breakdown:',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.slate800,
+                        const Flexible(
+                          child: Text(
+                            'Value-Addition Cost Breakdown:',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.slate800,
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           'Total: ₱${_fmtMoney(totalProductionCost)}',
                           style: const TextStyle(
@@ -1476,14 +1495,17 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11.5,
-            fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
-            color: bold ? AppColors.slate800 : AppColors.slate600,
+        Flexible(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
+              color: bold ? AppColors.slate800 : AppColors.slate600,
+            ),
           ),
         ),
+        const SizedBox(width: 8),
         Text(
           val,
           style: TextStyle(

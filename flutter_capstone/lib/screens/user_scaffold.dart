@@ -35,130 +35,160 @@ class _UserScaffoldState extends State<UserScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isCompact = screenWidth < 460;
+
     return Scaffold(
       backgroundColor: AppColors.slate50,
       body: SafeArea(
         child: Column(
           children: [
-            // Top Emerald AppBar (matches UserScaffold.tsx header)
+            // Top Emerald AppBar — auto-scales title and adapts height cleanly
             Container(
               color: AppColors.emerald800,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              height: 64,
+              padding: EdgeInsets.symmetric(
+                horizontal: isCompact ? 12 : 16,
+                vertical: 10,
+              ),
+              constraints: const BoxConstraints(minHeight: 60),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1152),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      Container(
+                        width: isCompact ? 36 : 40,
+                        height: isCompact ? 36 : 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.14),
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '🍋',
+                          style: TextStyle(fontSize: isCompact ? 19 : 22),
+                        ),
+                      ),
+                      SizedBox(width: isCompact ? 10 : 12),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              alignment: Alignment.center,
-                              child: const Text(
-                                '🍋',
-                                style: TextStyle(fontSize: 22),
+                            const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Calamansi Yield Predictor',
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: -0.3,
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            const Flexible(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Calamansi Yield Predictor',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 16.5,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.white,
-                                      letterSpacing: -0.3,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Leyte Normal University • Tacloban City Study',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.emerald200,
-                                    ),
-                                  ),
-                                ],
+                            const SizedBox(height: 1),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                isCompact
+                                    ? 'Leyte Normal University'
+                                    : 'Leyte Normal University • Tacloban City Study',
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.emerald100,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.emerald900.withOpacity(0.65),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(
-                                color: AppColors.emerald700.withOpacity(0.6),
+                      const SizedBox(width: 8),
+                      Container(
+                        constraints: BoxConstraints(
+                          maxWidth: isCompact ? 118 : 180,
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isCompact ? 9 : 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.emerald900.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: AppColors.emerald700.withOpacity(0.7),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (!isCompact) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.emerald500,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  widget.currentUser.role.toUpperCase(),
+                                  style: const TextStyle(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.emerald950,
+                                    letterSpacing: 0.4,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 7),
+                            ] else ...[
+                              Container(
+                                width: 7,
+                                height: 7,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.emerald400,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            Flexible(
+                              child: Text(
+                                widget.currentUser.username,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 7,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.emerald500,
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Text(
-                                    widget.currentUser.role.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontSize: 9.5,
-                                      fontWeight: FontWeight.w900,
-                                      color: AppColors.emerald950,
-                                      letterSpacing: 0.4,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 7),
-                                Text(
-                                  widget.currentUser.username,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          IconButton(
-                            onPressed: widget.onSignOut,
-                            tooltip: 'Sign Out',
-                            icon: const Icon(
-                              Icons.logout_rounded,
-                              size: 19,
-                              color: AppColors.emerald200,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      IconButton(
+                        onPressed: widget.onSignOut,
+                        tooltip: 'Sign Out',
+                        visualDensity: VisualDensity.compact,
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                        padding: const EdgeInsets.all(6),
+                        icon: const Icon(
+                          Icons.logout_rounded,
+                          size: 19,
+                          color: AppColors.emerald100,
+                        ),
                       ),
                     ],
                   ),
@@ -166,7 +196,7 @@ class _UserScaffoldState extends State<UserScaffold> {
               ),
             ),
 
-            // Navigation Tabs Bar (matches UserScaffold.tsx nav)
+            // Navigation Tabs Bar
             Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -180,7 +210,9 @@ class _UserScaffoldState extends State<UserScaffold> {
                   constraints: const BoxConstraints(maxWidth: 1152),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isCompact ? 10 : 16,
+                    ),
                     child: Row(
                       children: [
                         _navTab(
@@ -189,27 +221,27 @@ class _UserScaffoldState extends State<UserScaffold> {
                           activeIconColor: AppColors.amber500,
                           label: 'Yield Estimator',
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 4),
                         _navTab(
                           id: 'profit',
                           icon: Icons.monetization_on_outlined,
                           activeIconColor: AppColors.emerald600,
-                          label: 'Money & Profit Calculator',
-                          tagText: 'Farmgate vs Bottled',
+                          label: 'Profit Calculator',
+                          tagText: isCompact ? null : 'Farmgate vs Bottled',
                           tagBg: AppColors.emerald100,
                           tagColor: AppColors.emerald800,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 4),
                         _navTab(
                           id: 'dost-recipe',
                           icon: Icons.science_outlined,
                           activeIconColor: AppColors.teal600,
                           label: 'DOST Sugar Recipe',
-                          tagText: 'Juice Concentrate',
+                          tagText: isCompact ? null : 'Juice Concentrate',
                           tagBg: AppColors.teal100,
                           tagColor: AppColors.teal800,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 4),
                         _navTab(
                           id: 'history',
                           icon: Icons.schedule,
@@ -226,7 +258,12 @@ class _UserScaffoldState extends State<UserScaffold> {
             // Main Content Area
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 36),
+                padding: EdgeInsets.fromLTRB(
+                  isCompact ? 12 : 16,
+                  16,
+                  isCompact ? 12 : 16,
+                  32,
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1024),

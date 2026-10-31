@@ -121,28 +121,29 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Admin AppBar */}
       <header className="bg-slate-900 text-white shadow-sm sticky top-0 z-30 border-b border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-xl shadow-inner select-none">
+        <div className="max-w-6xl mx-auto px-3.5 sm:px-6 min-h-16 py-2.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-lg sm:text-xl shadow-inner select-none shrink-0">
               🛡️
             </div>
-            <div>
-              <div className="font-extrabold text-base sm:text-lg leading-tight tracking-tight flex items-center gap-2">
-                <span>Calamansi Yield Engine</span>
-                <span className="text-[10px] bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <div className="min-w-0">
+              <div className="font-extrabold text-sm sm:text-lg leading-tight tracking-tight flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span className="truncate">Calamansi Yield Predictor</span>
+                <span className="hidden sm:inline-block text-[10px] bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Admin Console
                 </span>
               </div>
-              <div className="text-[11px] text-slate-400 font-medium">
-                Leyte Normal University • Tacloban City Study
+              <div className="text-[11px] text-emerald-300 sm:text-slate-300 font-medium truncate">
+                <span className="sm:hidden">Admin Console • Leyte Normal University</span>
+                <span className="hidden sm:inline">Leyte Normal University • Tacloban City Study</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-slate-800 py-1.5 px-3 rounded-full border border-slate-700">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-semibold text-slate-200">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-800 py-1 px-2.5 sm:py-1.5 sm:px-3 rounded-full border border-slate-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="text-[11px] sm:text-xs font-semibold text-slate-200 max-w-[84px] sm:max-w-none truncate">
                 {currentUser.username}
               </span>
             </div>
@@ -150,7 +151,7 @@ export const AdminScaffold: React.FC<AdminScaffoldProps> = ({
             <button
               type="button"
               onClick={onSignOut}
-              className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition cursor-pointer"
+              className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition cursor-pointer shrink-0"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

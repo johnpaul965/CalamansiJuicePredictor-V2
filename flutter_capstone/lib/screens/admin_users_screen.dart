@@ -643,152 +643,185 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isCompact = screenWidth < 460;
+
     return Scaffold(
       backgroundColor: AppColors.slate50,
       body: SafeArea(
         child: Column(
           children: [
-            // Admin AppBar (matches AdminScaffold.tsx header)
+            // Admin AppBar — auto-adjusts height and scales text without clipping
             Container(
               color: AppColors.slate900,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              height: 64,
+              padding: EdgeInsets.symmetric(
+                horizontal: isCompact ? 12 : 16,
+                vertical: 10,
+              ),
+              constraints: const BoxConstraints(minHeight: 60),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1152),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      Container(
+                        width: isCompact ? 36 : 40,
+                        height: isCompact ? 36 : 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.emerald600.withOpacity(0.22),
+                          borderRadius: BorderRadius.circular(11),
+                          border: Border.all(
+                            color: AppColors.emerald500.withOpacity(0.45),
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '🛡️',
+                          style: TextStyle(fontSize: isCompact ? 17 : 18),
+                        ),
+                      ),
+                      SizedBox(width: isCompact ? 10 : 12),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: AppColors.emerald600.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: AppColors.emerald500.withOpacity(0.4),
-                                ),
-                              ),
-                              alignment: Alignment.center,
-                              child: const Text(
-                                '🛡️',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Flexible(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    spacing: 8,
-                                    runSpacing: 2,
-                                    children: [
-                                      const Text(
-                                        'Calamansi Yield Engine',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white,
-                                          letterSpacing: -0.3,
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.emerald500
-                                              .withOpacity(0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(999),
-                                          border: Border.all(
-                                            color: AppColors.emerald500
-                                                .withOpacity(0.4),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'ADMIN CONSOLE',
-                                          style: TextStyle(
-                                            fontSize: 9.5,
-                                            fontWeight: FontWeight.w800,
-                                            color: AppColors.emerald300,
-                                            letterSpacing: 0.5,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                            if (isCompact)
+                              const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Calamansi Yield Predictor',
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    letterSpacing: -0.3,
                                   ),
-                                  const Text(
-                                    'Leyte Normal University • Tacloban City Study',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.slate400,
+                                ),
+                              )
+                            else
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Flexible(
+                                    child: Text(
+                                      'Calamansi Yield Predictor',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                        letterSpacing: -0.3,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          AppColors.emerald500.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(999),
+                                      border: Border.all(
+                                        color: AppColors.emerald500
+                                            .withOpacity(0.4),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'ADMIN CONSOLE',
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.emerald300,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
                                   ),
                                 ],
+                              ),
+                            const SizedBox(height: 2),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                isCompact
+                                    ? 'Admin Console • Leyte Normal University'
+                                    : 'Leyte Normal University • Tacloban City Study',
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: isCompact
+                                      ? AppColors.emerald300
+                                      : AppColors.slate300,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                      const SizedBox(width: 8),
+                      Container(
+                        constraints: BoxConstraints(
+                          maxWidth: isCompact ? 105 : 160,
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isCompact ? 10 : 12,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.slate800,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: AppColors.slate700),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: const BoxDecoration(
+                                color: AppColors.emerald400,
+                                shape: BoxShape.circle,
+                              ),
                             ),
-                            decoration: BoxDecoration(
-                              color: AppColors.slate800,
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: AppColors.slate700),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.emerald400,
-                                    shape: BoxShape.circle,
-                                  ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                widget.currentUser.username,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.slate100,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  widget.currentUser.username,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.slate200,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          IconButton(
-                            onPressed: widget.onSignOut,
-                            tooltip: 'Sign Out',
-                            icon: const Icon(
-                              Icons.logout_rounded,
-                              size: 19,
-                              color: AppColors.slate400,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      IconButton(
+                        onPressed: widget.onSignOut,
+                        tooltip: 'Sign Out',
+                        visualDensity: VisualDensity.compact,
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                        padding: const EdgeInsets.all(6),
+                        icon: const Icon(
+                          Icons.logout_rounded,
+                          size: 19,
+                          color: AppColors.slate300,
+                        ),
                       ),
                     ],
                   ),
@@ -810,7 +843,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   constraints: const BoxConstraints(maxWidth: 1152),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isCompact ? 10 : 16,
+                    ),
                     child: Row(
                       children: [
                         _adminNavTab(
@@ -819,14 +854,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           label: 'User Management',
                           countBadge: widget.users.length,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         _adminNavTab(
                           id: 'audit',
                           icon: Icons.table_chart_outlined,
                           label: 'Batch Audit Logs',
                           countBadge: widget.logs.length,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         _adminNavTab(
                           id: 'research',
                           icon: Icons.shield_outlined,
@@ -843,7 +878,12 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             // Main Content
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 36),
+                padding: EdgeInsets.fromLTRB(
+                  isCompact ? 12 : 16,
+                  16,
+                  isCompact ? 12 : 16,
+                  32,
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1024),
@@ -932,8 +972,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   }
 
   Widget _buildUsersTab() {
+    final isCompact = MediaQuery.sizeOf(context).width < 460;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isCompact ? 18 : 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1042,81 +1083,86 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             ),
                           ),
                           const SizedBox(width: 14),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 4,
-                                crossAxisAlignment: WrapCrossAlignment.center,
+                            Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Text(
+                                        u.username,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.slate900,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isAdmin
+                                              ? AppColors.emerald100
+                                              : AppColors.slate100,
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: Text(
+                                          u.role.toUpperCase(),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w800,
+                                            color: isAdmin
+                                                ? AppColors.emerald800
+                                                : AppColors.slate600,
+                                            letterSpacing: 0.4,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isSuspended
+                                              ? AppColors.red100
+                                              : AppColors.emerald50,
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: Text(
+                                          u.status,
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w700,
+                                            color: isSuspended
+                                                ? AppColors.red700
+                                                : AppColors.emerald700,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 3),
                                   Text(
-                                    u.username,
+                                    'Member since ${u.joined}',
                                     style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.slate900,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isAdmin
-                                          ? AppColors.emerald100
-                                          : AppColors.slate100,
-                                      borderRadius: BorderRadius.circular(999),
-                                    ),
-                                    child: Text(
-                                      u.role.toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        color: isAdmin
-                                            ? AppColors.emerald800
-                                            : AppColors.slate600,
-                                        letterSpacing: 0.4,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isSuspended
-                                          ? AppColors.red100
-                                          : AppColors.emerald50,
-                                      borderRadius: BorderRadius.circular(999),
-                                    ),
-                                    child: Text(
-                                      u.status,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        color: isSuspended
-                                            ? AppColors.red700
-                                            : AppColors.emerald700,
-                                      ),
+                                      fontSize: 11.5,
+                                      color: AppColors.slate500,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 3),
-                              Text(
-                                'Member since ${u.joined}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.slate400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -1206,8 +1252,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   }
 
   Widget _buildAuditTab() {
+    final isCompact = MediaQuery.sizeOf(context).width < 460;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isCompact ? 18 : 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

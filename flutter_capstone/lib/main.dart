@@ -29,6 +29,17 @@ class CalamansiYieldApp extends StatelessWidget {
           surface: Colors.white,
         ),
       ),
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        final currentScale = mediaQuery.textScaler.scale(1.0);
+        final clampedScale = currentScale.clamp(0.85, 1.12);
+        return MediaQuery(
+          data: mediaQuery.copyWith(
+            textScaler: TextScaler.linear(clampedScale),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       home: const AppRootController(),
     );
   }
@@ -198,61 +209,65 @@ class _AppRootControllerState extends State<AppRootController> {
         screen,
         if (_toastMessage != null)
           Positioned(
-            right: 20,
+            left: 16,
+            right: 16,
             bottom: 20,
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 360),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.slate900,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.slate700),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.slate950.withOpacity(0.25),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
+            child: Align(
+              alignment: Alignment.bottomRight,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 360),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
                     ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.check_circle_outline,
-                      size: 17,
-                      color: AppColors.emerald400,
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        _toastMessage!,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: AppColors.slate900,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.slate700),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.slate950.withOpacity(0.25),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () => setState(() => _toastMessage = null),
-                      child: const Icon(
-                        Icons.close,
-                        size: 16,
-                        color: AppColors.slate400,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.check_circle_outline,
+                          size: 17,
+                          color: AppColors.emerald400,
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            _toastMessage!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => setState(() => _toastMessage = null),
+                          child: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: AppColors.slate400,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
       ],
     );
   }
