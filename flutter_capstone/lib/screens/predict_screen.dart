@@ -108,12 +108,6 @@ class _PredictScreenState extends State<PredictScreen> {
     widget.onRefreshLogs();
   }
 
-  double _currentWeightKg() {
-    final parsed = double.tryParse(_weightController.text.trim()) ?? 5.0;
-    if (parsed <= 0) return 5.0;
-    return _unit == 'kg' ? parsed : parsed / 1000.0;
-  }
-
   @override
   Widget build(BuildContext context) {
     final quickPresets = _unit == 'kg'
