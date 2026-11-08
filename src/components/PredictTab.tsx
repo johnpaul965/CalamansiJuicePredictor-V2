@@ -5,7 +5,6 @@ import {
   Award,
   PackageCheck,
   AlertCircle,
-  FlaskConical,
 } from 'lucide-react';
 import { AppUser, PredictionLog, PredictionResult } from '../types';
 import {
@@ -18,7 +17,6 @@ interface PredictTabProps {
   currentUser: AppUser;
   logs: PredictionLog[];
   onRefreshLogs: () => void;
-  onNavigateToDost?: (juiceMl?: number, weightKg?: number) => void;
 }
 
 export const PredictTab: React.FC<PredictTabProps> = ({
@@ -418,41 +416,6 @@ export const PredictTab: React.FC<PredictTabProps> = ({
                 </div>
                 <div className="text-[11px] text-slate-400 mt-0.5">Pure juice catering volume</div>
               </div>
-            </div>
-          </div>
-
-          {/* DOST Sugar Recipe Formulator Action Card */}
-          <div className="pt-2">
-            <div className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 bg-teal-100/90 px-2 py-0.5 rounded-full">
-                    DOST-ITDI Concentrate
-                  </span>
-                  <span className="text-xs font-mono font-bold text-teal-700">
-                    1 L : 1.5 kg Sugar
-                  </span>
-                </div>
-                <h4 className="font-extrabold text-slate-900 text-sm">
-                  DOST Sugar Recipe Formulator (Concentrate)
-                </h4>
-                <p className="text-xs text-slate-600">
-                  Calamansi is too sour to drink pure. Formulate the exact sugar ratio to yield sweet concentrate with DOST-standard pasteurization.
-                </p>
-              </div>
-              {onNavigateToDost && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const kg = unit === 'kg' ? parseFloat(weightValue) || 10 : (parseFloat(weightValue) || 10000) / 1000;
-                    onNavigateToDost(result.primaryTotalMl, kg);
-                  }}
-                  className="py-2.5 px-4 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs shrink-0"
-                >
-                  <FlaskConical className="w-4 h-4 text-cyan-200" />
-                  <span>Formulate DOST Sugar Recipe &rarr;</span>
-                </button>
-              )}
             </div>
           </div>
         </section>

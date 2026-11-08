@@ -5,12 +5,18 @@ import tailwindcss from '@tailwindcss/vite';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  optimizeDeps: {
+    entries: ['index.html'],
+  },
   server: {
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
     hmr: false,
     allowedHosts: true,
+    watch: {
+      ignored: ['**/flutter_capstone/**', '**/scripts/**'],
+    },
   },
   preview: {
     host: '0.0.0.0',

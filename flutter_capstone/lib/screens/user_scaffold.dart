@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/prediction_result.dart';
 import '../theme/app_colors.dart';
-import 'dost_formulator_screen.dart';
 import 'history_screen.dart';
 import 'predict_screen.dart';
 
@@ -28,9 +27,7 @@ class UserScaffold extends StatefulWidget {
 }
 
 class _UserScaffoldState extends State<UserScaffold> {
-  String _activeTab = 'predict'; // 'predict' | 'dost-recipe' | 'history'
-  double _sharedWeightKg = 10.0;
-  double _sharedJuiceMl = 4120.0;
+  String _activeTab = 'predict'; // 'predict' | 'history'
 
   @override
   Widget build(BuildContext context) {
@@ -222,16 +219,6 @@ class _UserScaffoldState extends State<UserScaffold> {
                         ),
                         const SizedBox(width: 4),
                         _navTab(
-                          id: 'dost-recipe',
-                          icon: Icons.science_outlined,
-                          activeIconColor: AppColors.teal600,
-                          label: 'DOST Sugar Recipe',
-                          tagText: isCompact ? null : 'Juice Concentrate',
-                          tagBg: AppColors.teal100,
-                          tagColor: AppColors.teal800,
-                        ),
-                        const SizedBox(width: 4),
-                        _navTab(
                           id: 'history',
                           icon: Icons.schedule,
                           activeIconColor: AppColors.emerald800,
@@ -332,11 +319,6 @@ class _UserScaffoldState extends State<UserScaffold> {
 
   Widget _buildActiveUserTab() {
     switch (_activeTab) {
-      case 'dost-recipe':
-        return DostFormulatorScreen(
-          initialJuiceMl: _sharedJuiceMl,
-          initialWeightKg: _sharedWeightKg,
-        );
       case 'history':
         return HistoryScreen(
           currentUser: widget.currentUser,
@@ -350,13 +332,6 @@ class _UserScaffoldState extends State<UserScaffold> {
           currentUser: widget.currentUser,
           logs: widget.logs,
           onRefreshLogs: widget.onRefreshLogs,
-          onNavigateToDost: (juiceMl, weightKg) {
-            setState(() {
-              _sharedJuiceMl = juiceMl;
-              _sharedWeightKg = weightKg;
-              _activeTab = 'dost-recipe';
-            });
-          },
         );
     }
   }

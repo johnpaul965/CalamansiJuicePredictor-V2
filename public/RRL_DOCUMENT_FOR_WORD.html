@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FINAL RRL BEFORE AND AFTER</title>
+<style>
+  body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.6; color: #111; margin: 1in; }
+  h1 { font-family: Arial, sans-serif; font-size: 18pt; color: #1E3A8A; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; font-style: italic; color: #4B5563; font-size: 12pt; margin-bottom: 24px; }
+  .box { border: 1.5pt solid #2563EB; background: #F8FAFC; padding: 12px 16px; margin-bottom: 24px; border-radius: 4px; }
+  h2 { font-family: Arial, sans-serif; font-size: 14pt; color: #1E3A8A; border-bottom: 1pt solid #CBD5E1; padding-bottom: 4px; margin-top: 28px; }
+  h3 { font-family: Arial, sans-serif; font-size: 12pt; color: #0D9488; margin-top: 18px; margin-bottom: 6px; }
+  p { margin: 8px 0; text-align: justify; }
+  ul { margin: 8px 0 16px 24px; padding: 0; }
+  li { margin-bottom: 8px; }
+  .ref { padding-left: 36px; text-indent: -36px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<h1>REVIEW OF RELATED LITERATURE (RRL) REVISION</h1>
+<div class="subtitle">Comprehensive Before &amp; After Audit, Academic Justifications, and APA 7th References</div>
+
+<div class="box">
+  <strong>Capstone Project:</strong> Development of a Mobile Calamansi Juice Yield Prediction System Using Regressions | <em>Leyte Normal University (LNU)</em>
+</div>
+
+<h2>1. Executive Summary: What Was Fixed</h2>
+<ul>
+  <li><strong>Scope Kept Strictly on Regression Yield Prediction:</strong> In alignment with project objectives, the application focuses purely on juice yield estimation, 4-model performance comparison, and batch harvest logs. Extraneous post-processing recipe formulations have been completely removed from both the software system and the manuscript.</li>
+  <li><strong>Number of Regression Models:</strong> Corrected previous contradictory statements mentioning "three algorithms" and "Multiple Linear Regression". The study evaluates exactly 4 single-input weight regression models using 5-fold cross-validation: Simple Linear Regression (Baseline), Polynomial (d=2), Support Vector Regression (RBF Kernel), and Polynomial (d=2) + ln(W) with L2 Ridge Regularization (Champion Model).</li>
+  <li><strong>Multiple Linear Regression (MLR) Purged:</strong> Multiple Linear Regression was erroneously listed in Chapter 2 draft text even though the operational system takes solely one input variable (Weight in grams). All mentions of MLR were purged and replaced with Simple Linear Regression and Ridge Regression.</li>
+  <li><strong>L2 Ridge Regularization Backing Added:</strong> Previously absent from Chapter 2. Added theoretical literature citing Hoerl &amp; Kennard (1970) and Hastie et al. (2009) explaining how the L2 penalty suppresses severe multicollinearity between Weight, Weight squared, and the natural logarithm of Weight.</li>
+  <li><strong>Support Vector Regression (SVR) Backing Added:</strong> Added theoretical foundation citing Vapnik (1995) and Smola &amp; Schölkopf (2004) covering epsilon-insensitive loss, support vector collapse, and the Radial Basis Function (RBF) kernel.</li>
+  <li><strong>Natural Logarithm Biological Allometry (ln W):</strong> Added biological backing citing Huxley (1932) on relative growth and peel-to-pulp non-linear expansion in citrus fruits.</li>
+  <li><strong>Outlier Screening Statistical Justification:</strong> Provided peer-reviewed backing for the 2-stage cleaning: Stage 1 physiological cutoff (juice-to-weight ratio &le; 0.60) removing 8 recording typos; Stage 2 localized Z-score per gram bin (|Z| &le; 2.326, 99% confidence level) citing Barnett &amp; Lewis (1994) and Tabachnick &amp; Fidell (2019) removing 36 statistical anomalies, retaining 1,478 clean fruits (97.11%).</li>
+</ul>
+
+<h2>2. Ready-to-Paste Chapter 2 Text Sections</h2>
+
+<h3>2.1 Comparative Regression Frameworks for Citrus Yield Modeling</h3>
+<p>In agricultural yield estimation, regression algorithms provide the mathematical foundation for converting physical fruit metrics into volumetric output. This study implements and compares four distinct regression models:</p>
+<p><strong>1. Simple Linear Regression (SLR):</strong> Serving as the benchmark baseline, SLR models a direct proportional relationship between fruit mass (<em>W</em>) and juice yield (<em>Y</em>). While computationally lightweight, it assumes a constant extraction ratio across all fruit sizes, which overlooks non-linear fruit rind-to-pulp ratios (Montgomery et al., 2021).</p>
+<p><strong>2. Polynomial Regression (Degree 2):</strong> To capture curvature in juice yield, second-degree polynomial regression introduces a quadratic term (<em>W<sup>2</sup></em>). This accounts for the rate of change in internal juice sac volume as fruit mass expands, though unconstrained polynomial curves risk extreme extrapolation errors at outer weight boundaries (James et al., 2021).</p>
+<p><strong>3. Support Vector Regression (SVR with RBF Kernel):</strong> Developed by Vapnik (1995), SVR applies structural risk minimization using an &epsilon;-insensitive loss function, ignoring prediction errors smaller than &epsilon; = 0.1 mL. Paired with the Radial Basis Function (RBF) kernel, SVR maps non-linear fruit weight distributions into high-dimensional space without requiring an explicit mathematical curve, offering robust resistance to local data fluctuations (Smola &amp; Schölkopf, 2004; Awad &amp; Khanna, 2015).</p>
+<p><strong>4. Proposed Champion Model: Polynomial (d=2) + Natural Logarithm with L2 Ridge Regularization (&alpha; = 0.01):</strong> Combining quadratic expansion (<em>W, W<sup>2</sup></em>) with an allometric natural logarithmic term (<em>ln W</em>) allows the model to mirror true biological growth, where small fruits exhibit disproportionately thicker rinds relative to pulp volume (Huxley, 1932). To prevent multicollinearity and runaway variance between <em>W</em>, <em>W<sup>2</sup></em>, and <em>ln(W)</em>, L2 Ridge regularization introduces a shrinkage penalty (&alpha; &sum; &beta;<sub>j</sub><sup>2</sup>) that stabilizes coefficient weights (Hoerl &amp; Kennard, 1970; Hastie et al., 2009).</p>
+
+<h3>2.2 Rigorous Two-Stage Outlier Screening in Agricultural Datasets</h3>
+<p>Raw empirical datasets gathered under field or market conditions frequently contain human measurement errors and biological anomalies. Tabachnick and Fidell (2019) emphasize that uncurated outliers distort least-squares regression lines, resulting in biased slope estimates and deflated <em>R<sup>2</sup></em> values. To ensure dataset integrity without arbitrary trimming, this study established a two-stage screening protocol:</p>
+<p><strong>1. Physiological Feasibility Screening (Stage 1):</strong> Due to the physical presence of rind, pulp membranes, and seeds, the liquid juice recovery of mature calamansi never exceeds 50% to 55% of total fruit mass under natural conditions. Samples presenting an extraction ratio Juice (mL) / Weight (g) &gt; 0.60 violate biological limits and reflect manual scale-tare or graduated-cylinder transcription typos, justifying immediate removal.</p>
+<p><strong>2. Standardized Z-Score Screening per Gram Group (Stage 2):</strong> Because fruit juice variance naturally increases with mass (heteroscedasticity), global outlier cutoffs fail. Instead, observations are partitioned into 1-gram integer weight bins (2 g to 21 g). Within each bin, local mean (&mu;) and standard deviation (&sigma;) are calculated. Observations exceeding |<em>Z</em>| &gt; 2.326—corresponding to the 99% two-tailed confidence interval (&alpha; = 0.01)—are screened out as atypical specimens (Barnett &amp; Lewis, 1994). This objective method retained 97.11% of gathered data (<em>N</em> = 1,478) while purging true distortions.</p>
+
+<h2>3. Updated Bibliography (APA 7th Edition)</h2>
+<div class="ref">Awad, M., &amp; Khanna, R. (2015). <em>Efficient Learning Machines: Theories, Concepts, and Applications for Engineers and System Designers</em>. Apress. https://doi.org/10.1007/978-1-4302-5990-9</div>
+<div class="ref">Barnett, V., &amp; Lewis, T. (1994). <em>Outliers in Statistical Data</em> (3rd ed.). John Wiley &amp; Sons.</div>
+<div class="ref">Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). <em>The Elements of Statistical Learning: Data Mining, Inference, and Prediction</em> (2nd ed.). Springer. https://doi.org/10.1007/978-0-387-84858-7</div>
+<div class="ref">Hoerl, A. E., &amp; Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. <em>Technometrics</em>, 12(1), 55–67. https://doi.org/10.1080/00401706.1970.10488634</div>
+<div class="ref">Huxley, J. S. (1932). <em>Problems of Relative Growth</em>. Methuen &amp; Co.</div>
+<div class="ref">James, G., Witten, D., Hastie, T., &amp; Tibshirani, R. (2021). <em>An Introduction to Statistical Learning: with Applications in R</em> (2nd ed.). Springer. https://doi.org/10.1007/978-1-0716-1418-1</div>
+<div class="ref">Montgomery, D. C., Peck, E. A., &amp; Vining, G. G. (2021). <em>Introduction to Linear Regression Analysis</em> (6th ed.). John Wiley &amp; Sons.</div>
+<div class="ref">Smola, A. J., &amp; Schölkopf, B. (2004). A tutorial on support vector regression. <em>Statistics and Computing</em>, 14(3), 199–222. https://doi.org/10.1023/B:STCO.0000035301.49549.88</div>
+<div class="ref">Tabachnick, B. G., &amp; Fidell, L. S. (2019). <em>Using Multivariate Statistics</em> (7th ed.). Pearson.</div>
+<div class="ref">Vapnik, V. N. (1995). <em>The Nature of Statistical Learning Theory</em>. Springer-Verlag.</div>
+
+<h2>4. Objective 5 Canva Defense Slide Text</h2>
+<p><strong>Prediction Engine Performance:</strong><br>
+&bull; Response Time: 337.2 ms (Target: under 2.0 seconds — 83% faster than threshold)<br>
+&bull; Model Accuracy: R² = 82.28% | MAE = 0.4897 mL (~10 drops of juice) | RMSE = 0.6161 mL | MAPE = 10.06%<br>
+&bull; Baseline Improvement: 10.01% lower prediction error compared to Standard Linear Regression</p>
+
+<p><strong>Software Quality Testing:</strong><br>
+&bull; Alpha Testing (Developers): 12 / 12 test cases passed (100%)<br>
+&bull; Beta Testing (Technical Experts): 14 / 14 test cases passed (100%)<br>
+&bull; User Acceptance Testing (UAT): Overall Mean = 4.31 / 5.0 (Highly Acceptable)</p>
+
+<p><strong>Commercial Field Extraction Check (3 Batches):</strong><br>
+&bull; Machine Yield Recovery: 87.1% of manual model prediction<br>
+&bull; Variance: -12.9% difference due to commercial mechanical press losses (residual rind absorption &amp; seed expulsion vs. precision laboratory hand-press)</p>
+
+</body>
+</html>

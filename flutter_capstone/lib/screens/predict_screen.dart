@@ -8,14 +8,12 @@ class PredictScreen extends StatefulWidget {
   final AppUser currentUser;
   final List<PredictionLog> logs;
   final VoidCallback onRefreshLogs;
-  final void Function(double juiceMl, double weightKg)? onNavigateToDost;
 
   const PredictScreen({
     super.key,
     required this.currentUser,
     required this.logs,
     required this.onRefreshLogs,
-    this.onNavigateToDost,
   });
 
   @override
@@ -619,113 +617,6 @@ class _PredictScreenState extends State<PredictScreen> {
                           );
                         },
                       ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // DOST Sugar Recipe Formulator Action Card
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.teal50, AppColors.cyan50],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.teal200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.teal100,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: const Text(
-                                'DOST-ITDI CONCENTRATE',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.teal800,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            '1 L : 1.5 kg Sugar',
-                            style: TextStyle(
-                              fontFamily: AppColors.monoFont,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.teal700,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'DOST Sugar Recipe Formulator (Concentrate)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.slate900,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Calamansi is too sour to drink pure. Formulate the exact sugar ratio to yield sweet concentrate with DOST-standard pasteurization.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.slate600,
-                          height: 1.4,
-                        ),
-                      ),
-                      if (widget.onNavigateToDost != null) ...[
-                        const SizedBox(height: 14),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            widget.onNavigateToDost!(
-                              result.primaryTotalMl,
-                              _currentWeightKg(),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.teal700,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 11),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          icon: const Icon(
-                            Icons.science_outlined,
-                            size: 16,
-                            color: AppColors.cyan200,
-                          ),
-                          label: const Text(
-                            'Formulate DOST Sugar Recipe →',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),

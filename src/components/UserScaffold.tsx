@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Zap, Clock, LogOut, FlaskConical } from 'lucide-react';
+import { Zap, Clock, LogOut } from 'lucide-react';
 import { AppUser, PredictionLog } from '../types';
 import { PredictTab } from './PredictTab';
 import { HistoryTab } from './HistoryTab';
-import { DostSugarFormulator } from './DostSugarFormulator';
 
 interface UserScaffoldProps {
   currentUser: AppUser;
@@ -20,11 +19,7 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
   onClearLogs,
   onSignOut,
 }) => {
-  const [activeTab, setActiveTab] = useState<'predict' | 'dost-recipe' | 'history'>('predict');
-
-  // Shared state between Yield Estimator and DOST Formulator
-  const [sharedWeightKg, setSharedWeightKg] = useState<number>(10);
-  const [sharedJuiceMl, setSharedJuiceMl] = useState<number>(4120);
+  const [activeTab, setActiveTab] = useState<'predict' | 'history'>('predict');
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -86,22 +81,6 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
 
           <button
             type="button"
-            onClick={() => setActiveTab('dost-recipe')}
-            className={`py-3.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === 'dost-recipe'
-                ? 'border-emerald-700 text-emerald-800'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <FlaskConical className={`w-4 h-4 ${activeTab === 'dost-recipe' ? 'text-teal-600' : ''}`} />
-            <span>DOST Sugar Recipe</span>
-            <span className="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded-md font-extrabold hidden sm:inline">
-              Juice Concentrate
-            </span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setActiveTab('history')}
             className={`py-3.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
               activeTab === 'history'
@@ -122,17 +101,6 @@ export const UserScaffold: React.FC<UserScaffoldProps> = ({
             currentUser={currentUser}
             logs={logs}
             onRefreshLogs={onRefreshLogs}
-            onNavigateToDost={(juiceMl, weightKg) => {
-              if (juiceMl !== undefined) setSharedJuiceMl(juiceMl);
-              if (weightKg !== undefined) setSharedWeightKg(weightKg);
-              setActiveTab('dost-recipe');
-            }}
-          />
-        )}
-        {activeTab === 'dost-recipe' && (
-          <DostSugarFormulator
-            initialJuiceMl={sharedJuiceMl}
-            initialWeightKg={sharedWeightKg}
           />
         )}
         {activeTab === 'history' && (
